@@ -1,0 +1,53 @@
+main{
+  display: flex;
+}
+.sidebar{
+    margin: 10px auto;
+    text-align: center;
+    width: 20%;
+    font-size: 125%;
+    overflow-y: scroll;
+    height: 80vh;
+}
+.sidebar p{
+  display: flex;
+  padding: 0 40px;
+}
+.sidebar a{
+  background-color: whitesmoke;
+  padding: 10px;
+  flex: 1;
+}
+.statistic{
+  flex: 1 1 auto;
+  padding: 10px;
+}
+.statistic h1{
+  font-size: 200%;
+  font-weight: bolder;
+}
+.student{
+    display: flex;
+    justify-content: space-around;
+    font-size: 150%;
+}
+.exams{
+  background-color: whitesmoke;
+  border-radius: 10px;
+  padding: 0px 20px;
+  margin: 0px 30px;
+  overflow-y: scroll;
+  height: 60vh
+}
+.exams span{
+  display: flex;
+  padding: 0px 40px;
+  border-bottom: 1px solid gray;
+  justify-content: space-between;
+}
+.last-span{
+  border-bottom: none !important;
+}
+.first-span{
+  border-bottom: 2px solid black !important;
+}
