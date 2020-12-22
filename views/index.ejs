@@ -1,12 +1,13 @@
 <%- include("header", {
-  title: "BEAM Managment System",
-  stylefile: "home"
+  title: title,
+  stylefile: "home",
+  loggedin: loggedin,
 }) %>
   <main>
     <section class="uvod">
       <h1>Welcome to <strong>BEAM Managment System</strong></h1>
       <p>We are the way to do your <strong>managment of students</strong>. <br> You will know <strong>everything</strong> you need and do <strong>everything</strong> you want.</p>
-      <a href="/school"><strong>My School</strong></a>
+      <a href="/school"><strong><%= link %></strong></a>
     </section>
     <section class="qasection">
         <article>
