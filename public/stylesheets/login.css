@@ -13,6 +13,7 @@ form{
 }
 form h1{
   padding: 5%;
+  color: #66a;
   font-size: 150%;
 }
 form input, button{
