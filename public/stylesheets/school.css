@@ -8,6 +8,9 @@
   padding: 10px;
   margin: 50px auto;
   border-radius: 20px;
+}
+.details h1{
+  color: #ec990f;
   font-size: 200%;
 }
 .details span{
@@ -74,7 +77,7 @@ table td:hover{
 /* days  */
 .schedule p{
   margin: 0;
-  padding: 13.5px 0;
+  padding: 13px 0;
   border-bottom: 2px solid #45c
 }
 .mo{
