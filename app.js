@@ -8,21 +8,11 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-// include controllers form routes
-const indexRouter = require('./routes/index');
-const studentRouter = require('./routes/student');
-
 const app = express();
 
 // setuping
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-const connection = mysql.createConnection({
-	host     : process.env.DB_HOST,
-	user     : process.env.DB_USER,
-	password : process.env.DB_PS,
-	database : process.env.DB_NAME
-});
 
 // middleware
 app.use(session({
@@ -30,6 +20,8 @@ app.use(session({
 	resave: true,
 	saveUninitialized: true
 }));
+
+app.use('/logo-beamMS.svg', express.static('images/logo-beamMS.svg'));
 
 app.use(bodyParser.urlencoded({extended : true}));
 app.use(bodyParser.json());
@@ -41,39 +33,16 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // routes shower
-app.use('/', indexRouter);
-app.use('/student', studentRouter);
-app.post("/auth", (req, res) => {
-  if(req.session.loggedin){
-    res.redirect("/school");
-    return;
-  }
-  let username = req.body.uid;
-  let password = req.body.pwd;
-  if (username && password) {
-    connection.query(
-      'SELECT * FROM users WHERE email = ? AND pwd = ?',
-      [username, password], (error, result, fields) => {
-      if(result.length > 0){
-        req.session.loggedin = true;
-        req.session.usernam = username;
-        console.log(result);
-        res.redirect("/");
-      }else{
-        res.send("incorrect username of password");
-      }
-      return;
-    });
-  }else {
-    res.send("Password or username is empty");
-  }
-  return;
-})
+app.use('/', require('./routes/index'));
+// app.use('/root', require('./routes/root'));
+app.use('/teacher', require('./routes/teacher'));
+app.use('/student', require('./routes/student'));
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
   next(createError(404));
 });
+
 // error handler
 app.use((err, req, res, next) => {
   // set locals, only providing error in development
