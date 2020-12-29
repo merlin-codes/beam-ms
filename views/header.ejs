@@ -1,6 +1,6 @@
 <%
 navbar = []
-if(Number.isInteger(role) || role != 0){
+if(Number.isInteger(role) && role != 0){
   if(role == 1){
     navbar = [
       {name: "My school", link: "student"},
@@ -17,7 +17,7 @@ if(Number.isInteger(role) || role != 0){
     )
     if(role >= 3){
       navbar.push(
-        {name: "admin", link: "root/admin"},
+        {name: "admin", link: "root/"},
       )
     }
   }
