@@ -15,50 +15,6 @@ const connection = mysql.createConnection({
 	database : process.env.DB_NAME
 });
 
-const login = (req, res, username, password) => {
-  connection.query(
-    'SELECT * FROM users WHERE email = ?',
-    [username], (error, result, fields) => {
-			if(result === undefined){
-				res.redirect('/login')
-			}
-	    if(result.length > 0){
-	      result.forEach((item) => {
-	        if(bcrypt.compare(password, item.pwd, function(err, result) {return true})){
-	          req.session.role = item.role;
-	          req.session.loggedin = true;
-	          req.session.user_id = item.id;
-	          console.log(result);
-	          res.redirect("/school");
-	        }
-	      });
-	    }else{
-	      res.send("incorrect username of password");
-	    }
-  });
-
-  if (username && password) {
-    connection.query(
-      'SELECT * FROM users WHERE email = ? AND pwd = ?',
-      [username, password], (error, result, fields) => {
-      if(result.length > 0){
-				req.session.role = result[0].role;
-        req.session.loggedin = true;
-        req.session.usernam = username;
-        console.log(result);
-        res.redirect("/school");
-      }else{
-        res.send("incorrect username of password");
-      }
-    });
-		connection.end()
-		console.log(req.session.role);
-  }else {
-    res.send("Password or username is empty");
-  }
-  return;
-}
-
 /* GET home page. */
 router.get('/', (req, res, next) => {
   let link;
@@ -98,7 +54,7 @@ router.get('/login', (req, res) => {
     res.render('login', {
       title: "Login to BEAM",
       role: req.session.role
-    })
+    });
   }
 })
 
@@ -132,14 +88,13 @@ router.post("/newacc", (req, res) => {
       connection.query(
         `INSERT INTO users(name, pwd, email, role) VALUES (?, ?, ?, ? )`,
         [name, hash, uid, role], (error, result, fields) => {
-          console.log(error);
-          req.session.role = role;
+          req.session.id = role;
           req.session.loggedin = true;
           res.redirect("/school")
         }
       )
     });
-		login(req, res, uid, pwd)
+		login(req, uid, pwd)
   }else{
     res.redirect("/register?bad")
   }
@@ -148,11 +103,25 @@ router.post("/newacc", (req, res) => {
 router.post("/auth", (req, res) => {
   if(req.session.loggedin){
     res.redirect("/school");
-    return;
   }
-  let username = req.body.uid;
-  let password = req.body.pwd;
-	login(req, res, username, password)
+	connection.query(
+    'SELECT * FROM users WHERE email = ?',
+    [req.body.uid], (error, result, fields) => {
+			if (result.length > 0){
+				bcrypt.compare(req.body.pwd, result[0].pwd, (err, result2) => {
+			    if(!result2){
+						res.redirect("/");
+					}else{
+						req.session.role = result[0].role;
+						req.session.loggedin = true;
+						req.session.user_id = result[0].id;
+						res.redirect("/school");
+					}
+				});
+	    }else{
+				res.send("incorrect username of password, if is your password correct please contact our support.");
+	    }
+  });
 })
 
 router.get('/logout', (req, res) => {
