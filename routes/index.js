@@ -90,11 +90,11 @@ router.post("/newacc", (req, res) => {
         [name, hash, uid, role], (error, result, fields) => {
           req.session.id = role;
           req.session.loggedin = true;
+					req.session.user_id = result.insertId;
           res.redirect("/school")
         }
       )
     });
-		login(req, uid, pwd)
   }else{
     res.redirect("/register?bad")
   }
