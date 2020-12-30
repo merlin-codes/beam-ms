@@ -17,44 +17,64 @@ router.get('/', (req, res) => {
   res.redirect('/teacher/school')
 })
 router.get('/school', (req, res) => {
-  let role = req.session.role;
-  let id = req.session.id;
-  let lessons_time = [];
-  let classes = [];
+	if(!req.session.loggedin){
+		res.redirect("/login");
+	}
+  let id = req.session.user_id;
+
+	let lessons_time = [];
+
+	console.log(id);
   if(id <= 1){
     res.redirect('/student/school');
   }
-  connection.query(
+	connection.query(
     'SELECT * FROM `classes` WHERE `teacher`=?',
     [id], (error, result, fields) => {
-      if(error){
+      if(error !== null || result === undefined	){
         console.log(error);
       }
-      classes = result;
-			classes.forEach(clas => {
-		    let time = item.time;
-		    if(time.includes('.')){
-		      time = time.replace(' ', '').split('.');
-		    }else{
-		      time = [time]
-		    }
-		    time.forEach(item => {
-		      let timer = time.split('-');
-		      lessons_time.push({
-		        id_class: clas.id,
-		        name: clas.name,
-		        day: timer[0].toLowerCase(),
-		        time: Number(timer[1])
-		      });
-		    });
+			let classes = result;
+
+			classes.forEach(trida => {
+				let time_string = trida.time;
+				let times = [];
+				// ziska z tridy informaci o case a rozdeli ji do pole
+				// kdyz string obsahuje vrati cislo jinak vrati -1 a kod se nespusti
+				if(~time_string.indexOf(".")){
+					times = time_string.split(".");
+				}else{
+					times = [time_string];
+				}
+				times.forEach((time, index) => {
+					let timer = time.split("-");
+					lessons_time.push({
+						id_class: trida.id,
+						name: trida.name,
+						day: timer[0].toLowerCase(),
+						time: Number(timer[1]),
+					});
+				});
+			});
+			console.log(lessons_time);
+			res.render('school', {
+		    role: req.session.role,
+		    title: "BMS - My school",
+		    lessons_time: lessons_time
 		  });
-  });
-  connection.end();
-  res.render('school', {
-    role: role,
-    title: "BMS - My school",
-    lessons_time: lessons_time
-  });
+	  }
+	)
+})
+
+// redirect to index controller
+router.get('/login', (req, res)=>{
+  res.redirect("/login")
+})
+router.get('/logout', (req, res) => {
+  res.redirect('/logout')
+})
+router.get('/register', (req, res)=>{
+  res.redirect("/register")
 })
 
 module.exports = router;
