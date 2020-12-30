@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const session = require('express-session');
 const mysql = require('mysql');
+const bodyParser = require('body-parser');
 require('dotenv').config();
 
 // definitions
@@ -15,6 +16,36 @@ const connection = mysql.createConnection({
 // routes
 router.get('/', (req, res) => {
   res.redirect('/teacher/school')
+})
+
+router.post('/exams/:id/create', (req, res) => {
+	if(!req.session.loggedin){
+		res.redirect("/login");
+	}else if (Number(req.session.role) <= 1) {
+		res.redirect("/student");
+	}
+	let title = req.body.title;
+	let id = req.params.id;
+	let question = req.body.question;
+	let answer = req.body.answer;
+	let correct = req.body.correct;
+	let datetime = req.body.date+" "+req.body.time+":00";
+
+	if(id === "" || title === "" || question === "" || answer === "" ||correct === "" || datetime === ""){
+		res.redirect("/teacher/exams/"+id+"/new");
+	}else{
+		connection.query(
+			"INSERT INTO `tests`(`time`, `name`, `question`, `correct_answer`, `answer`, `id_class`) VALUES (?, ?, ?, ?, ?, ?)",
+			[datetime, title, question, correct, answer, id], (error, result, fields) => {
+				if (error) {
+		      return connection.rollback(function() {
+		        throw error;
+		      });
+		    }
+				res.redirect("/teacher/exams/"+id);
+			}
+		)
+	}
 })
 
 router.get('/exams', (req, res) => {
