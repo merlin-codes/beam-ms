@@ -16,6 +16,73 @@ const connection = mysql.createConnection({
 router.get('/', (req, res) => {
   res.redirect('/teacher/school')
 })
+
+router.get('/exams', (req, res) => {
+	if(!req.session.loggedin){
+		res.redirect("/login");
+	}else if (Number(req.session.role) <= 1) {
+		res.redirect("/student");
+	}else{
+		connection.query(
+			"SELECT `id`, `name` FROM `classes` WHERE `teacher`=?",
+			[req.session.user_id], (error, result, fields) => {
+				let classes = result;
+				if (error) {
+					console.log(error);
+					res.send("We got some problem");
+				}else if (classes !== []){
+					res.redirect("/teacher/exams/"+classes[0].id);
+				}else{
+					res.render('exams', {
+						role: req.session.role,
+						classes: [],
+						tests: []
+					});
+				}
+			}
+		)
+	}
+})
+
+router.get('/exams/:id/new', (req, res) => {
+	if(!req.session.loggedin){
+		res.redirect("/login");
+	}else if (Number(req.session.role) <= 1) {
+		res.redirect("/student");
+	}
+	res.render("new_exam", {
+		role: req.session.role,
+		class_id: req.params.id,
+	})
+})
+
+router.get('/exams/:id', (req, res) => {
+	// users that dont have level of 2++ or is not logged
+	if(!req.session.loggedin){
+		res.redirect("/login");
+	}else if (Number(req.session.role) <= 1) {
+		res.redirect("/student");
+	}
+	connection.query(
+		"SELECT `id`, `name` FROM `classes` WHERE `teacher`=?",
+		[req.session.user_id], (error, result, fields) => {
+			let classes = result;
+			connection.query(
+				"SELECT * FROM `tests` WHERE `id_class`=?",
+				[req.params.id], (error, result, fields) => {
+					let tests = result;
+					res.render('exams', {
+						class_id: req.params.id,
+						role: req.session.role,
+						classes: classes,
+						tests: tests
+					})
+				}
+			)
+		}
+	)
+})
+
 router.get('/school', (req, res) => {
 	if(!req.session.loggedin){
 		res.redirect("/login");
