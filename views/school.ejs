@@ -5,7 +5,6 @@
 });
 %><%
 let days = [
-  {name: "", low: "   "},
   {name: "Monday", low: "mo"},
   {name: "Tuesday", low: "tu"},
   {name: "Wensday", low: "we"},
@@ -40,18 +39,18 @@ let day_limit = 8;
               <% days.forEach(day => { %>
                 <tr class='<%= day.low %>'>
                   <%
-                  for(let x = 1; x <= day_limit+1; x++){
-                    let empty = true;
+                  for (let i = 1; i < day_limit+1; i++) {
+                    let there_is_nothing = true;
                     lessons_time.forEach(lesson => {
-                      if(day.low === lesson.day && lesson.time === x){
-                        let lesson_name = lesson.name.split('-');
-                        empty = false; %>
-                        <td><%= lesson_name[0] %></td>
-                      <% }
+                      if(day.low === lesson.day && lesson.time === i){
+                        let name = lesson.name.split("-");
+                        there_is_nothing = false;
+                        %><td><%= name[0] %></td><%
+                      }
                     });
-                    if(!empty){ %>
-                      <td></td>
-                    <%}
+                    if(there_is_nothing){
+                      %><td></td><%
+                    }
                   } %>
                 </tr>
               <% }); %>
