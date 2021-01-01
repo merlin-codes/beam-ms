@@ -17,13 +17,59 @@ const connection = mysql.createConnection({
 router.get('/', (req, res) => {
   res.redirect('/teacher/school')
 })
-
+router.get('/exams', (req, res) => {
+	if(!req.session.loggedin){
+		res.redirect("/login");
+		return;
+	}else if (Number(req.session.role) <= 1) {
+		res.redirect("/student");
+		return;
+	}else{
+		connection.query(
+			"SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?",
+			[req.session.user_id], (error, result, fields) => {
+				let classes = result;
+				if (error) {
+					console.log(error);
+					res.send("We got some problem");
+				}else if (classes !== []){
+					res.redirect("/teacher/exams/"+classes[0].id);
+				}else{
+					res.render('exams', {
+						class_id: req.params.id,
+						role: req.session.role,
+						classes: [],
+						tests: [],
+						selected_test: [],
+						students: []
+					});
+				}
+			}
+		)
+	}
+})
+router.get('/exams/:id/new', (req, res) => {
+	if(!req.session.loggedin){
+		res.redirect("/login");
+		return;
+	}else if (Number(req.session.role) <= 1) {
+		res.redirect("/student");
+		return;
+	}
+	res.render("new_exam", {
+		role: req.session.role,
+		class_id: req.params.id,
+	})
+})
 router.post('/exams/:id/create', (req, res) => {
 	if(!req.session.loggedin){
 		res.redirect("/login");
+		return;
 	}else if (Number(req.session.role) <= 1) {
 		res.redirect("/student");
+		return;
 	}
+
 	let title = req.body.title;
 	let id = req.params.id;
 	let question = req.body.question;
@@ -47,55 +93,17 @@ router.post('/exams/:id/create', (req, res) => {
 		)
 	}
 })
-
-router.get('/exams', (req, res) => {
-	if(!req.session.loggedin){
-		res.redirect("/login");
-	}else if (Number(req.session.role) <= 1) {
-		res.redirect("/student");
-	}else{
-		connection.query(
-			"SELECT `id`, `name` FROM `classes` WHERE `teacher`=?",
-			[req.session.user_id], (error, result, fields) => {
-				let classes = result;
-				if (error) {
-					console.log(error);
-					res.send("We got some problem");
-				}else if (classes !== []){
-					res.redirect("/teacher/exams/"+classes[0].id);
-				}else{
-					res.render('exams', {
-						role: req.session.role,
-						classes: [],
-						tests: []
-					});
-				}
-			}
-		)
-	}
-})
-
-router.get('/exams/:id/new', (req, res) => {
-	if(!req.session.loggedin){
-		res.redirect("/login");
-	}else if (Number(req.session.role) <= 1) {
-		res.redirect("/student");
-	}
-	res.render("new_exam", {
-		role: req.session.role,
-		class_id: req.params.id,
-	})
-})
-
 router.get('/exams/:id', (req, res) => {
 	// users that dont have level of 2++ or is not logged
 	if(!req.session.loggedin){
 		res.redirect("/login");
+		return;
 	}else if (Number(req.session.role) <= 1) {
 		res.redirect("/student");
+		return;
 	}
 	connection.query(
-		"SELECT `id`, `name` FROM `classes` WHERE `teacher`=?",
+		"SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?",
 		[req.session.user_id], (error, result, fields) => {
 			let classes = result;
 			connection.query(
@@ -106,28 +114,100 @@ router.get('/exams/:id', (req, res) => {
 						class_id: req.params.id,
 						role: req.session.role,
 						classes: classes,
-						tests: tests
+						tests: tests,
+						selected_test: [],
+						students: []
 					})
 				}
 			)
 		}
 	)
 })
-
-router.get('/school', (req, res) => {
+router.get('/exams/:id/:test', (req, res) => {
 	if(!req.session.loggedin){
 		res.redirect("/login");
+		return;
+	}else if (Number(req.session.role) <= 1) {
+		res.redirect("/student");
+		return;
+	}else{
+		connection.query(
+			"SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?",
+			[req.session.user_id], (error, result, fields) => {
+				let classes = result;
+				if(error){
+					console.log(error);
+				}else if (result.length > 0) {
+					connection.query(
+						"SELECT * FROM `tests` WHERE `id_class`=?",
+						[req.params.id], (error, result, fields) => {
+							tests = result;
+							let selected_test = [];
+							let endeslust = true;
+							tests.forEach((test, index) => {
+								if(test.id == req.params.test){
+									selected_test = test;
+									endeslust = false;
+								}
+								if(tests.length === index+1){
+									if(endeslust){
+										res.redirect("/teacher/exams/"+req.params.id);
+										return;
+									}else{
+										connection.query(
+											"SELECT * FROM `class_student` WHERE `id_class`=?",
+											[req.params.id],(error, result, fields) => {
+												let users = result;
+												let modify_users = [];
+												let counter = 0;
+												users.forEach((user, index)=>{
+													connection.query(
+														"SELECT `id`, `name`, `role` FROM `users` WHERE `id`=?",
+														[user.id_user],(error, result, fields) => {
+															modify_users.push({
+																id: result[0].id,
+																name: result[0].name
+															});
+															if(users.length === index+1){
+																res.render("exams", {
+																	class_id: req.params.id,
+																	role: req.session.role,
+																	classes: classes,
+																	tests: tests,
+																	students: modify_users,
+																	selected_test: selected_test
+																});
+															}
+														}
+													);
+												});
+											}
+										)
+									}
+								}
+							});
+						}
+					)
+				}else{
+					res.redirect("/exams");
+				}
+			}
+		)
 	}
-  let id = req.session.user_id;
-
+})
+router.get('/school', (req, res) => {
 	let lessons_time = [];
-
-	console.log(id);
+	let id = req.session.user_id;
+	if(!req.session.loggedin){
+		res.redirect("/login");
+		return;
+	}
   if(id <= 1){
     res.redirect('/student/school');
+		return;
   }
 	connection.query(
-    'SELECT * FROM `classes` WHERE `teacher`=?',
+    'SELECT * FROM `lessons` WHERE `teacher`=?',
     [id], (error, result, fields) => {
       if(error !== null || result === undefined	){
         console.log(error);
@@ -154,7 +234,6 @@ router.get('/school', (req, res) => {
 					});
 				});
 			});
-			console.log(lessons_time);
 			res.render('school', {
 		    role: req.session.role,
 		    title: "BMS - My school",
