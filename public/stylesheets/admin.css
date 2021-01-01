@@ -1,0 +1,157 @@
+/* main show */
+body{
+  max-height: 100%;
+}
+main{
+  margin: 0;
+  width: 98vw;
+  height: 82vh;
+  display: flex;
+  padding: 1vh 1vw;
+}
+section{
+  padding: 10px 20px;
+  box-shadow: inset 0px 0px 2px 2px white;
+}
+.show{
+  flex: 1 1 auto;
+  background-color: #99f;
+  border-radius: 0 20px 20px 0;
+}
+.edit{
+  flex: .4 1 auto;
+  background-color: #9f9;
+  border-radius: 20px 0 0 20px;
+}
+.shower{
+  overflow-y: scroll;
+  height: 60vh;
+}
+.edituser{
+  display: flex;
+  flex-direction: column;
+}
+/* first show */
+span{
+  display: flex;
+}
+span input{
+  flex: 1 1 auto;
+}
+form{
+  margin: 10px;
+}
+form button{
+  color: white;
+  font-weight: bold;
+  margin: 10px 0;
+  background-color: green;
+  border-radius: 10px;
+  padding: 10px;
+}
+.submiter{
+  display: flex;
+}
+.submiter button{
+  flex: 1 1 auto;
+}
+.massage{
+  border-top: 2.5px solid #cacaca;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+h1{
+  color: #666;
+  text-align: center;
+  text-shadow: 0px 0px 2px #fff;
+}
+textarea{
+  padding: 20px;
+  overflow:auto;
+  resize:none;
+  border: none;
+  width:92%;
+  box-shadow: inset 1px 1px 5px 5px #5c5;
+  border-radius: 15px;
+  background-color: #7e7;
+  color: #020;
+  font-weight: bold;
+  margin-bottom: 10px;
+  height:100px;
+}
+/* second show */
+input, select{
+  padding: 5px 10px;
+  overflow:auto;
+  resize:none;
+  border: none;
+  box-shadow: inset 1px 1px 5px 5px #5c5;
+  border-radius: 10px;
+  background-color: #7e7;
+  color: #020;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.origin input{
+  border-radius: 10px 0 0 10px;
+}
+.origin select{
+  border-radius: 0;
+}
+.navbar{
+  display: flex;
+}
+.navbar button{
+  flex: 1 1 auto;
+  padding: 5px;
+  margin: 5px;
+}
+.navbar{
+  display: flex;
+}
+.navbar a{
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 10px;
+  background-color: #12f;
+  border-radius: 20px 20px 0 0;
+  margin: 1px 5px;
+}
+.navbar a:hover{
+  animation: 5s changeHoverButton;
+}
+@keyframes changeHoverButton{
+  from{
+    background-color: #12f;
+  }
+  to{
+    background-color: #99f;
+  }
+}
+.shower{
+  display: flex;
+  flex-direction: column;
+}
+.showest span{
+  justify-content: space-between;
+  padding: 5px 20px;
+  border-top: 1px solid black;
+}
+.shower button{
+  display: flex;
+  justify-content: space-between;
+}
+.student_list{
+  display: flex;
+  flex-wrap: wrap;
+  overflow-y: scroll;
+  height: 30vh;
+  width: 120%;
+}
+.student-select{
+  width: 40vw
+}
+.student_list>* {
+  flex: 1 1 160px;
+}
