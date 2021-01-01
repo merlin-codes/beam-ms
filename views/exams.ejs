@@ -7,13 +7,16 @@
   <section class="sidebar">
     <h1>
       <select class="" name="">
-        <%
-          classes.forEach(trida => {
-            %><option onclick="window.location.href=`/teacher/exams/<%= trida.id %>`">
-              <%= trida.name %>
-            </option><%
-          })
-        %>
+        <% classes.forEach(trida => {
+          if(class_id === trida.id){%>
+           <option onclick="window.location.href=`/teacher/exams/<%= trida.id %>` selected">
+             <%= trida.name %>
+           </option>
+         <%}else {%>
+           <option onclick="window.location.href=`/teacher/exams/<%= trida.id %>`">
+             <%= trida.name %>
+           </option>
+         <%}}) %>
       </select>
     </h1>
     <% tests.forEach(test => {%>
@@ -21,10 +24,16 @@
     <%})%>
     <p><a href="/teacher/exams/<%= class_id %>/new">new exam</a></p>
   </section>
-  <section class="control">
+  <form class="control">
     <article class="avg">
       <span>
-        <h1>Test name</h1>
+        <h1>
+          <% if(selected_test.name !== undefined){%>
+            <%= selected_test.name %>
+          <%}else{%>
+            TEST name
+          <%} %>
+      </h1>
         <a href="">Open testing</a>
         <p>difficulty: normal</p>
       </span>
@@ -40,72 +49,19 @@
         <h3>name of student</h3>
         <p>mark</p>
       </span>
+      <% students.forEach((student) => {%>
       <span>
-        <p>name student</p>
-        <select class="" name="">
-          <option value="">N</option>
-          <option value="">1</option>
-          <option value="">2</option>
-          <option value="">3</option>
-          <option value="">4</option>
-          <option value="">5</option>
-        </select>
+          <p><%= student.name %></p>
+          <select name="marks[]">
+            <option value="<%= student.id %>_0">N</option>
+            <option value="<%= student.id %>_1">1</option>
+            <option value="<%= student.id %>_2">2</option>
+            <option value="<%= student.id %>_3">3</option>
+            <option value="<%= student.id %>_4">4</option>
+            <option value="<%= student.id %>_5">5</option>
+          </select>
       </span>
-      <span>
-        <p>name student</p>
-        <select class="" name="">
-          <option value="">N</option>
-          <option value="">1</option>
-          <option value="">2</option>
-          <option value="">3</option>
-          <option value="">4</option>
-          <option value="">5</option>
-        </select>
-      </span>
-      <span>
-        <p>name student</p>
-        <select class="" name="">
-          <option value="">N</option>
-          <option value="">1</option>
-          <option value="">2</option>
-          <option value="">3</option>
-          <option value="">4</option>
-          <option value="">5</option>
-        </select>
-      </span>
-      <span>
-        <p>name student</p>
-        <select class="" name="">
-          <option value="">N</option>
-          <option value="">1</option>
-          <option value="">2</option>
-          <option value="">3</option>
-          <option value="">4</option>
-          <option value="">5</option>
-        </select>
-      </span>
-      <span>
-        <p>name student</p>
-        <select class="" name="">
-          <option value="">N</option>
-          <option value="">1</option>
-          <option value="">2</option>
-          <option value="">3</option>
-          <option value="">4</option>
-          <option value="">5</option>
-        </select>
-      </span>
-      <span>
-        <p>name student</p>
-        <select class="" name="">
-          <option value="">N</option>
-          <option value="">1</option>
-          <option value="">2</option>
-          <option value="">3</option>
-          <option value="">4</option>
-          <option value="">5</option>
-        </select>
-      </span>
+      <% }) %>
     </article>
-  </section>
+  </form>
 </main>
