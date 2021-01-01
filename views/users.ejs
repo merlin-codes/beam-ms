@@ -1,0 +1,53 @@
+<%- include("header", {
+  title: "BMS - My School",
+  stylefile: "admin",
+  role: role
+}); %>
+    <main>
+      <section class="edit">
+        <article class="users">
+          <h1>User</h1>
+          <form class="edituser" action="/root/edituser" method="POST">
+            <input type="text" value="" name="name" placeholder="User name">
+            <input type="text" name="pwd" placeholder="Password is hashed">
+            <span class="origin">
+              <input type="text" value="" name="email" placeholder="Email">
+              <select class="" name="role">
+                <option value="student" >Student</option>
+                <option value="teacher" >Teacher</option>
+                <option value="principal" >Principal</option>
+              </select>
+            </span>
+            <span class="submiter">
+              <button type="button" name="button" onclick="window.location.href=`/root/users`">Cancel</button>
+              <button type="submit" name="button">Submit</button>
+            </span>
+          </form>
+        </article>
+        <form class="massage" method="POST">
+          <h1>Send global Messange</h1>
+          <textarea class="messagehit" name="msg" placeholder="Enter Massage"></textarea>
+          <button type="submit" name="button">Submit</button>
+        </form>
+      </section>
+      <section class="show">
+        <article class="navbar">
+          <a href="/root/users">users</a>
+          <a href="/root/lessons">lessons</a>
+          <a href="/root/classes">classes</a>
+        </article>
+        <article class="showest">
+          <span>
+            <h3>name</h3>
+            <h3>role</h3>
+          </span>
+          <div class="shower">
+            <% users.forEach(user => {%>
+              <button onclick="window.location.href=`/root/users/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
+            <%}) %>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>
