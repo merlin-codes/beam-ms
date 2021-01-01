@@ -1,6 +1,8 @@
 const express = require('express');
 const session = require('express-session');
 const mysql = require('mysql');
+const bodyParser = require('body-parser');
+require('dotenv').config();
 
 // definitions
 const router = express.Router();
