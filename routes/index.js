@@ -31,7 +31,9 @@ router.get('/', (req, res, next) => {
       link: link,
       role: role,
     })
-  }
+  }else{
+		res.redirect("/school")
+	}
 })
 
 router.get('/school', (req, res) => {
