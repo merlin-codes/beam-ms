@@ -38,15 +38,16 @@ router.get('/', (req, res, next) => {
 
 router.get('/school', (req, res) => {
 	let role = req.session.role;
-	if(!Number.isInteger()){
-		if(role >= 2){
+	if(Number.isInteger(role)){
+		if(Number(role) >= 2){
 			res.redirect("/teacher/school");
+			return;
 		}else{
 			res.redirect("/student/school");
+			return;
 		}
-  }else{
-    res.redirect("/");
   }
+	res.redirect("/login");
 })
 
 router.get('/login', (req, res) => {
@@ -105,19 +106,23 @@ router.post("/newacc", (req, res) => {
 router.post("/auth", (req, res) => {
   if(req.session.loggedin){
     res.redirect("/school");
+		return;
   }
 	connection.query(
     'SELECT * FROM users WHERE email = ?',
     [req.body.uid], (error, result, fields) => {
 			if (result.length > 0){
-				bcrypt.compare(req.body.pwd, result[0].pwd, (err, result2) => {
+				let user = result[0];
+				bcrypt.compare(req.body.pwd, user.pwd, (err, result2) => {
 			    if(!result2){
 						res.redirect("/");
+						return;
 					}else{
-						req.session.role = result[0].role;
+						req.session.role = user.role;
 						req.session.loggedin = true;
-						req.session.user_id = result[0].id;
+						req.session.user_id = user.id;
 						res.redirect("/school");
+						return;
 					}
 				});
 	    }else{

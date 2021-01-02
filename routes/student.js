@@ -15,70 +15,74 @@ const connection = mysql.createConnection({
 
 // routes
 router.get('/', (req, res) => {
-  res.redirect("/school");
+  res.redirect("/student/school");
 });
-
 router.get('/school', (req, res) => {
 	if(!req.session.loggedin){
-    res.redirect("/login");
-  }else{
-		let role = req.session.role;
-		let id = req.session.id;
+		res.redirect("/login");
+		return;
+	}else if (Number(req.session.role) >= 2) {
+		console.log("You are teacher");
+		res.redirect("/teacher");
+		return;
+	}
+	let lessons = [];
+	let lessons_time = [];
 
-		if(req.session.role != 1){
-			console.log("You are not student")
-			res.redirect("/teacher");
-		}else{
-			let classes = [];
-			let lessons_time = [];
-
-			connection.query(
-				'SELECT * FROM `class_student` WHERE `id_user`=?',
-				[id], (error, result, fields) => {
-					if(!result){
-						result.forEach(item => {
-							connection.query(
-								'SELECT * FROM `classes` WHERE `id`=?',
-								[item.id_class], (error, result, fields) => {
-									classes.push(result[0]);
-								}
-							);
-						});
-					}
-					classes.forEach( clas => {
-						let time = item.time;
-						if(time.includes('.')){
-							time = time.replace(' ', '').split('.');
-						}else{
+	// get all lessons where is student
+	connection.query("SELECT * FROM `user_lesson` WHERE `id_user`=?",
+	[req.session.user_id],(error, result, fields)=>{
+		if(error){
+			console.log(error);
+			res.send("something bad is going on. It this error showed you for lot of time send email to >> or just go ...");
+			return;
+		}
+		let lessons_id = result;
+		// res.send("user lesson working")
+		lessons_id.forEach((item, i) => {
+			// get lessons by lessons_id
+			connection.query("SELECT * FROM `lessons` WHERE `id`=?",[item.id_class],(error, result, fields)=>{
+				if(error){
+					console.log(error);
+				}
+				lessons.push(result[0]);
+				if(i+1 === lessons_id.length){
+					// now i have all lessons
+					lessons.forEach((clas, index) => {
+						let time = clas.time;
+						if (time.includes('.')) {
+							time = time.split('.');
+						} else {
 							time = [time];
 						}
-						time.forEach(item => {
-							let timer = time.split('-');
+						time.forEach((data, index2) => {
+							let timer = data.split('-');
 							lessons_time.push({
 								id_class: clas.id,
 								name: clas.name,
 								day: timer[0].toLowerCase(),
 								time: Number(timer[1])
 							});
+							if (index2+1 === time.length && lessons.length === index+1) {
+								res.render('school', {
+									role: req.session.role,
+									title: "BMS - My school",
+									lessons_time: lessons_time,
+								});
+								return;
+							}
 						});
 					});
-					connection.end();
-					res.render('school', {
-						role: role,
-						title: "BMS - My school",
-						lessons_time: lessons_time,
-					});
 				}
-			);
-		}
-	}
+			});
+		});
+	});
 });
-
 router.get('/marks', (req, res) => {
-	if(!req.session.loggedin){
+	if (!req.session.loggedin) {
     res.redirect("/login");
   }
-  if(Number(req.session.role)  === 1){
+  if (Number(req.session.role) === 1) {
     res.render('mark', {
       title: "BEAM - my schoool",
       role: req.session.role
