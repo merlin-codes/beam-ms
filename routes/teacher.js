@@ -155,7 +155,7 @@ router.get('/exams/:id/:test', (req, res) => {
 										return;
 									}else{
 										connection.query(
-											"SELECT * FROM `class_student` WHERE `id_class`=?",
+											"SELECT * FROM `user_lesson` WHERE `id_class`=?",
 											[req.params.id],(error, result, fields) => {
 												let users = result;
 												let modify_users = [];
