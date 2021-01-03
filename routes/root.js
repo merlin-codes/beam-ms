@@ -4,6 +4,7 @@ const session = require('express-session');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 require('dotenv').config();
+const bcrypt = require('bcrypt');
 
 // definitions
 const connection = mysql.createConnection({
@@ -23,9 +24,9 @@ router.get('/', (req, res)=>{
   }
   // level = false for user, true for lessons
   if(req.session.level){
-    res.redirect("lessons");
+    res.redirect("/root/lessons");
   }else{
-    res.redirect("users");
+    res.redirect("/root/users");
   }
 })
 router.get('/lessons', (req, res)=>{
@@ -149,9 +150,121 @@ router.get('/users', (req, res)=>{
       res.render("users", {
         role: req.session.role,
         users: users,
+				selected_user: []
       })
     }
   )
+})
+
+router.get('/user/:id', (req, res)=>{
+	if(!req.session.loggedin){
+		res.redirect("/login");
+		return;
+	}
+  if(req.session.user_id <= 2){
+    res.redirect('/student/school');
+		return;
+  }
+	connection.query("SELECT `id`, `name`,`role` FROM `users`",[],(error, result, fields)=>{
+		let users = result;
+		connection.query("SELECT * FROM `users` WHERE `id`=?",[req.params.id],(error, result, fields)=>{
+			let selected_user = result[0];
+			if (error) { console.log(error); }
+			else if (selected_user === []) {
+				res.redirect("/root/users");
+				return;
+			}
+			// send data to template
+			res.render('users', {
+        role: req.session.role,
+        users: users,
+				selected_user: selected_user
+			});
+		});
+	});
+})
+
+// edit users routes
+router.post('/edituser', (req, res)=>{
+	if(!req.session.loggedin){
+		res.redirect("/login");
+		return;
+	}
+	if(!req.session.role >= 3){
+		res.redirect("/school");
+		return;
+	}
+	let user = {
+		name: req.body.name,
+		pwd: req.body.pwd,
+		role: req.body.role,
+		email: req.body.email,
+	};
+	if(user.role === "teacher"){
+		user.role = 2;
+	}else if(user.role === "principal"){
+		user.role = 3;
+	}else if(user.role === "student"){
+		user.role = 1;
+	}
+
+	bcrypt.hash(user.pwd, 10, (err, hash)=>{
+		connection.query("INSERT INTO `users`(`name`, `pwd`, `email`, `role`) VALUES (?, ?, ?, ?)",
+		[user.name, hash, user.email, user.role], (error, result, fields)=>{
+			if(error){console.log(error);}
+			user = undefined;
+			res.redirect("/root/users");
+			return;
+		});
+	});
+})
+
+router.post('/edituser/:id', (req, res)=>{
+	console.log(req.params.id);
+	let id = req.params.id;
+	if(!req.session.loggedin){
+		res.redirect("/login");
+		return;
+	}
+	if(!req.session.role >= 3){
+		res.redirect("/school");
+		return;
+	}
+	let user = { name: req.body.name, pwd: req.body.pwd, role: req.body.role, email: req.body.email };
+	if(user.role === "teacher"){
+		user.role = 2;
+	}else if(user.role === "principal"){
+		user.role = 3;
+	}else if(user.role === "student"){
+		user.role = 1;
+	}
+	// hash password or not change password
+	if(user.pwd !== ""){
+		bcrypt.hash(user.pwd, 10, (err, hash)=>{
+			connection.query("UPDATE `users` SET `name`=?,`pwd`=?,`email`=?,`role`=? WHERE `id`=?",
+			[user.name, hash, user.email, user.role, id], (error, result, fields)=>{
+				if(error){console.log(error);}
+				res.redirect("/root/users");
+				return;
+			});
+		});
+	}else{
+		connection.query("UPDATE `users` SET `name`=?,`email`=?,`role`=? WHERE `id`=?",
+		[user.name, user.email, user.role, id], (error, result, fields)=>{
+			if(error){console.log(error);}
+			res.redirect("/root/");
+			return;
+		});
+	}
+})
+
+router.post('/messenge', (req, res)=>{
+	let msg = req.body.messange;
+	let id = req.session.user_id;
+	connection.query("INSERT INTO `msg`(`id_user`, `content`) VALUES (?, ?)",[id, msg],(error, result, fields)=>{
+		if(error){console.log(error);}
+		return;
+	})
 })
 
 // redirect to index controller
