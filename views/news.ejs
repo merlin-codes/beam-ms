@@ -7,8 +7,8 @@
       <% news_list.forEach(new_item => { %>
       <article>
         <span>
-          <p><%= new_item.when %></p>
-          <p><%= new_item.id_user %></p>
+          <p class="time"><%= new_item.when %></p>
+          <p class="author"><%= new_item.id_user %></p>
         </span>
         <p><%= new_item.content %></p>
       </article>
