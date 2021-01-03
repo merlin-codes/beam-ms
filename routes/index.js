@@ -103,6 +103,57 @@ router.post("/newacc", (req, res) => {
   }
 })
 
+router.get('/news', (req, res)=>{
+	if(!req.session.loggedin){
+		res.redirect("/");
+		return;
+	}
+	connection.query("SELECT * FROM `msg`",[],(error, result, fields)=>{
+		let msgs = result;
+		let msgs_complete = [];
+		msgs.forEach((msg, i) => {
+			connection.query("SELECT `id`, `name` FROM `users` WHERE `id`=?",[msg.id_user], (error, result, fields)=>{
+				msg.id_user = result[0].name;
+				let timeRealitive = Math.floor((new Date() - msg.when)/1000);
+				if(timeRealitive > 60){
+					timeRealitive = Math.floor(timeRealitive/60);
+					if(timeRealitive > 60){
+						timeRealitive = Math.floor(timeRealitive/60);
+						if(timeRealitive > 24){
+							timeRealitive = Math.floor(timeRealitive/24);
+							if(timeRealitive > 365){
+								timeRealitive = "Before "+timeRealitive+" years";
+							}else if(timeRealitive > 30){
+								timeRealitive = "Before "+timeRealitive+" months"
+							}else{
+								timeRealitive = "Before "+timeRealitive+" days";
+							}
+						}else{
+							timeRealitive = "Before "+timeRealitive+" hourse";
+						}
+					}else{
+						timeRealitive = "Before "+timeRealitive+" minutes";
+					}
+				}else{
+					timeRealitive = "Before "+timeRealitive+" seconds";
+				}
+				msgs_complete.push({
+					id_user: result[0].name,
+					content: msg.content,
+					when: timeRealitive
+				});
+				if(msgs.length === i+1){
+					res.render("news", {
+						role: req.session.role,
+						news_list: msgs_complete
+					});
+					return;
+				}
+			});
+		});
+	});
+})
+
 router.post("/auth", (req, res) => {
   if(req.session.loggedin){
     res.redirect("/school");
