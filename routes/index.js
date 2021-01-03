@@ -52,7 +52,7 @@ router.get('/school', (req, res) => {
 
 router.get('/login', (req, res) => {
   if(req.session.role > 0){
-    res.redirect("/school")
+    res.redirect("/school");
   }else{
     res.render('login', {
       title: "Login to BEAM",
@@ -63,11 +63,11 @@ router.get('/login', (req, res) => {
 
 router.get('/register', (req, res) => {
   if(req.session.loggedin){
-    res.redirect('/school')
+    res.redirect('/school');
   }else{
     res.render('register', {
       title: "Register new acc",
-    })
+    });
   }
 })
 
