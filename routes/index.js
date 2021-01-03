@@ -114,6 +114,7 @@ router.get('/news', (req, res)=>{
 		msgs.forEach((msg, i) => {
 			connection.query("SELECT `id`, `name` FROM `users` WHERE `id`=?",[msg.id_user], (error, result, fields)=>{
 				msg.id_user = result[0].name;
+				let noPush = false;
 				let timeRealitive = Math.floor((new Date() - msg.when)/1000);
 				if(timeRealitive > 60){
 					timeRealitive = Math.floor(timeRealitive/60);
@@ -122,14 +123,14 @@ router.get('/news', (req, res)=>{
 						if(timeRealitive > 24){
 							timeRealitive = Math.floor(timeRealitive/24);
 							if(timeRealitive > 365){
-								timeRealitive = "Before "+timeRealitive+" years";
+								noPush = true;
 							}else if(timeRealitive > 30){
 								timeRealitive = "Before "+timeRealitive+" months"
 							}else{
 								timeRealitive = "Before "+timeRealitive+" days";
 							}
 						}else{
-							timeRealitive = "Before "+timeRealitive+" hourse";
+							timeRealitive = "Before "+timeRealitive+" hours";
 						}
 					}else{
 						timeRealitive = "Before "+timeRealitive+" minutes";
@@ -137,11 +138,14 @@ router.get('/news', (req, res)=>{
 				}else{
 					timeRealitive = "Before "+timeRealitive+" seconds";
 				}
-				msgs_complete.push({
-					id_user: result[0].name,
-					content: msg.content,
-					when: timeRealitive
-				});
+				if(!noPush){
+					msgs_complete.push({
+						id: msg.id,
+						id_user: result[0].name,
+						content: msg.content,
+						when: timeRealitive
+					});
+				}
 				if(msgs.length === i+1){
 					res.render("news", {
 						role: req.session.role,
