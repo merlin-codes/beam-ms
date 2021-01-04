@@ -108,7 +108,7 @@ router.get('/news', (req, res)=>{
 		res.redirect("/");
 		return;
 	}
-	connection.query("SELECT * FROM `msg`",[],(error, result, fields)=>{
+	connection.query("SELECT * FROM `msg` LIMIT 20",[],(error, result, fields)=>{
 		let msgs = result;
 		let msgs_complete = [];
 		msgs.forEach((msg, i) => {
@@ -149,7 +149,7 @@ router.get('/news', (req, res)=>{
 				if(msgs.length === i+1){
 					res.render("news", {
 						role: req.session.role,
-						news_list: msgs_complete
+						news_list: msgs_complete.reverse()
 					});
 					return;
 				}
