@@ -259,12 +259,12 @@ router.post('/edituser/:id', (req, res)=>{
 })
 
 router.post('/messenge', (req, res)=>{
-	let msg = req.body.messange;
+	let msg = req.body.msg;
 	let id = req.session.user_id;
 	connection.query("INSERT INTO `msg`(`id_user`, `content`) VALUES (?, ?)",[id, msg],(error, result, fields)=>{
 		if(error){console.log(error);}
-		return;
-	})
+		res.redirect("/root")
+	});
 })
 
 // redirect to index controller
