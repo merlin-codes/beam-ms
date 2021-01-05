@@ -5,9 +5,6 @@ const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 
 const saltRounds = 10;
-// const myPlaintextPassword = 's0/\/\P4$$w0rD';
-// const someOtherPlaintextPassword = 'not_bacon';
-
 const connection = mysql.createConnection({
 	host     : process.env.DB_HOST,
 	user     : process.env.DB_USER,
@@ -15,62 +12,105 @@ const connection = mysql.createConnection({
 	database : process.env.DB_NAME
 });
 
-/* GET home page. */
-router.get('/', (req, res, next) => {
-  let link;
-  let role = req.session.role;
-  if(!Number.isInteger(role)){
-    if (role > 0) {
-      link = "My School";
-      isLogged = true;
-    } else {
-      link = "Join us";
-    }
-    res.render('index', {
-      title: 'BEAM-ms',
-      link: link,
-      role: role,
-    })
-  }else{
-		res.redirect("/school")
+// functions
+const basicDefence = (role, who) => {
+	if(Number.isInteger(role)){
+		if(role === who || who === 10){
+			return;
+		}else{
+			return false;
+		}
+	}else{
+		return "/login";
+	}
+}
+const getRealativeDate = (getDate) => {
+	date = Math.floor((new Date()-getDate)/1000);
+	let timers = [
+			{time: "second", max: 60},
+			{time: "minute", max: 60},
+			{time: "hour", max: 24},
+			{time: "day", max: 365}
+		];
+	let before = "Before";
+	for (var i = 0; i < timers.length; i++) {
+		let more = "";
+		if(date > timers[i].max){
+			date = Math.floor(date/timers[i].max);
+			if(i === timers.length-1){
+				return false;
+			}
+		}else{
+			if(!(date < 2)){more = "s";}
+			return `${before} ${date} ${timers[i].time+more}`;
+		}
+	}
+}
+
+// Basic pages
+router.get('/', (req, res) => {
+	let link = "";
+	if(req.session.loggedin){
+		link = "My School";
+	}else{
+		link = "Join us";
+	}
+	res.render('index', {
+		title: "BEAM - MS",
+		link: link,
+		role: req.session.role
+	})
+});
+router.get('/school', (req, res) => {
+	let role = req.session.role;
+	let defence =  basicDefence(role, 1);
+	if(defence){
+		res.redirect(defence);
+	}else if(req.session.loggedin){
+		let redirect_link = ""
+		if(Number(role) >= 2){
+			redirect_link = "teacher";
+		}else{
+			redirect_link = "student";
+		}
+		res.redirect(`/${redirect_link}/school`)
+  }
+});
+router.get('/news', (req, res) => {
+	let defence = basicDefence(req.session.role, 10);
+	if(defence){
+		res.redirect(defence);
+	}else{
+		connection.query("SELECT * FROM `msg` LIMIT 20",[],
+		(error, result, fields) => {
+			let msgs = result;
+			let msgs_complete = [];
+			msgs.forEach((msg, i) => {
+				connection.query("SELECT `id`, `name` FROM `users` WHERE `id`=?",[msg.id_user],
+				(error, result, fields)=>{
+					msg.id_user = result[0].name;
+					let timeRealitive = getRealativeDate(msg.when);
+					if(timeRealitive){
+						msgs_complete.push({
+							id: msg.id,
+							id_user: result[0].name,
+							content: msg.content,
+							when: timeRealitive
+						});
+					}
+					if(msgs.length === i+1){
+						res.render("news", {
+							role: req.session.role,
+							news_list: msgs_complete.reverse()
+						});
+					}
+				});
+			});
+		});
 	}
 })
 
-router.get('/school', (req, res) => {
-	let role = req.session.role;
-	if(Number.isInteger(role)){
-		if(Number(role) >= 2){
-			res.redirect("/teacher/school");
-			return;
-		}else{
-			res.redirect("/student/school");
-			return;
-		}
-  }
-	res.redirect("/login");
-})
-
-router.get('/login', (req, res) => {
-  if(req.session.role > 0){
-    res.redirect("/school");
-  }else{
-    res.render('login', {
-      title: "Login to BEAM",
-      role: req.session.role
-    });
-  }
-})
-
-router.get('/register', (req, res) => {
-  if(req.session.loggedin){
-    res.redirect('/school');
-  }else{
-    res.render('register', {
-      title: "Register new acc",
-    });
-  }
-})
-
+// Backend Request Global
 router.post("/newacc", (req, res) => {
   if(req.session.loggedin){
     res.redirect("/school");
@@ -102,62 +142,6 @@ router.post("/newacc", (req, res) => {
     res.redirect("/register?bad")
   }
 })
-
-router.get('/news', (req, res)=>{
-	if(!req.session.loggedin){
-		res.redirect("/");
-		return;
-	}
-	connection.query("SELECT * FROM `msg` LIMIT 20",[],(error, result, fields)=>{
-		let msgs = result;
-		let msgs_complete = [];
-		msgs.forEach((msg, i) => {
-			connection.query("SELECT `id`, `name` FROM `users` WHERE `id`=?",[msg.id_user], (error, result, fields)=>{
-				msg.id_user = result[0].name;
-				let noPush = false;
-				let timeRealitive = Math.floor((new Date() - msg.when)/1000);
-				if(timeRealitive > 60){
-					timeRealitive = Math.floor(timeRealitive/60);
-					if(timeRealitive > 60){
-						timeRealitive = Math.floor(timeRealitive/60);
-						if(timeRealitive > 24){
-							timeRealitive = Math.floor(timeRealitive/24);
-							if(timeRealitive > 365){
-								noPush = true;
-							}else if(timeRealitive > 30){
-								timeRealitive = "Before "+timeRealitive+" months"
-							}else{
-								timeRealitive = "Before "+timeRealitive+" days";
-							}
-						}else{
-							timeRealitive = "Before "+timeRealitive+" hours";
-						}
-					}else{
-						timeRealitive = "Before "+timeRealitive+" minutes";
-					}
-				}else{
-					timeRealitive = "Before "+timeRealitive+" seconds";
-				}
-				if(!noPush){
-					msgs_complete.push({
-						id: msg.id,
-						id_user: result[0].name,
-						content: msg.content,
-						when: timeRealitive
-					});
-				}
-				if(msgs.length === i+1){
-					res.render("news", {
-						role: req.session.role,
-						news_list: msgs_complete.reverse()
-					});
-					return;
-				}
-			});
-		});
-	});
-})
-
 router.post("/auth", (req, res) => {
   if(req.session.loggedin){
     res.redirect("/school");
@@ -183,14 +167,33 @@ router.post("/auth", (req, res) => {
 	    }else{
 				res.send("incorrect username of password, if is your password correct please contact our support.");
 	    }
-  });
+  }
+	);
 })
 
+// Global pages
+router.get('/login', (req, res) => {
+  if(req.session.role > 0){
+    res.redirect("/school");
+  }else{
+    res.render('login', {
+      title: "Login to BEAM",
+      role: req.session.role
+    });
+  }
+})
+router.get('/register', (req, res) => {
+  if(req.session.loggedin){
+    res.redirect('/school');
+  }else{
+    res.render('register', {
+      title: "Register new acc",
+    });
+  }
+})
 router.get('/logout', (req, res) => {
   req.session.destroy();
   res.redirect("/");
 })
-
-// router.get('/logout', ())
 
 module.exports = router;
