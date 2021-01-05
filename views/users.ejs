@@ -6,7 +6,7 @@
     <main>
       <section class="edit">
         <article class="users">
-          <h1>User</h1>
+          <h1><% if(selected_user.id === undefined){%>NEW<%}else{%>EDIT<%} %> USER</h1>
           <form class="edituser" action="/root/edituser/<%= selected_user.id %>" method="POST">
             <input type="text" name="name" placeholder="User name" value="<%= selected_user.name %>">
             <input type="text" name="pwd" placeholder="Password is hashed" value="">
