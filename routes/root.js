@@ -7,38 +7,41 @@ require('dotenv').config();
 const bcrypt = require('bcrypt');
 
 // definitions
+const basicDefence = (role, who) => {
+	if(Number.isInteger(role)){
+		if(role === who || who === 10){
+			return;
+		}else{
+			return false;
+		}
+	}else{
+		return "/login";
+	}
+}
 const connection = mysql.createConnection({
 	host     : process.env.DB_HOST,
 	user     : process.env.DB_USER,
 	password : process.env.DB_PS,
 	database : process.env.DB_NAME
 });
-// connection -> query
-// connection.query("",[],(error, result, fields)=>{})
 
-// req.session.level = lessons or users redirect to last page
-// redirect to /lessons or /users
+// routes to pages
 router.get('/', (req, res)=>{
-  if(req.session.role <= 2){
-    res.redirect("/school");
-  }
+	let defence =  basicDefence(req.session.role, 3);
+	if(defence){res.redirect(defence);}
   // level = false for user, true for lessons
-  if(req.session.level){
-    res.redirect("/root/lessons");
+	let level = req.session.level;
+  if(level){
+    res.redirect(`/root/${level}`);
   }else{
     res.redirect("/root/users");
   }
 })
+// lessons pages
 router.get('/lessons', (req, res)=>{
-  if(!req.session.loggedin){
-		res.redirect("/login");
-		return;
-	}
-  if(req.session.user_id <= 2){
-    res.redirect('/student/school');
-		return;
-  }
-  req.session.level = true;
+	let defence = basicDefence(req.session.role, 3);
+	if(defence){res.redirect(defence);}
+  req.session.level = "lessons";
   // if get to lessons
   connection.query(
     "SELECT `id`, `name`, `role` FROM `users`",
@@ -132,7 +135,31 @@ router.get('/lesson/:id', (req, res)=>{
     }
   );
 })
+// classes pages
+router.get('/classes/', (req, res)=>{
+	let defence = basicDefence(req.session.role, 3);
+	if(defence){res.redirect(defence);}
+	req.session.level = "/classes";
+	connection.query('SELECT * FROM `classes`',[],(error, result, fields)=>{
+		let classes = result;
+		classes.forEach((trida, i) => {
+			connection.query("SELECT * FROM `users` WHERE `id`=?", [trida.mainTeacher], (error, result, fields)={
+				trida.mainTeacher = result[0].name;
+			})
+			if(trida.length-1 === i){
+				res.render('classes', {
+					role: req.session.role,
+					classes: classes,
+					students: []
+				})
+			}
+		});
 
+	})
+})
+
+
+// users pages
 router.get('/users', (req, res)=>{
   if(!req.session.loggedin){
 		res.redirect("/login");
@@ -155,7 +182,6 @@ router.get('/users', (req, res)=>{
     }
   )
 })
-
 router.get('/user/:id', (req, res)=>{
 	if(!req.session.loggedin){
 		res.redirect("/login");
@@ -183,8 +209,6 @@ router.get('/user/:id', (req, res)=>{
 		});
 	});
 })
-
-// edit users routes
 router.post('/edituser', (req, res)=>{
 	if(!req.session.loggedin){
 		res.redirect("/login");
@@ -218,7 +242,6 @@ router.post('/edituser', (req, res)=>{
 		});
 	});
 })
-
 router.post('/edituser/:id', (req, res)=>{
 	console.log(req.params.id);
 	let id = req.params.id;
@@ -257,7 +280,6 @@ router.post('/edituser/:id', (req, res)=>{
 		});
 	}
 })
-
 router.post('/messenge', (req, res)=>{
 	let msg = req.body.msg;
 	let id = req.session.user_id;
