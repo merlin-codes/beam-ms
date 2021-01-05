@@ -74,7 +74,7 @@ textarea{
   width:92%;
   box-shadow: inset 1px 1px 5px 5px #5c5;
   border-radius: 15px;
-  background-color: #7e7;
+  background-color: #99ff99;
   color: #020;
   font-weight: bold;
   margin-bottom: 10px;
@@ -86,12 +86,15 @@ input, select{
   overflow:auto;
   resize:none;
   border: none;
-  box-shadow: inset 1px 1px 5px 5px #5c5;
   border-radius: 10px;
-  background-color: #7e7;
+  background-color: #99ff99;
   color: #020;
   font-weight: bold;
   margin-bottom: 10px;
+}
+input:focus, select:focus, textarea:focus{
+  box-shadow: inset 1px 1px 5px 5px #5c5;
+  background-color: #7e7;
 }
 .origin input{
   border-radius: 10px 0 0 10px;
@@ -154,4 +157,14 @@ input, select{
 }
 .student_list>* {
   flex: 1 1 160px;
+}
+span.editteacher label{
+  padding: 5px 0;
+}
+span.editteacher{
+  display: flex;
+  justify-content: space-between;
+}
+.editclass input{
+  width: 95%
 }

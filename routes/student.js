@@ -50,9 +50,9 @@ router.get('/school', (req, res) => {
 					// now i have all lessons
 					lessons.forEach((clas, index) => {
 						let time = clas.time;
-						if(time.includes('.')){
+						if (time.includes('.')) {
 							time = time.split('.');
-						}else{
+						} else {
 							time = [time];
 						}
 						time.forEach((data, index2) => {
@@ -79,10 +79,10 @@ router.get('/school', (req, res) => {
 	});
 });
 router.get('/marks', (req, res) => {
-	if(!req.session.loggedin){
+	if (!req.session.loggedin) {
     res.redirect("/login");
   }
-  if(Number(req.session.role) === 1){
+  if (Number(req.session.role) === 1) {
     res.render('mark', {
       title: "BEAM - my schoool",
       role: req.session.role

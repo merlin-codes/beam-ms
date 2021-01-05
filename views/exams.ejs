@@ -7,16 +7,10 @@
   <section class="sidebar">
     <h1>
       <select class="" name="">
-        <% classes.forEach(trida => {
-          if(class_id === trida.id){%>
-           <option onclick="window.location.href=`/teacher/exams/<%= trida.id %>` selected">
-             <%= trida.name %>
-           </option>
-         <%}else {%>
-           <option onclick="window.location.href=`/teacher/exams/<%= trida.id %>`">
-             <%= trida.name %>
-           </option>
-         <%}}) %>
+        <% classes.forEach(trida => {%>
+          <option  onclick="window.location.href=`/teacher/exams/<%= trida.id %>`"
+           <% if(class_id == trida.id){%>selected<%} %>><%= trida.name %></option>
+         <%}) %>
       </select>
     </h1>
     <% tests.forEach(test => {%>

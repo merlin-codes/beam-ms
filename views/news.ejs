@@ -1,0 +1,18 @@
+<%- include("header", {
+  title: "BMS - My School",
+  stylefile: "news",
+  role: role
+}); %>
+    <main>
+      <% news_list.forEach(new_item => { %>
+      <article>
+        <span>
+          <p class="time"><%= new_item.when %></p>
+          <p class="author"><%= new_item.id_user %></p>
+        </span>
+        <p><%= new_item.content %></p>
+      </article>
+      <% }); %>
+    </main>
+  </body>
+</html>
