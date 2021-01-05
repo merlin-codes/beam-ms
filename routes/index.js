@@ -74,6 +74,7 @@ router.get('/school', (req, res) => {
 			redirect_link = "student";
 		}
 		res.redirect(`/${redirect_link}/school`)
+
   }
 });
 router.get('/news', (req, res) => {
