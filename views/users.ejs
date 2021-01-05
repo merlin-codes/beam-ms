@@ -6,17 +6,16 @@
     <main>
       <section class="edit">
         <article class="users">
-          <h1><% if(selected_user.id === undefined){%>NEW<%}else{%>EDIT<%} %> USER</h1>
-          <form class="edituser" action="/root/edituser/<%= selected_user.id %>" method="POST">
-            <input type="text" name="name" placeholder="User name" value="<%= selected_user.name %>">
-            <input type="text" name="pwd" placeholder="Password is hashed" value="">
-            <input type="text" name="id" value="<%= selected_user.id %>" hidden>
+          <h1>User</h1>
+          <form class="edituser" action="/root/edituser" method="POST">
+            <input type="text" value="" name="name" placeholder="User name">
+            <input type="text" name="pwd" placeholder="Password is hashed">
             <span class="origin">
-              <input type="text" name="email" placeholder="Email" value="<%= selected_user.email %>">
+              <input type="text" value="" name="email" placeholder="Email">
               <select class="" name="role">
-                <option value="student" <% if(selected_user.role === 1){%>selected<%} %>>Student</option>
-                <option value="teacher" <% if(selected_user.role === 2){%>selected<%} %>>Teacher</option>
-                <option value="principal" <% if(selected_user.role === 3){%>selected<%} %>>Principal</option>
+                <option value="student" >Student</option>
+                <option value="teacher" >Teacher</option>
+                <option value="principal" >Principal</option>
               </select>
             </span>
             <span class="submiter">
@@ -25,9 +24,9 @@
             </span>
           </form>
         </article>
-        <form action="/root/messenge" method="POST">
+        <form class="massage" method="POST">
           <h1>Send global Messange</h1>
-          <textarea class="messange" name="msg" placeholder="Enter Massage"></textarea>
+          <textarea class="messagehit" name="msg" placeholder="Enter Massage"></textarea>
           <button type="submit" name="button">Submit</button>
         </form>
       </section>
@@ -44,7 +43,7 @@
           </span>
           <div class="shower">
             <% users.forEach(user => {%>
-              <button onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
+              <button onclick="window.location.href=`/root/users/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
             <%}) %>
           </div>
         </article>
