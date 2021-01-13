@@ -4,7 +4,7 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mysql = require('mysql');
-const session = require('express-session');
+const session = require('cookie-session');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
