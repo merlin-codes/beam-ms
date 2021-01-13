@@ -1,0 +1,52 @@
+<%- include("header", {
+  title: "Admin - lessons",
+  stylefile: "admin",
+  role: role
+}); %>
+    <main>
+     <section class="edit">
+       <article class="users">
+         <h1>Lessons</h1>
+         <form class="edituser" action="/root/lessons/edit" method="POST">
+           <!-- edit or create by if id is "_" or number -->
+           <input type="text" name="name" value="<% if(selected_lesson !== []){ %><%= selected_lesson.name %><% }else{%><%} %>" placeholder="Subject name">
+           <input type="text" name="time" value="<% if(selected_lesson !== []){ %><%= selected_lesson.time %><% }else{%><%} %>" placeholder="What time? MO-1,2 . TU-2,3 . WE-8">
+           <input type="text" name="id" value="<% if(selected_lesson !== []){ %><%= selected_lesson.id %><% }else{%>_<%} %>" hidden>
+           <span class="origin">
+             <select name="teachername">
+               <% teachers.forEach(teacher => {
+                 if(selected_lesson !== []){%>
+                   <option value="<%= teacher.id %>" selected><%= teacher.name %></option>
+                 <%}else{%>
+                   <option value="<%= teacher.id %>"><%= teacher.name %></option>
+               <% }}); %>
+             </select>
+           </span>
+           <span class="submiter">
+             <button onclick="window.location.href=`/root/lessons`" type="button">Cancel</button>
+             <button type="submit" name="button">Submit</button>
+           </span>
+         </form>
+       </article>
+      </section>
+     <section class="show">
+       <article class="navbar">
+         <a href="/root/users">users</a>
+         <a href="/root/lessons">lessons</a>
+         <a href="/root/classes">classes</a>
+       </article>
+       <article class="showest">
+         <span>
+           <h3>name</h3>
+           <h3>teacher</h3>
+         </span>
+         <div class="shower">
+           <% lessons.forEach(lesson => {%>
+             <button onclick="window.location.href=`/root/lesson/<%= lesson.id %>`;" type="button"><p><%= lesson.name %></p><p><%= lesson.teacher %></p></button>
+           <%});%>
+         </div>
+       </article>
+     </section>
+   </main>
+  </body>
+</html>

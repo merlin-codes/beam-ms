@@ -1,0 +1,27 @@
+<%- include("header", {
+  title: title,
+  stylefile: "register",
+  role: 0,
+}) %>
+    <main>
+      <form class="" action="/newacc" method="POST">
+        <h1>Register</h1>
+        <span>
+          <input value="" type="text" name="name" placeholder="Enter your username">
+          <select class="" name="role">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+          </select>
+        </span>
+        <input type="text" value="" name="email" placeholder="Your email">
+        <span>
+          <input type="password" name="pwd" placeholder="Enter your password">
+          <input type="password" name="pwdr" placeholder="Enter password again">
+        </span>
+        <!-- <input type="text" name=""> -->
+        <button type="submit" name="button">Register</button>
+        <p>You can login in with your password and username, what you get from teacher.</p>
+      </form>
+    </main>
+  </body>
+</html>

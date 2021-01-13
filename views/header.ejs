@@ -1,0 +1,57 @@
+<% navbar = [];
+if(Number.isInteger(role) && role != 0){
+  if(role == 1){
+    navbar = [
+      {name: "My school", link: "student"},
+      {name: "My marks", link: "student/marks"},
+      {name: "E-learning", link: "elearn"},
+    ]
+  }else if (role >= 2) {
+    navbar = []
+    navbar.push(
+      {name: "My school", link: "teacher"},
+      {name: "Homeworks", link: "teacher/homeworks"},
+      {name: "Exams", link: "teacher/exams"},
+      {name: "elerning", link: "elearn"},
+    )
+    if(role >= 3){
+      navbar.push(
+        {name: "admin", link: "root/"},
+      )
+    }
+  }
+  navbar.push(
+    {name: "R", link: "news"},
+    {name: "Left", link: "logout"},
+  )
+}else {
+  navbar = [
+    {name: "Login", link: "login"},
+    {name: "Register", link: "register"},
+  ]
+}%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="shortcut icon" type="image/jpg" href="/images/logo-beamMS.svg"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel='stylesheet' href='/stylesheets/master.css' />
+  <link rel="stylesheet" href="/stylesheets/<%= stylefile %>.css">
+</head>
+<body>
+  <header>
+    <!-- <img src="" alt="logo"> -->
+    <a class="logo" href="/">
+      <img src="/images/logo-beamMS.svg" alt="logo">
+      <h1>LEVIATHAN DEV.</h1>
+    </a>
+    <nav>
+      <% navbar.forEach( item => { %>
+        <a href="/<%= item.link %>"><%= item.name %></a>
+      <% }) %>
+    </nav>
+  </header>

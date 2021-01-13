@@ -1,0 +1,54 @@
+<%- include("header", {
+  title: "BMS - My School",
+  stylefile: "admin",
+  role: role
+}); %>
+    <main>
+      <section class="edit">
+        <article class="users">
+          <h1>User</h1>
+          <form class="edituser" action="/root/edituser/<%= selected_user.id %>" method="POST">
+            <input type="text" name="name" placeholder="User name" value="<%= selected_user.name %>">
+            <input type="text" name="pwd" placeholder="Password is hashed" value="">
+            <input type="text" name="id" value="<%= selected_user.id %>" hidden>
+            <span class="origin">
+              <input type="text" name="email" placeholder="Email" value="<%= selected_user.email %>">
+              <select class="" name="role">
+                <option value="student" <% if(selected_user.role === 1){%>selected<%} %>>Student</option>
+                <option value="teacher" <% if(selected_user.role === 2){%>selected<%} %>>Teacher</option>
+                <option value="principal" <% if(selected_user.role === 3){%>selected<%} %>>Principal</option>
+              </select>
+            </span>
+            <span class="submiter">
+              <button type="button" name="button" onclick="window.location.href=`/root/users`">Cancel</button>
+              <button type="submit" name="button">Submit</button>
+            </span>
+          </form>
+        </article>
+        <form class="/messenge" method="POST">
+          <h1>Send global Messange</h1>
+          <textarea class="messange" name="msg" placeholder="Enter Massage"></textarea>
+          <button type="submit" name="button">Submit</button>
+        </form>
+      </section>
+      <section class="show">
+        <article class="navbar">
+          <a href="/root/users">users</a>
+          <a href="/root/lessons">lessons</a>
+          <a href="/root/classes">classes</a>
+        </article>
+        <article class="showest">
+          <span>
+            <h3>name</h3>
+            <h3>role</h3>
+          </span>
+          <div class="shower">
+            <% users.forEach(user => {%>
+              <button onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
+            <%}) %>
+          </div>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

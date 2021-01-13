@@ -1,0 +1,115 @@
+/* details */
+.details{
+  text-align: center;
+  width: 60vw;
+  background-color: #cfcfcf;
+  box-shadow: inset 6px 6px 10px 0 rgba(0, 0, 0, 0.4),
+  inset -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+  padding: 10px;
+  margin: 50px auto;
+  border-radius: 20px;
+}
+.details h1{
+  color: #ec990f;
+  font-size: 200%;
+}
+.details span{
+  display: flex;
+  justify-content: space-around;
+  font-size: 75%;
+}
+.details span *{
+  padding: 10px
+}
+.allClasses{
+  cursor: pointer;
+  border-radius: 10px
+}
+.allClasses:hover{
+  background-color: white
+}
+
+/* schedule v3 */
+
+.days{
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  padding-top: 6.8vh;
+}
+.schedule-time{
+  width: 100%;
+}
+.flexer{
+  display: flex;
+  flex-direction: row;
+  padding: 15px
+}
+
+table{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+table th, table td{
+  flex-direction: row;
+  flex: 1 1 auto;
+  width: 8vw;
+  height: 6vh
+}
+table td:hover{
+  background-color: whitesmoke;
+}
+/* schedule */
+.schedule{
+  text-align: center;
+  border-radius: 20px;
+  box-shadow: 2px 2px 10px 10px #89f;
+  width: 70%;
+  background-color: #45c;
+  padding: 10px 20px;
+  margin: 50px auto;
+}
+.schedule h2{
+  padding-left: 5%;
+  color: whitesmoke
+}
+/* days  */
+.schedule p{
+  margin: 0;
+  padding: 13px 0;
+  border-bottom: 2px solid #45c
+}
+.mo{
+  background-color: #8f3
+}
+.tu{
+  background-color: #38f
+}
+.we{
+  background-color: #f38
+}
+.th{
+  background-color: #8ac
+}
+.fr{
+  background-color: #c8a
+}
+/* activities */
+.activities{
+  display: flex;
+  font-size: 150%;
+  padding: 50px;
+}
+.exams, .homeworks{
+  flex: 1 1 auto;
+  padding: 0 5%;
+  margin: auto;
+}
+.exams h1, .homeworks h1{
+  text-align: center;
+  border-bottom: 1px solid black;
+}
+.exams p, .homeworks p{
+  border-bottom: .5px solid gray;
+}

@@ -1,0 +1,47 @@
+main{
+  display: flex;
+}
+.sidebar{
+    margin: 10px auto;
+    text-align: center;
+    width: 20%;
+    font-size: 125%;
+    overflow-y: scroll;
+    height: 80vh;
+}
+.control{
+  flex: 1 1 auto;
+  padding: 10px;
+}
+.control h1{
+  font-size: 200%;
+}
+.avg{
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 40px;
+}
+.avg *{
+  flex: 1 1 auto;
+  text-align: center;
+}
+.avg a{
+  float: left;
+}
+.avg p{
+  float: right;
+}
+.setter{
+  background-color: whitesmoke;
+  border-radius: 10px;
+  padding: 0px 20px;
+  margin: 0px 30px;
+  overflow-y: scroll;
+  height: 60vh
+}
+.setter span{
+  display: flex;
+  padding: 0px 40px;
+  border-bottom: 1px solid gray;
+  justify-content: space-between;
+}

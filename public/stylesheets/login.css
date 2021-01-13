@@ -1,0 +1,33 @@
+main{
+  text-align: center;
+  padding:  20vh 0;
+}
+form{
+  border-radius: 20px;
+  background-color: white;
+  margin: auto;
+  width: 25vw;
+  display: flex;
+  background-color: orange;
+  flex-direction: column;
+}
+form h1{
+  padding: 5%;
+  color: #66a;
+  font-size: 150%;
+}
+form input, button{
+  padding: 10px 10px;
+  margin: 10px 10px;
+  border-radius: 20px;
+  background-color: #ccc;
+  text-align: center;
+}
+button{
+  background-color: #55f;
+  color: #fff;
+}
+button:hover{
+  background-color: #22f;
+  box-shadow: .1px .1px 2.5px 2.5px gray;
+}

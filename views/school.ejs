@@ -1,0 +1,87 @@
+<%- include("header", {
+  title: "BMS - My School",
+  stylefile: "school",
+  role: role
+});
+%><%
+let days = [
+  {name: "Monday", low: "mo"},
+  {name: "Tuesday", low: "tu"},
+  {name: "Wensday", low: "we"},
+  {name: "Thurday", low: "th"},
+  {name: "Frieday", low: "fr"},
+]
+let day_limit = 8;
+ %>
+    <main>
+      <section class="details">
+        <h1>Ratanda serios corporation</h1>
+        <span>
+          <p> </p>
+          <p class="allClasses">All classes</p>
+        </span>
+      </section>
+      <section class="schedule">
+        <h2>Schedule</h2>
+        <div class="flexer">
+          <article class="days">
+            <% days.forEach(day => { %>
+              <p class="<%= day.low %>"><strong><%= day.name %></strong></p>
+            <% }); %>
+          </article>
+          <article class="schedule-time" id="schedule-time">
+            <table>
+              <tr>
+                <% for(let i = 1; i < day_limit+1; i++){ %>
+                  <th><%= i %></th>
+                <% } %>
+              </tr>
+              <% days.forEach(day => { %>
+                <tr class='<%= day.low %>'>
+                  <%
+                  for (let i = 1; i < day_limit+1; i++) {
+                    let there_is_nothing = true;
+                    lessons_time.forEach(lesson => {
+                      if(day.low === lesson.day && lesson.time === i){
+                        let name = lesson.name.split("-");
+                        there_is_nothing = false;
+                        %><td><%= name[0] %></td><%
+                      }
+                    });
+                    if(there_is_nothing){
+                      %><td></td><%
+                    }
+                  } %>
+                </tr>
+              <% }); %>
+            </table>
+          </article>
+        </div>
+      </section>
+      <section class="activities">
+        <article class="exams">
+          <h1>Exams</h1>
+          <p>St - <a href="#"><strong>CJ</strong> </a> - Opakovani</p>
+          <p>next Pa - <a href="#"><strong>CJ</strong> </a> - oprava Opakovani</p>
+        </article>
+        <article class="homeworks">
+          <h1>Homeworks</h1>
+          <p>Ut - <a href="#"><strong>CJ</strong> </a> - 192/13 c</p>
+          <p>Ct - <a href="#"><strong>M</strong> </a> - 28/31 ucebnice</p>
+        </article>
+      </section>
+    </main>
+    <footer>
+        <article>
+            <h2>Design by</h2>
+            <p>This web is design by Leviathan Dev.</p>
+            <p>Some text that doesn't matter.</p>
+        </article>
+        <article>
+            <h2>Design by</h2>
+            <p>This web is design by Leviathan Dev.</p>
+            <p>Some text that doesn't matter.</p>
+        </article>
+    </footer>
+  </body>
+</html>

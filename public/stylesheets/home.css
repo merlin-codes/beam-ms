@@ -1,0 +1,39 @@
+/* main */
+.uvod{
+    height: 20vh;
+    text-align: center;
+    padding: 200px 80px;
+}
+.uvod p{
+    color: gray;
+}
+.qasection{
+    border-radius: 20px;
+    padding: 10px 40px;
+    margin: 10px 50px;
+    text-align: center;
+    background-color: #a3a3a3;
+    display: flex;
+    color: #222;
+    text-shadow: 2px 2px 10px 10px whitesmoke;
+    justify-content: space-between;
+    box-shadow: inset 6px 6px 10px 0 rgba(0, 0, 0, 0.4),
+    inset -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+}
+.popularCompanies{
+    border-radius: 20px;
+    padding: 20px 20px;
+    margin: 40px;
+    background-color: whitesmoke;
+    /* box-shadow: 1px 1px 5px 5px whitesmoke; */
+    display: flex;
+    text-align: center;
+    color: #222;
+    background-color: #a3a3a3;
+    box-shadow: inset 6px 6px 10px 0 rgba(0, 0, 0, 0.4),
+    inset -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+}
+.popularCompanies *{
+    flex: 1 1 auto;
+    color: #222;
+}

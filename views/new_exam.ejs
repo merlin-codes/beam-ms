@@ -1,0 +1,16 @@
+<%- include("header", {
+  title: "MSB - creating new exam ",
+  stylefile: "new_exam",
+  role: role,
+}) %>
+<form action="/teacher/exams/<%= class_id %>/create" method="post">
+  <input type="text" name="title" placeholder="Name your exam">
+  <input type="text" name="question" placeholder="Question">
+  <input type="text" name="answer" placeholder="Answers">
+  <input type="text" name="correct" placeholder="Correct Answers">
+  <input type="date" name="date">
+  <input type="time" name="time">
+  <button type="submit" name="button">Add exam</button>
+</form>
+</body>
+</html>
