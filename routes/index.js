@@ -162,20 +162,23 @@ router.post("/auth", (req, res) => {
 	connection.query(
     'SELECT * FROM users WHERE email = ?',
     [req.body.uid], (error, result, fields) => {
-			if (result.length > 0){
-				let user = result[0];
-				bcrypt.compare(req.body.pwd, user.pwd, (err, result2) => {
-			    if(!result2){
-						res.redirect("/");
-						return;
-					}else{
-						req.session.role = user.role;
-						req.session.loggedin = true;
-						req.session.user_id = user.id;
-						res.redirect("/school");
-						return;
-					}
-				});
+		if(error){
+			console.log(error);
+		}
+		if (result.length > 0){
+			let user = result[0];
+			bcrypt.compare(req.body.pwd, user.pwd, (err, result2) => {
+			if(!result2){
+					res.redirect("/");
+					return;
+				}else{
+					req.session.role = user.role;
+					req.session.loggedin = true;
+					req.session.user_id = user.id;
+					res.redirect("/school");
+					return;
+				}
+			});
 	    }else{
 				res.send("incorrect username of password, if is your password correct please contact our support.");
 	    }
