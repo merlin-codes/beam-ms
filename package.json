@@ -16,6 +16,7 @@
     "http-errors": "^1.8.0",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
+    "nginx": "0.0.0",
     "vue": "^2.6.12"
   },
   "devDependencies": {},
