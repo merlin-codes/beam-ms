@@ -162,10 +162,12 @@ router.post("/auth", (req, res) => {
 	connection.query(
     'SELECT * FROM users WHERE email = ?',
     [req.body.uid], (error, result, fields) => {
+		console.log(req.body);
+		console.log(result);
 		if(error){
 			console.log(error);
 		}
-		if (result.length > 0){
+		if(result !== undefined){
 			let user = result[0];
 			bcrypt.compare(req.body.pwd, user.pwd, (err, result2) => {
 			if(!result2){
@@ -179,9 +181,9 @@ router.post("/auth", (req, res) => {
 					return;
 				}
 			});
-	    }else{
+		}else{
 				res.send("incorrect username of password, if is your password correct please contact our support.");
-	    }
+		}
   });
 })
 
