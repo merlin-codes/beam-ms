@@ -162,33 +162,33 @@ router.post("/auth", (req, res) => {
 	connection.query(
     'SELECT * FROM users WHERE email = ?',
     [req.body.uid], (error, result, fields) => {
-		console.log(req.body);
-		console.log(result);
-		if(error){
-			console.log(error);
-		}
-		if(result !== undefined){
-			let user = result[0];
-			bcrypt.compare(req.body.pwd, user.pwd, (err, result2) => {
-			if(!result2){
-					res.redirect("/");
-					return;
-				}else{
-					req.session.role = user.role;
-					req.session.loggedin = true;
-					req.session.user_id = user.id;
-					res.redirect("/school");
-					return;
-				}
-			});
-		}else{
+			console.log(req.body);
+			console.log(result);
+			if(error){
+				console.log(error);
+			}
+			if(result !== undefined){
+				let user = result[0];
+				bcrypt.compare(req.body.pwd, user.pwd, (err, result2) => {
+				if(!result2){
+						res.redirect("/");
+						return;
+					}else{
+						req.session.role = user.role;
+						req.session.loggedin = true;
+						req.session.user_id = user.id;
+						res.redirect("/school");
+						return;
+					}
+				});
+			}else{
 				res.send("incorrect username of password, if is your password correct please contact our support.");
-		}
+	    }
   });
 })
 
 router.get('/logout', (req, res) => {
-  req.session.destroy();
+  req.session = null;
   res.redirect("/");
 })
 

@@ -3,14 +3,42 @@
   stylefile: "new_exam",
   role: role,
 }) %>
-<form action="/teacher/exams/<%= class_id %>/create" method="post">
-  <input type="text" name="title" placeholder="Name your exam">
-  <input type="text" name="question" placeholder="Question">
-  <input type="text" name="answer" placeholder="Answers">
-  <input type="text" name="correct" placeholder="Correct Answers">
-  <input type="date" name="date">
-  <input type="time" name="time">
-  <button type="submit" name="button">Add exam</button>
-</form>
+<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <main id="app">
+    <div class="control">
+      <h1><input type="text" v-model="name"></h1>
+      <p>Now?<input type="checkbox" name="" id=""></p>
+      <p>Max time <input type="text" v-model=""></p>
+      <p>This test is for <input type="text" v-model="timout"> minutes</p>
+    </div>
+    <div v-for="question in questions">
+      <h1>{{ question.name }}</h1>
+      <select name="" id="">
+        <div v-for="selectOption as option">
+          <option :value="option">{{option}}</option>
+        </div>
+      </select>
+    </div>
+  </main>
+  <script>
+    const app = new Vue({
+      el: "#app",
+      data: {
+        name:"",
+        atleast: "",
+        timeout:"",
+        question:[
+          {
+            name: "",
+            type: "",
+            answers: []
+          }
+        ],
+        selectOption: [
+          "one", "more", "text"
+        ]
+      }
+    })
+  </script>
 </body>
 </html>

@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const session = require('express-session');
 const mysql = require('mysql');
+const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 require('dotenv').config();
-const bcrypt = require('bcrypt');
 
 // definitions
 const connection = mysql.createConnection({
@@ -22,14 +22,12 @@ router.get('/', (req, res)=>{
   if(req.session.role <= 2){
     res.redirect("/school");
   }
-  // level = false for user, true for lessons
   if(req.session.level){
-    res.redirect("/root/lessons");
+		res.redirect("/root/lessons");
   }else{
     res.redirect("/root/users");
   }
 })
-
 router.get('/lessons', (req, res)=>{
   if(!req.session.loggedin){
 		res.redirect("/login");
@@ -156,6 +154,7 @@ router.get('/users', (req, res)=>{
     }
   )
 })
+
 router.get('/user/:id', (req, res)=>{
 	if(!req.session.loggedin){
 		res.redirect("/login");
