@@ -60,7 +60,7 @@ let day_limit = 8; %>
            <span class="origin">
              <select name="teachername">
                <% teachers.forEach(teacher => {
-                 if(selected_lesson !== []){%>
+                 if(typeof selected_lesson !== 'undefined' && selected_lesson.teacher === teacher.id){%>
                    <option value="<%= teacher.id %>" selected><%= teacher.name %></option>
                  <%}else{%>
                    <option value="<%= teacher.id %>"><%= teacher.name %></option>
