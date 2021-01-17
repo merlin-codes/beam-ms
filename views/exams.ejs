@@ -72,7 +72,7 @@ let marks = [
           <p><%= student.name %></p>
           <select name="marks[]">
             <% marks.forEach(mark => { %>
-              <option value="<%= student.id %>_<%= mark.val %>" selected="<% mark.val === student.mark %>" ><%= mark.name %></option>
+              <option value="<%= student.id %>_<%= mark.val %>" <% if(mark.val === student.mark) {%> selected <%} %>><%= mark.name %></option>
             <% }); %>
           </select>
       </span>
