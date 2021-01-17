@@ -43,12 +43,12 @@ nav{
 }
 /* footer */
 footer{
-    background-color: black;
-    color: #c2c2c2;
-    text-align: center;
-    display: flex;
-    font-weight: bold;
-    justify-content: space-around;
+  background-color: black;
+  color: #c2c2c2;
+  text-align: center;
+  display: flex;
+  font-weight: bold;
+  justify-content: space-around;
 }
 h1{
   color: #ccc;
@@ -62,5 +62,5 @@ header {
   left: 0;
 }
 .help{
-  padding-top: 100px;
+  padding-top: 87px;
 }
