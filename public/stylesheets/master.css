@@ -38,6 +38,8 @@ nav a:hover{
 }
 nav{
     display: flex;
+    padding-right: 60px;
+    float: right;
 }
 /* footer */
 footer{
