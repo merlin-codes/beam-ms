@@ -59,7 +59,8 @@ router.get('/lessons', (req, res)=>{
               lessons.forEach(lesson => {
                 teachers.forEach(teacher => {
                   if(teacher.id === lesson.teacher){
-                    lesson.teacher = teacher.name
+                    lesson.teacher_id = teacher.id;
+                    lesson.teacher = teacher.name;
                   }
                 });
               });
@@ -183,7 +184,7 @@ router.get('/user/:id', (req, res)=>{
 	});
 })
 
-// edit users routes
+// edit datas
 router.post('/edituser', (req, res)=>{
 	if(!req.session.loggedin){
 		res.redirect("/login");
@@ -255,6 +256,7 @@ router.post('/edituser/:id', (req, res)=>{
 		});
 	}
 })
+// router.post('/lesson')
 
 router.post('/messenge', (req, res)=>{
 	let msg = req.body.messange;

@@ -86,12 +86,14 @@ let day_limit = 8; %>
            <h3>teacher</h3>
          </span>
          <div class="shower">
-           <% lessons.forEach(lesson => {%>
-             <button onclick="window.location.href=`/root/lesson/<%= lesson.id %>`;" type="button"><p><%= lesson.name %></p><p><%= lesson.teacher %></p></button>
-           <%});%>
-         </div>
-       </article>
-     </section>
-   </main>
+           <% teachers.forEach(teacher => {
+            lessons.filter(lesson => lesson.teacher_id === teacher.id).forEach(lesson => {%>
+              <button onclick="window.location.href=`/root/lesson/<%= lesson.id %>`;" type="button"><p><%= lesson.name %></p><p><%= lesson.teacher %></p></button>
+            <%});
+          })%>
+          </div>
+        </article>
+      </section>
+    </main>
   </body>
 </html>
