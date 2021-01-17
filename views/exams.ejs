@@ -3,13 +3,31 @@
   stylefile: "exams",
   role: role,
 }) %>
+<%
+let mark_avg = [
+  {val:0.6, text: "very easy"},
+  {val:0.8, text: "easy"},
+  {val:1, text: "normal"},
+  {val:1.2, text: "hard"},
+  {val:1.4, text: "very hard"},
+];
+let marks = [
+  {name: "N", val: 0},
+  {name: "1", val: 1},
+  {name: "2", val: 2},
+  {name: "3", val: 3},
+  {name: "4", val: 4},
+  {name: "5", val: 5},
+];
+
+%>
 <main>
   <section class="sidebar">
     <h1>
       <select class="" name="">
         <% classes.forEach(trida => {
           if(class_id === trida.id){%>
-           <option onclick="window.location.href=`/teacher/exams/<%= trida.id %>` selected">
+           <option onclick="window.location.href=`/teacher/exams/<%= trida.id %>`"selected>
              <%= trida.name %>
            </option>
          <%}else {%>
@@ -24,7 +42,7 @@
     <%})%>
     <p><a href="/teacher/exams/<%= class_id %>/new">new exam</a></p>
   </section>
-  <form class="control">
+  <form class="control" action="/teacher/grade/<%= class_id %>/<%= selected_test.id %>" method="POST">
     <article class="avg">
       <span>
         <h1>
@@ -33,14 +51,14 @@
           <%}else{%>
             TEST name
           <%} %>
-      </h1>
+        </h1>
         <a href="">Open testing</a>
         <p>difficulty: normal</p>
       </span>
       <span>
         <h1>AVG - 3.2</h1>
         <p>
-          <button type="button" name="button">grade</button>
+          <button type="submit" name="button">grade</button>
         </p>
       </span>
     </article>
@@ -53,12 +71,9 @@
       <span>
           <p><%= student.name %></p>
           <select name="marks[]">
-            <option value="<%= student.id %>_0">N</option>
-            <option value="<%= student.id %>_1">1</option>
-            <option value="<%= student.id %>_2">2</option>
-            <option value="<%= student.id %>_3">3</option>
-            <option value="<%= student.id %>_4">4</option>
-            <option value="<%= student.id %>_5">5</option>
+            <% marks.forEach(mark => { %>
+              <option value="<%= student.id %>_<%= mark.val %>" selected="<% mark.val === student.mark %>" ><%= mark.name %></option>
+            <% }); %>
           </select>
       </span>
       <% }) %>

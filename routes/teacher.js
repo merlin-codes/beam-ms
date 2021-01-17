@@ -95,93 +95,81 @@ router.get('/exams/:id', (req, res) => {
 	let r_auth = auth(req.session.role, 2);
 	if(r_auth){res.redirect(r_auth);return;}
 
-	connection.query(
-		"SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?",
-		[req.session.user_id], (error, result, fields) => {
-			let classes = result;
-			connection.query(
-				"SELECT * FROM `tests` WHERE `id_class`=?",
-				[req.params.id], (error, result, fields) => {
-					let tests = result;
-					res.render('exams', {
-						class_id: req.params.id,
-						role: req.session.role,
-						classes: classes,
-						tests: tests,
-						selected_test: [],
-						students: []
-					})
-				}
-			)
-		}
-	)
+	connection.query("SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?", [req.session.user_id], (error, result, fields) => {
+		let classes = result;
+		connection.query("SELECT * FROM `tests` WHERE `id_class`=?", [req.params.id], (error, result, fields) => {
+			let tests = result;
+			res.render('exams', {
+				class_id: req.params.id,
+				role: req.session.role,
+				classes: classes,
+				tests: tests,
+				selected_test: [],
+				students: []
+			})
+		})
+	})
 })
 router.get('/exams/:id/:test', (req, res) => {
 	let r_auth = auth(req.session.role, 2);
 	if(r_auth){res.redirect(r_auth);return;}
 
-	connection.query(
-		"SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?",
-		[req.session.user_id], (error, result, fields) => {
-			let classes = result;
-			if(error){
-				console.log(error);
-			}else if (result.length > 0) {
-				connection.query(
-					"SELECT * FROM `tests` WHERE `id_class`=?",
-					[req.params.id], (error, result, fields) => {
-						tests = result;
-						let selected_test = [];
-						let endeslust = true;
-						tests.forEach((test, index) => {
-							if(test.id == req.params.test){
-								selected_test = test;
-								endeslust = false;
-							}
-							if(tests.length === index+1){
-								if(endeslust){
-									res.redirect("/teacher/exams/"+req.params.id);
-									return;
-								}else{
-									connection.query(
-										"SELECT * FROM `user_lesson` WHERE `id_class`=?",
-										[req.params.id],(error, result, fields) => {
-											let users = result;
-											let modify_users = [];
-											let counter = 0;
-											users.forEach((user, index)=>{
-												connection.query(
-													"SELECT `id`, `name`, `role` FROM `users` WHERE `id`=?",
-													[user.id_user],(error, result, fields) => {
-														modify_users.push({
-															id: result[0].id,
-															name: result[0].name
-														});
-														if(users.length === index+1){
-															res.render("exams", {
-																class_id: req.params.id,
-																role: req.session.role,
-																classes: classes,
-																tests: tests,
-																students: modify_users,
-																selected_test: selected_test
-															});
-														}
-													}
-												);
-											});
-										}
-									)
-								}
-							}
-						});
-					}
-				)
-			}else{
-				res.redirect("/exams");
+	connection.query("SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?", [req.session.user_id], (error, result, fields) => {
+		let classes = result;
+		connection.query("SELECT * FROM `tests` WHERE `id_class`=?", [req.params.id], (error, result, fields) => {
+			let tests = result;
+			let selected_test = []
+			for (let index = 0; index < tests.length; index++) {
+				if(tests[index].id === Number(req.params.test)){
+					selected_test = tests[index];
+				}
 			}
-		}
-	)
+			connection.query("SELECT * FROM `lessons` WHERE `id_class`=?", [req.params.id], (error, result, fields) => {
+				let users = result;
+				connection.query("SELECT * FROM `test_usr` WHERE `id_test`=?", [selected_test.id], (error, result, fields) => {
+					if(error){console.log(error);}
+					let users_rwn = result;
+					let modify_users = [];
+					// users is undefiened at all 
+					for (let index = 0; index < users.length; index++) {
+						connection.query("SELECT `name`, `id` FROM `users` WHERE `id`=?", users[index].id_user, (error, result, fields) => {
+							if(error){console.log(error);}
+
+							if(result[0].id === users_rwn[index].id_user){
+								modify_users.push({
+									id: result[0].id,
+									name: result[0].name,
+									mark: users_rwn[index].mark
+								})
+							}else{
+								modify_users.push({
+									id: result[0].id,
+									name: result[0].name,
+									mark: 0
+								})
+							}
+						})
+					}
+					console.log({
+						class_id: req.params.id,
+						role: req.session.role,
+						classes: classes,
+						tests: tests,
+						students: modify_users,
+						selected_test: selected_test
+					});
+					res.render('exams', {
+						class_id: req.params.id,
+						role: req.session.role,
+						classes: classes,
+						tests: tests,
+						students: modify_users,
+						selected_test: selected_test
+					})
+				})
+			})
+		})
+	})
 })
 router.get('/school', (req, res) => {
 	let r_auth = auth(req.session.role, 2);
@@ -217,6 +205,20 @@ router.get('/school', (req, res) => {
 			lessons_time: lessons_time
 		});
 	})
+})
+router.post('/grade/:id/:test', (req, res) => {
+	let r_auth = auth(req.session.role, 2);
+	if(r_auth){res.redirect(r_auth);return;}
+
+	// get form data
+	let marks = req.body.marks;
+	for (let index = 0; index < marks.length; index++) {
+		let marks_user = marks[index].split('_');
+		connection.query("INSERT INTO `test_usr`(`id_user`, `id_test`, `mark`) VALUES (?, ?, ?)", [Number(marks_user[0]), req.params.test, Number(marks_user[1])], (error, result, fields) => {
+			if(error){console.log(error);}
+		})
+	}
+	res.redirect(`/teacher/exams/${req.params.id}/${req.params.test}`);
 })
 
 // redirect to index controller
