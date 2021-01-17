@@ -105,7 +105,8 @@ router.get('/exams/:id', (req, res) => {
 				classes: classes,
 				tests: tests,
 				selected_test: [],
-				students: []
+				students: [],
+				AVG: 0
 			})
 		})
 	})
