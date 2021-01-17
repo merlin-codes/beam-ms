@@ -1,42 +1,139 @@
 <%- include("header", {
   title: "MSB - creating new exam ",
   stylefile: "new_exam",
+  externcss: "https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css",
   role: role,
 }) %>
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
-  <main id="app">
-    <div class="control">
-      <h1><input type="text" v-model="name"></h1>
-      <p>Now?<input type="checkbox" name="" id=""></p>
-      <p>Max time <input type="text" v-model=""></p>
-      <p>This test is for <input type="text" v-model="timout"> minutes</p>
-    </div>
-    <div v-for="question in questions">
-      <h1>{{ question.name }}</h1>
-      <select name="" id="">
-        <div v-for="selectOption as option">
-          <option :value="option">{{option}}</option>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <main>
+    <div id="app">
+      <div class="before_control">
+        <div class="control">
+          <h3 class="name"><strong>Name of the test: </strong><input type="text" v-model="name" placeholder="Name of test"></h3>
+          <div class="time">
+            <div class="total">
+              <p><strong>Date</strong> <input v-model="atleast.date" type="date"></p>
+              <p><strong>Time</strong> <input v-model="atleast.time" type="time"></p>
+            </div>
+            <div class="max">
+              <p><strong>This Test will take about: </strong><input type="number" name="" id="" v-model="timeout"><strong> minutes</strong></p>
+              <p><button @click="addQuestion">Add Question</button></p>
+            </div>
+          </div>
         </div>
-      </select>
+      </div>
+      <div class="question_list">
+        <div class="question" v-for="question, index_question in questions">
+          <h3 class="name"><strong>Name of Question </strong><input v-model="question.name" type="text" placeholder="Type name"></h3>
+          <div class="question_control">
+            <div class="select_type">
+              <p>Type of answer: 
+              <select name="" id="" v-model="question.type" @change="changeType(index_question)">
+                <option value="text">text</option>
+                <option value="more">more</option>
+                <option value="one">one</option>
+              </select></p>
+            </div>
+            <div class="add_question">
+              <button @click="addOption(index_question)" id="addOptionButton" :disabled="question.answers.length > 6">Add Option</button>
+              <button class="removeBtn" @click="removeQuestion(index_question)">X</button>
+            </div>
+          </div>
+          <div class="answers">
+            <div class="answer" v-if="question.type === 'more'" v-for="answer, index_answer in question.answers">
+              <input type="checkbox" :name="index_question+'[]'" id="" @change="changeCorrect(index_question, index_answer)">
+              <input type="text" placeholder="Type your answer" v-model="answer.name" >
+              <button @click="removeOption(index_question, index_answer)">X</button>
+            </div>
+            <div class="answer" v-if="question.type === 'one'" v-for="answer, index_answer in question.answers">
+              <input type="radio" :name="index_question" id=""  @change="changeCorrect(index_question, index_answer)">
+              <input type="text" placeholder="Type your answer" v-model="answer.name">
+              <button @click="removeOption(index_question, index_answer)">X</button>
+            </div>
+            <div class="answer" v-if="question.type === 'text'">
+              <p>All answer will be sended to your questionBox.</p>
+            </div>
+          </div>
+        </div>
+        <div v-if="questions.length === 0" class="endeslust-null"><p></p></div>
+        <div v-if="questions.length === 1" class="endeslust-one"><p></p></div>
+      </div>
     </div>
   </main>
   <script>
     const app = new Vue({
-      el: "#app",
+      el: '#app',
       data: {
         name:"",
-        atleast: "",
+        atleast: {
+          date: "",
+          time: ""
+        },
         timeout:"",
-        question:[
+        questions:[
           {
             name: "",
-            type: "",
-            answers: []
+            type: "one",
+            answers: [{name:""}],
+            correct: []
           }
         ],
-        selectOption: [
-          "one", "more", "text"
-        ]
+      },
+      methods: {
+        addQuestion() {
+          this.questions.push({
+            name: "",
+            type: "one",
+            answers: [
+              {value:"", correct: false}
+            ]
+          })
+        },
+        changeType(index) {
+          if(this.questions[index].type === "text"){
+            this.questions[index].answers = [{name:''}];
+          }
+          if(this.questions[index].type === "more") {
+            this.questions[index].correct = [];
+          }
+        },
+        addOption(index) {
+          let question = this.questions[index];
+          if(question.type !== "text"){
+            if(question.answers.length < 6){
+              question.answers.push({name:""});
+            }
+          }else{
+            alert("This question can have only one answer and you cannot specify it.")
+          }
+        },
+        removeOption(index, answer) {
+          let question = this.questions[index];
+          question.answers.splice(answer, 1);
+        },
+        removeQuestion(index_question) {
+          this.questions.splice(index_question, 1);
+        },
+        changeCorrect(index, index_question) {
+          let question = this.questions[index];
+          if(question.type === "one"){
+            question.correct = [index_question];
+          }else if(question.type === "more") {
+            if(!question.correct.includes(index_question)){
+              question.correct = [...question.correct, index_question];
+            }else{
+              question.correct.splice(question.correct.indexOf(index_question));
+            }
+          }
+        },
+        sendTemplate(){
+          axios.post('/teacher/', {data: {
+            name: this.name,
+            datetime: new Date(date, time),
+            timout: this.timeout,
+            question: this.questions
+          }}, callback)
+        }
       }
     })
   </script>

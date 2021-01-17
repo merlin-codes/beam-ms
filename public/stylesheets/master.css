@@ -53,3 +53,12 @@ h1{
   text-align: center;
   text-shadow: 0px 0px 2px #fff;
 }
+header {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+.help{
+  padding-top: 100px;
+}

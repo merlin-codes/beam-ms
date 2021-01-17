@@ -38,6 +38,9 @@ if(Number.isInteger(role) && role != 0){
   <link rel="shortcut icon" type="image/jpg" href="/images/logo-beamMS.svg"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
+  <% if(typeof externcss !== 'undefined'){%>  
+    <link href="<%= externcss %>"  rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+  <% } %>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel='stylesheet' href='/stylesheets/master.css' />
   <link rel="stylesheet" href="/stylesheets/<%= stylefile %>.css">
@@ -46,7 +49,6 @@ if(Number.isInteger(role) && role != 0){
   <header>
     <!-- <img src="" alt="logo"> -->
     <a class="logo" href="/">
-      <img src="/images/logo-beamMS.svg" alt="logo">
       <h1>LEVIATHAN DEV.</h1>
     </a>
     <nav>
@@ -55,3 +57,4 @@ if(Number.isInteger(role) && role != 0){
       <% }) %>
     </nav>
   </header>
+  <div class="help"></div>
