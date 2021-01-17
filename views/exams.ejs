@@ -4,13 +4,6 @@
   role: role,
 }) %>
 <%
-let mark_avg = [
-  {val:0.6, text: "very easy"},
-  {val:0.8, text: "easy"},
-  {val:1, text: "normal"},
-  {val:1.2, text: "hard"},
-  {val:1.4, text: "very hard"},
-];
 let marks = [
   {name: "N", val: 0},
   {name: "1", val: 1},
@@ -19,7 +12,30 @@ let marks = [
   {name: "4", val: 4},
   {name: "5", val: 5},
 ];
-
+let AVG_local_raw = 0;
+let ALL_local_raw = students.length;
+students.forEach(student => {
+  AVG_local_raw += student.mark;
+  if(student.mark === 0){
+    ALL_local_raw--;
+  }
+});
+let AVG_selected = AVG_local_raw/ALL_local_raw;
+let AVG_local = AVG_selected/AVG;
+let AVG_return = "";
+if(AVG_local < 0.3){
+  AVG_return = "very easy";
+}else if(AVG_local < 0.5){
+  AVG_return = "easy";
+}else if(AVG_local < 1){
+  AVG_return = "normal";
+}else if(AVG_local < 1.5){
+  AVG_return = "hard";
+}else if(AVG_local < 1.7){
+  AVG_return = "very hard";
+}else{
+  AVG_return = "impossible";
+}
 %>
 <main>
   <section class="sidebar">
@@ -53,11 +69,12 @@ let marks = [
           <%} %>
         </h1>
         <a href="">Open testing</a>
-        <p>difficulty: normal</p>
+        <p>difficulty: <%= AVG_return %></p>
       </span>
       <span>
-        <h1>AVG - 3.2</h1>
+        <h1>AVG - <%= AVG_selected.toFixed(2) %></h1>
         <p>
+          <input name="avg" type="text" value="<%= AVG_selected*100 %>" hidden>
           <button type="submit" name="button">grade</button>
         </p>
       </span>

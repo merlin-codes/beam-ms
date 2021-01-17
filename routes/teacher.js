@@ -115,15 +115,22 @@ router.get('/exams/:id/:test', (req, res) => {
 	if(r_auth){res.redirect(r_auth);return;}
 
 	connection.query("SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?", [req.session.user_id], (error, result, fields) => {
+		if(error)console.log(error);
 		let classes = result;
 		connection.query("SELECT * FROM `tests` WHERE `id_class`=?", [req.params.id], (error, result, fields) => {
+			if(error)console.log(error);
 			let tests = result;
 			let selected_test = []
+			let AVG_global = 0;
+			let AVG_count = tests.length;
 			for (let index = 0; index < tests.length; index++) {
 				if(tests[index].id === Number(req.params.test)){
 					selected_test = tests[index];
 				}
+				AVG_global += tests[index].avg;
 			}
+			console.log(AVG_global/100/AVG_count);
+			let AVG = AVG_global/100/AVG_count;
 			connection.query("SELECT * FROM `user_lesson` WHERE `id_class`=?", [req.params.id], (error, result, fields) => {
 				let users = result;
 				connection.query("SELECT * FROM `test_usr` WHERE `id_test`=?", [selected_test.id], (error, result, fields) => {
@@ -163,7 +170,8 @@ router.get('/exams/:id/:test', (req, res) => {
 									classes: classes,
 									tests: tests,
 									students: modify_users,
-									selected_test: selected_test
+									selected_test: selected_test,
+									AVG: AVG
 								})
 							}
 						})
@@ -215,13 +223,17 @@ router.post('/grade/:id/:test', (req, res) => {
 	if(r_auth){res.redirect(r_auth);return;}
 
 	connection.query("DELETE FROM `test_usr` WHERE `id_test`=?", [req.params.test], (error, result, fields) => {
+		if(error){console.log(error);}
 		let marks = req.body.marks;
+		// set avg in test {AVG*100}
+		connection.query("UPDATE `tests` SET `avg`=? WHERE `id`=?", [req.body.avg, req.params.test], (error, result, fields) => {
+			if(error) console.log(error);
+		})
 		for (let index = 0; index < marks.length; index++) {
 			let marks_user = marks[index].split('_');
 			connection.query("INSERT INTO `test_usr`(`id_user`, `id_test`, `mark`) VALUES (?, ?, ?)", [Number(marks_user[0]), req.params.test, Number(marks_user[1])], (error, result, fields) => {
 				if(error){console.log(error);}
 				if (index+1 === marks.length) {
-					console.log(Number(marks_user[0])+":"+ req.params.test, Number(marks_user[1]));
 					res.redirect(`/teacher/exams/${req.params.id}/${req.params.test}`);
 				}
 			})
