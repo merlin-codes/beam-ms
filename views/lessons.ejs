@@ -3,13 +3,58 @@
   stylefile: "admin",
   role: role
 }); %>
+<% let days = [
+{name: "Monday", low: "mo"},
+{name: "Tuesday", low: "tu"},
+{name: "Wensday", low: "we"},
+{name: "Thurday", low: "th"},
+{name: "Frieday", low: "fr"},
+]
+let day_limit = 8; %> 
     <main>
-     <section class="edit">
-       <article class="users">
-         <h1>Lessons</h1>
-         <form class="edituser" action="/root/lessons/edit" method="POST">
-           <!-- edit or create by if id is "_" or number -->
-           <input type="text" name="name" value="<% if(selected_lesson !== []){ %><%= selected_lesson.name %><% }else{%><%} %>" placeholder="Subject name">
+      <section class="edit">
+        <article class="users">
+          <h1>Lessons</h1>
+          <form class="edituser" action="/root/lessons/edit" method="POST">
+            <!-- edit or create by if id is "_" or number -->
+            <input type="text" name="name" value="<% if(selected_lesson !== []){ %><%= selected_lesson.name %><% }else{%><%} %>" placeholder="Subject name">
+            <table>
+              <tr>
+                <td></td>
+                <% for (let index = 0; index < day_limit; index++) { %>
+                  <th><%= index+1 %> </th>
+                <% } %> 
+              </tr>
+              <% 
+              days.forEach(day => { %>
+                <tr>
+                  <td><%= day.name %></td>
+              <%  
+              let time_raw = [];
+              if(typeof selected_lesson.time !== 'undefined') {
+                time_raw = selected_lesson.time.split('.');
+              }
+                let timers = [];
+                for(let index = 0; index < day_limit; index++) {
+                  let there_nothing = true;
+                  time_raw.forEach(timer => {
+                    let constant_helpme = timer.split('-');
+                    timers.push({
+                      day: constant_helpme[0].toLowerCase(),
+                      time: Number(constant_helpme[1])
+                    })
+                  })
+                  timers.forEach( timer => {
+                    if(timer.time === index+1 && timer.day.toLowerCase() === day.low){
+                      there_nothing = false;
+                    }
+                  })
+                  %> <td><input type="checkbox" name="time[]" value="<%= day.low.toUpperCase() %>-<%= index %>" <% if(!there_nothing){ %> checked <% } %> ></td><% 
+                }%>
+                </tr>
+              <% }) 
+              %>
+           </table>
            <input type="text" name="time" value="<% if(selected_lesson !== []){ %><%= selected_lesson.time %><% }else{%><%} %>" placeholder="What time? MO-1,2 . TU-2,3 . WE-8">
            <input type="text" name="id" value="<% if(selected_lesson !== []){ %><%= selected_lesson.id %><% }else{%>_<%} %>" hidden>
            <span class="origin">
