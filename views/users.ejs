@@ -43,7 +43,13 @@
             <h3>role</h3>
           </span>
           <div class="shower">
-            <% users.forEach(user => {%>
+            <% users.filter(user => user.role === 3).forEach(user => {%>
+              <button onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
+            <%}) %>
+            <% users.filter(user => user.role === 2).forEach(user => {%>
+              <button onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
+            <%}) %>
+            <% users.filter(user => user.role === 1).forEach(user => {%>
               <button onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
             <%}) %>
           </div>
