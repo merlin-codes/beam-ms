@@ -103,7 +103,7 @@ router.post("/newacc", (req, res) => {
   }
 })
 
-router.get('/news', (req, res)=>{
+router.get('/news', (req, res) => {
 	if(!req.session.loggedin){
 		res.redirect("/");
 		return;
@@ -113,7 +113,7 @@ router.get('/news', (req, res)=>{
 		let msgs_complete = [];
 		msgs.forEach((msg, i) => {
 			connection.query("SELECT `id`, `name` FROM `users` WHERE `id`=?",[msg.id_user], (error, result, fields)=>{
-				msg.id_user = result[0].name;
+				let moreThanOneYear = false;
 				let timeRealitive = Math.floor((new Date() - msg.when)/1000);
 				if(timeRealitive > 60){
 					timeRealitive = Math.floor(timeRealitive/60);
@@ -122,7 +122,7 @@ router.get('/news', (req, res)=>{
 						if(timeRealitive > 24){
 							timeRealitive = Math.floor(timeRealitive/24);
 							if(timeRealitive > 365){
-								timeRealitive = "Before "+timeRealitive+" years";
+								moreThanOneYear = true;
 							}else if(timeRealitive > 30){
 								timeRealitive = "Before "+timeRealitive+" months"
 							}else{
@@ -137,13 +137,18 @@ router.get('/news', (req, res)=>{
 				}else{
 					timeRealitive = "Before "+timeRealitive+" seconds";
 				}
-				msgs_complete.push({
-					id_user: result[0].name,
-					content: msg.content,
-					when: timeRealitive
-				});
+				if(!moreThanOneYear){
+					msgs_complete.push({
+						id: msg.id,
+						user: result[0].name,
+						id_user: result[0].id,
+						content: msg.content,
+						when: timeRealitive
+					});
+				}
 				if(msgs.length === i+1){
 					res.render("news", {
+						user_id: req.session.user_id,
 						role: req.session.role,
 						news_list: msgs_complete
 					});
@@ -152,6 +157,18 @@ router.get('/news', (req, res)=>{
 			});
 		});
 	});
+})
+
+router.get('/remove_msg/:id', (req, res) => {
+	if(req.session.role < 1){
+		res.redirect("/");
+		return;
+	}
+	connection.query("DELETE FROM `msg` WHERE `id`=? AND `id_user`=?", [req.params.id, req.session.user_id], (error, result, fields) => {
+		if(error) console.log(error);
+	})
+	res.redirect('/news');
+	return;
 })
 
 router.post("/auth", (req, res) => {
