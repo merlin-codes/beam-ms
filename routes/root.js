@@ -13,31 +13,36 @@ const connection = mysql.createConnection({
 	password : process.env.DB_PS,
 	database : process.env.DB_NAME
 });
+
+const auth = (role, max) => {
+	if(role >= max){
+		return false;
+	}else if(role <= max){
+		return '/school';
+	} else {
+		return '/login';
+	}
+}
+
 // connection -> query
 // connection.query("",[],(error, result, fields)=>{})
 
 // req.session.level = lessons or users redirect to last page
 // redirect to /lessons or /users
+
 router.get('/', (req, res)=>{
-  if(req.session.role <= 2){
-    res.redirect("/school");
-  }
+  let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+  
   if(req.session.level){
-		res.redirect("/root/lessons");
-  }else{
-    res.redirect("/root/users");
+    res.redirect(`/root/${req.session.level}`)
   }
 })
 router.get('/lessons', (req, res)=>{
-  if(!req.session.loggedin){
-		res.redirect("/login");
-		return;
-	}
-  if(req.session.user_id <= 2){
-    res.redirect('/student/school');
-		return;
-  }
-  req.session.level = true;
+  let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+  
+  req.session.level = "/lessons";
   // if get to lessons
   connection.query(
     "SELECT `id`, `name`, `role` FROM `users`",
@@ -64,8 +69,8 @@ router.get('/lessons', (req, res)=>{
                   }
                 });
               });
-
               res.render("lessons", {
+                id_user: req.session.user_id,
                 role: req.session.role,
                 teachers: teachers,
                 lessons: lessons,
@@ -79,25 +84,17 @@ router.get('/lessons', (req, res)=>{
   )
 })
 router.get('/lesson/:id', (req, res)=>{
-  if(!req.session.loggedin){
-		res.redirect("/login");
-		return;
-	}else if (Number(req.session.role) <= 1) {
-		res.redirect("/student");
-		return;
-	}
+  let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+  
   connection.query("SELECT * FROM `lessons` WHERE `id`=?",[req.params.id],
     (error, result, fields)=>{
       if(error){console.log(error); return;}
       if(result.length > 0){
-        console.log(result);
         let selected_lesson = result[0];
-        connection.query(
-          "SELECT `id`, `name`, `role` FROM `users`",
-          [], (error, result, fields)=>{
+        connection.query("SELECT `id`, `name`, `role` FROM `users`", [], (error, result, fields)=>{
             let users = result;
-            connection.query(
-              "SELECT * FROM `lessons`",[],(error, result, fields)=>{
+            connection.query("SELECT * FROM `lessons`",[],(error, result, fields)=>{
                 if(error){
                   console.log(error);
                 }
@@ -108,15 +105,28 @@ router.get('/lesson/:id', (req, res)=>{
                       console.log(error);
                     }
                     let teachers = result;
-                    lessons.forEach(lesson => {
-                      teachers.forEach(teacher => {
-                        if(teacher.id === lesson.teacher){
-                          lesson.teacher = teacher.name
+                    for (let lesson_i = 0; lesson_i < lessons.length; lesson_i++) {
+                      for (let teacher_i = 0; teacher_i < teachers.length; teacher_i++) {
+                        if(teachers[teacher_i].id === lessons[lesson_i].teacher){
+                          lessons[lesson_i].teacher_id =  teachers[teacher_i].id; 
+                          lessons[lesson_i].teacher = teachers[teacher_i].name;
                         }
-                      });
-                    });
-
+                      }
+                    }
+                    for (let index = 0; index < lessons.length; index++) {
+                      let timer = [];
+                      let times = lessons[index].time.toString().split('.');
+                      for (let time = 0; time < times.length; time++) {
+                        let timer_raw = times[time  ].toString().split('-');
+                        timer.push({
+                          day: timer_raw[0],
+                          time: Number(timer_raw[1])
+                        })
+                      }
+                      lessons[index].time = timer;
+                    }
                     res.render("lessons", {
+                      id_user: req.session.user_id,
                       role: req.session.role,
                       teachers: teachers,
                       lessons: lessons,
@@ -132,17 +142,11 @@ router.get('/lesson/:id', (req, res)=>{
     }
   );
 })
-
 router.get('/users', (req, res)=>{
-  if(!req.session.loggedin){
-		res.redirect("/login");
-		return;
-	}
-  if(req.session.user_id <= 2){
-    res.redirect('/student/school');
-		return;
-  }
-  req.session.level = false;
+  let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+  
+  req.session.level = "/users";
   connection.query(
     "SELECT `id`, `name`, `role` FROM `users`",
     [], (error, result, fields)=>{
@@ -155,16 +159,44 @@ router.get('/users', (req, res)=>{
     }
   )
 })
+router.post('/editlesson', (req, res) => {
+	let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
 
-router.get('/user/:id', (req, res)=>{
-	if(!req.session.loggedin){
-		res.redirect("/login");
-		return;
-	}
-  if(req.session.user_id <= 2){
-    res.redirect('/student/school');
-		return;
+  let user = req.body;
+  let time = "";
+  if(typeof user.time !== 'undefined'){
+    for (let index = 0; index < user.time.length; index++) {
+      if(index !== 0){
+        time += "."
+      }
+      time += user.time[index];
+    }
+    delete user.button;
+    user.time = time;
+  
+    if (user.id === '') {
+      connection.query("INSERT INTO `lessons`(`name`, `teacher`, `time`) VALUES (?, ?, ?)", [user.name, user.teachername, user.time], (error, result, fields) => {
+        if(error){console.log(error);}
+        res.redirect(`/root/lesson/${result.insertId}`);
+      })
+    }else{
+      connection.query("UPDATE `lessons` SET `name`=?,`teacher`=?,`time`=? WHERE `id`=?", [user.name, user.teachername, user.time, user.id], (error, result, fields) => {
+        if(error){console.log(error);}
+        res.redirect(`/root/lesson/${user.id}`)
+      })
+    }
+  }else{
+    connection.query("UPDATE `lessons` SET `name`=?, `teacher`=?, time=? WHERE `id`=?", [user.name, user.teachername, "", user.id], (error, result,fields) =>{
+      if(error){console.log(error);}
+      res.redirect(`/root/lesson/${user.id}`)
+    })
   }
+})
+router.get('/user/:id', (req, res)=>{
+	let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+  
 	connection.query("SELECT `id`, `name`,`role` FROM `users`",[],(error, result, fields)=>{
 		let users = result;
 		connection.query("SELECT * FROM `users` WHERE `id`=?",[req.params.id],(error, result, fields)=>{
@@ -186,14 +218,9 @@ router.get('/user/:id', (req, res)=>{
 
 // edit datas
 router.post('/edituser', (req, res)=>{
-	if(!req.session.loggedin){
-		res.redirect("/login");
-		return;
-	}
-	if(!req.session.role >= 3){
-		res.redirect("/school");
-		return;
-	}
+	let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+  
 	let user = {
 		name: req.body.name,
 		pwd: req.body.pwd,
@@ -219,16 +246,9 @@ router.post('/edituser', (req, res)=>{
 	});
 })
 router.post('/edituser/:id', (req, res)=>{
-	console.log(req.params.id);
-	let id = req.params.id;
-	if(!req.session.loggedin){
-		res.redirect("/login");
-		return;
-	}
-	if(!req.session.role >= 3){
-		res.redirect("/school");
-		return;
-	}
+	let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+  
 	let user = { name: req.body.name, pwd: req.body.pwd, role: req.body.role, email: req.body.email };
 	if(user.role === "teacher"){
 		user.role = 2;
@@ -259,6 +279,9 @@ router.post('/edituser/:id', (req, res)=>{
 // router.post('/lesson')
 
 router.post('/messenge', (req, res)=>{
+  let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+  
   let msg = req.body.messenge;
 	let id = req.session.user_id;
 	connection.query("INSERT INTO `msg`(`id_user`, `content`) VALUES (?, ?)",[id, msg],(error, result, fields)=>{

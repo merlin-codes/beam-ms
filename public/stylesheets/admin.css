@@ -155,3 +155,20 @@ input, select{
 .student_list>* {
   flex: 1 1 160px;
 }
+td{
+  margin: 0;
+  padding: 10px 25px;
+}
+.noTime{
+  background-color: gray;
+}
+.checked{
+  background-color: green;
+}
+table, th, td {
+  border: 1px solid black;
+}
+
+table {
+  width: 100%;
+}

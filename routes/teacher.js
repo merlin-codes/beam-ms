@@ -193,30 +193,32 @@ router.get('/school', (req, res) => {
 		let classes = result;
 		for (let index = 0; index < classes.length; index++) {
 			let trida = classes[index];
+			let skipper = false;
 			let time_string = trida.time, times = [];
 			if(~time_string.indexOf(".")) {
 				times = time_string.split(".");
+			}else if(typeof timer_string === 'undefined'){
+				skipper = true;
 			}else{
 				times = [timer_string];
 			}
-			for (let i = 0; i < times.length; i++) {
-				let timer = times[i].split("-");
-				lessons_time.push({
-					id_class: trida.id,
-					name: trida.name,
-					day: timer[0].toLowerCase(),
-					time: Number(timer[1])
-				})
-				if(index+1 === classes.length && i+1 === times.length){
-					res.render('school', {
-						role: req.session.role,
-						title: "BMS - My school",
-						lessons_time: lessons_time
-					});
+			if(!skipper){
+				for (let i = 0; i < times.length; i++) {
+					let timer = times[i].split("-");
+					lessons_time.push({
+						id_class: trida.id,
+						name: trida.name,
+						day: timer[0].toLowerCase(),
+						time: Number(timer[1])
+					})
 				}
 			}
-			
 		}
+		res.render('school', {
+			role: req.session.role,
+			title: "BMS - My school",
+			lessons_time: lessons_time
+		});
 	})
 })
 router.post('/grade/:id/:test', (req, res) => {
