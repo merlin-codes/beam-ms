@@ -78,6 +78,7 @@
               </span>
               <span class="submiter">
                 <button onclick="window.location.href=`/root/lessons`" type="button">Cancel</button>
+                <% if (typeof selected_lesson.id !== 'undefined'){%> <button onclick="remove(event)">Delete</button> <%} %>
                 <button type="submit" name="button">Submit</button>
               </span>
           </form>
@@ -110,6 +111,12 @@
           }else{
             e.target.className = "checked";
             e.target.children[0].checked = true
+          }
+        };
+        const remove = (e) => {
+          e.preventDefault();
+          if(confirm(`Do you want to remove this lesson from DB?`)){
+            window.location.href=`/root/remove_lesson/<%= selected_lesson.id %>`;
           }
         }
       </script>

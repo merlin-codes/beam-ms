@@ -161,42 +161,8 @@ router.get('/users', (req, res)=>{
     }
   )
 })
-router.post('/editlesson', (req, res) => {
-	let r_auth = auth(req.session.role, 3);
-  if(r_auth){res.redirect(r_auth);return;}
-
-  let user = req.body;
-  let time = "";
-  if(typeof user.time !== 'undefined'){
-    for (let index = 0; index < user.time.length; index++) {
-      if(index !== 0){
-        time += "."
-      }
-      time += user.time[index];
-    }
-    delete user.button;
-    user.time = time;
-  
-    if (user.id === '') {
-      connection.query("INSERT INTO `lessons`(`name`, `teacher`, `time`) VALUES (?, ?, ?)", [user.name, user.teachername, user.time], (error, result, fields) => {
-        if(error){console.log(error);}
-        res.redirect(`/root/lesson/${result.insertId}`);
-      })
-    }else{
-      connection.query("UPDATE `lessons` SET `name`=?,`teacher`=?,`time`=? WHERE `id`=?", [user.name, user.teachername, user.time, user.id], (error, result, fields) => {
-        if(error){console.log(error);}
-        res.redirect(`/root/lesson/${user.id}`)
-      })
-    }
-  }else{
-    connection.query("UPDATE `lessons` SET `name`=?, `teacher`=?, time=? WHERE `id`=?", [user.name, user.teachername, "", user.id], (error, result,fields) =>{
-      if(error){console.log(error);}
-      res.redirect(`/root/lesson/${user.id}`)
-    })
-  }
-})
 router.get('/user/:id', (req, res)=>{
-	let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role, 3);
   if(r_auth){res.redirect(r_auth);return;}
   
 	connection.query("SELECT `id`, `name`,`role` FROM `users`",[],(error, result, fields)=>{
@@ -278,6 +244,53 @@ router.post('/edituser/:id', (req, res)=>{
 		});
 	}
 })
+
+router.post('/editlesson', (req, res) => {
+  let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+
+  let user = req.body;
+  let time = "";
+  if(typeof user.time !== 'undefined'){
+    for (let index = 0; index < user.time.length; index++) {
+      if(index !== 0){
+        time += "."
+      }
+      time += user.time[index];
+    }
+    delete user.button;
+    user.time = time;
+  
+    if (user.id === '') {
+      connection.query("INSERT INTO `lessons`(`name`, `teacher`, `time`) VALUES (?, ?, ?)", [user.name, user.teachername, user.time], (error, result, fields) => {
+        if(error){console.log(error);}
+        res.redirect(`/root/lesson/${result.insertId}`);
+      })
+    }else{
+      connection.query("UPDATE `lessons` SET `name`=?,`teacher`=?,`time`=? WHERE `id`=?", [user.name, user.teachername, user.time, user.id], (error, result, fields) => {
+        if(error){console.log(error);}
+        res.redirect(`/root/lesson/${user.id}`)
+      })
+    }
+  }else{
+    connection.query("UPDATE `lessons` SET `name`=?, `teacher`=?, time=? WHERE `id`=?", [user.name, user.teachername, "", user.id], (error, result,fields) =>{
+      if(error){console.log(error);}
+      res.redirect(`/root/lesson/${user.id}`)
+    })
+  }
+})
+router.get('/remove_lesson/:id', (req, res) => {
+  let r_auth = auth(req.session.role, 3);
+  if(r_auth){res.redirect(r_auth);return;}
+
+  console.log("i was here.");
+  
+  connection.query("DELETE FROM `lessons` WHERE `id`=?", [req.params.id], (error, result, fields) => {
+    if(error){console.log(error);}
+  })
+  res.redirect('/root/lessons')
+})
+
 // router.post('/lesson')
 
 router.post('/messenge', (req, res)=>{
