@@ -36,6 +36,8 @@ router.get('/', (req, res)=>{
   
   if(req.session.level){
     res.redirect(`/root/${req.session.level}`)
+  }else{
+    res.redirect('/root/users')
   }
 })
 router.get('/lessons', (req, res)=>{
