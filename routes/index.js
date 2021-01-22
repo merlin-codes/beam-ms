@@ -18,22 +18,16 @@ const connection = mysql.createConnection({
 /* GET home page. */
 router.get('/', (req, res, next) => {
   let link;
-  let role = req.session.role;
-  if(!Number.isInteger(role)){
-    if (role > 0) {
-      link = "My School";
-      isLogged = true;
-    } else {
-      link = "Join us";
-    }
-    res.render('index', {
-      title: 'BEAM-ms',
-      link: link,
-      role: role,
-    })
+  if(!Number.isInteger(req.session.role)){
+    link = "My school"
   }else{
-		res.redirect("/school")
-	}
+	link = "My School";
+  }
+  res.render('index', {
+	title: 'MBS - home',
+	link: link,
+	role: req.session.role
+})
 })
 
 router.get('/school', (req, res) => {
@@ -55,8 +49,8 @@ router.get('/login', (req, res) => {
     res.redirect("/school")
   }else{
     res.render('login', {
-      title: "Login to BEAM",
-      role: req.session.role
+      title: "Login with BMS acc",
+      role: 0
     });
   }
 })
@@ -66,7 +60,7 @@ router.get('/register', (req, res) => {
     res.redirect('/school')
   }else{
     res.render('register', {
-      title: "Register new acc",
+      title: "Register new BMS acc",
     })
   }
 })
@@ -172,35 +166,28 @@ router.get('/remove_msg/:id', (req, res) => {
 })
 
 router.post("/auth", (req, res) => {
-  if(req.session.loggedin){
-    res.redirect("/school");
-		return;
-  }
-	connection.query(
-    'SELECT * FROM users WHERE email = ?',
-    [req.body.uid], (error, result, fields) => {
-			console.log(req.body);
-			console.log(result);
-			if(error){
-				console.log(error);
-			}
-			if(result !== undefined){
-				let user = result[0];
-				bcrypt.compare(req.body.pwd, user.pwd, (err, result2) => {
-				if(!result2){
-						res.redirect("/");
-						return;
-					}else{
-						req.session.role = user.role;
-						req.session.loggedin = true;
-						req.session.user_id = user.id;
-						res.redirect("/school");
-						return;
-					}
-				});
+  if(req.session.loggedin){res.redirect("/school");return;}
+	connection.query('SELECT * FROM users WHERE email = ?',[req.body.uid], (error, result, fields) => {
+		if(error){
+			console.log(error);
+		}
+		if(result !== undefined){
+			let user = result[0];
+			bcrypt.compare(req.body.pwd, user.pwd, (err, result2) => {
+			if(!result2){
+				res.redirect("/");
+				return;
 			}else{
-				res.send("incorrect username of password, if is your password correct please contact our support.");
-	    }
+				req.session.role = user.role;
+				req.session.loggedin = true;
+				req.session.user_id = user.id;
+				res.redirect("/school");
+				return;
+			}
+		});
+	}else{
+		res.send("incorrect username of password, if is your password correct please contact our support.");
+	}
   });
 })
 
