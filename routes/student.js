@@ -66,7 +66,7 @@ router.get('/school', (req, res) => {
 							if (index2+1 === time.length && lessons.length === index+1) {
 								res.render('school', {
 									role: req.session.role,
-									title: "BMS - My school",
+									title: "MBS - My school",
 									lessons_time: lessons_time,
 								});
 								return;
@@ -84,13 +84,13 @@ router.get('/marks', (req, res) => {
   }
   if(Number(req.session.role) === 1){
     res.render('mark', {
-      title: "BEAM - my schoool",
+      title: "BMS - my schoool",
       role: req.session.role
     });
   }else{
     res.render('mark', {
-      title: "BEAM - my schoool",
-      role: 0
+      title: "BMS - my schoool",
+      role: req.session.role
     });
   }
 });
