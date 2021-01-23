@@ -79,17 +79,17 @@ router.get('/school', (req, res) => {
 	});
 });
 router.get('/marks', (req, res) => {
-	if(!req.session.loggedin){
+  if(!req.session.loggedin){
     res.redirect("/login");
   }
   if(Number(req.session.role) === 1){
     res.render('mark', {
-      title: "BMS - my schoool",
+      title: "MBS - my schoool",
       role: req.session.role
     });
   }else{
     res.render('mark', {
-      title: "BMS - my schoool",
+      title: "MBS - my schoool",
       role: req.session.role
     });
   }
