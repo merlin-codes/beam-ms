@@ -66,30 +66,20 @@ router.post('/exams/:id/create', (req, res) => {
 	let r_auth = auth(req.session.role, 2);
 	if(r_auth){res.redirect(r_auth);return;}
 
-	// let title = req.body.title;
-	// let id = req.params.id;
-	// let question = req.body.question;
-	// let answer = req.body.answer;
-	// let correct = req.body.correct;
-	// let datetime = req.body.date+" "+req.body.time+":00";
-
-
-
-	// if(id === "" || title === "" || question === "" || answer === "" ||correct === "" || datetime === ""){
-	// 	res.redirect("/teacher/exams/"+id+"/new");
-	// }else{
-	// 	connection.query(
-	// 		"INSERT INTO `tests`(`time`, `name`, `question`, `correct_answer`, `answer`, `id_class`) VALUES (?, ?, ?, ?, ?, ?)",
-	// 		[datetime, title, question, correct, answer, id], (error, result, fields) => {
-	// 			if (error) {
-	// 	      return connection.rollback(function() {
-	// 	        throw error;
-	// 	      });
-	// 	    }
-	// 			res.redirect("/teacher/exams/"+id);
-	// 		}
-	// 	)
-	// }
+	let title = req.body.name;
+	let questions = JSON.stringify(req.body.questions);
+	let timout = Number(req.body.timout);
+	let datetime = req.body.datetime;
+	let class_id = Number(req.params.id);
+	if(datetime === null){
+		datetime = new Date(new Date().getTime()+1000*60*(timout+1)).toISOString().slice(0, 19).replace('T', ' ');
+	}
+	console.log(datetime);
+	console.log(`class id: ${class_id}, name: ${title}, questions: ${questions} and timout: ${timout}`);
+	connection.query("INSERT INTO `tests`(`id_class`, `name`, `time`, `questions`, timout) VALUES(?,?,?,?,?)", [class_id, title, datetime, questions, timout], (error, result, fields) => {
+		if(error){console.log(error);}
+		res.redirect(`/teacher/exams/${class_id}`);
+	})
 })
 router.get('/exams/:id', (req, res) => {
 	let r_auth = auth(req.session.role, 2);
@@ -129,8 +119,10 @@ router.get('/exams/:id/:test', (req, res) => {
 					selected_test = tests[index];
 				}
 				AVG_global += tests[index].avg;
+				if(tests[index].avg === null){
+					AVG_count--;
+				}
 			}
-			console.log(AVG_global/100/AVG_count);
 			let AVG = AVG_global/100/AVG_count;
 			connection.query("SELECT * FROM `user_lesson` WHERE `id_class`=?", [req.params.id], (error, result, fields) => {
 				let users = result;
@@ -142,7 +134,6 @@ router.get('/exams/:id/:test', (req, res) => {
 					for (let index = 0; index < users.length; index++) {
 						connection.query("SELECT `name`, `id` FROM `users` WHERE `id`=?", [users[index].id_user], (error, result, fields) => {
 							if(error){console.log(error);}
-
 							if(users_rwn.length > 0){
 								if(result[0].id === users_rwn[index].id_user){
 									modify_users.push({
@@ -216,7 +207,7 @@ router.get('/school', (req, res) => {
 		}
 		res.render('school', {
 			role: req.session.role,
-			title: "BMS - My school",
+			title: "MBS - My school",
 			lessons_time: lessons_time
 		});
 	})
@@ -228,10 +219,8 @@ router.post('/grade/:id/:test', (req, res) => {
 	connection.query("DELETE FROM `test_usr` WHERE `id_test`=?", [req.params.test], (error, result, fields) => {
 		if(error){console.log(error);}
 		let marks = req.body.marks;
-		// set avg in test {AVG*100}
-		connection.query("UPDATE `tests` SET `avg`=? WHERE `id`=?", [req.body.avg, req.params.test], (error, result, fields) => {
-			if(error) console.log(error);
-		})
+		let all_marks = 0;
+		let all_list = marks.length;
 		for (let index = 0; index < marks.length; index++) {
 			let marks_user = marks[index].split('_');
 			connection.query("INSERT INTO `test_usr`(`id_user`, `id_test`, `mark`) VALUES (?, ?, ?)", [Number(marks_user[0]), req.params.test, Number(marks_user[1])], (error, result, fields) => {
@@ -240,7 +229,14 @@ router.post('/grade/:id/:test', (req, res) => {
 					res.redirect(`/teacher/exams/${req.params.id}/${req.params.test}`);
 				}
 			})
+			all_marks += Number(marks_user[0]);
+			if(Number(marks_user[0]) === 0){
+				all_list--;
+			}
 		}
+		connection.query("UPDATE `tests` SET `avg`=? WHERE `id`=?", [all_marks/all_list, req.params.test], (error, result, fields) => {
+			if(error) console.log(error);
+		})
 	})
 })
 

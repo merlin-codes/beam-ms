@@ -35,52 +35,54 @@
           <form class="edituser" action="/root/editlesson" method="POST">
             <!-- edit or create by if id is "_" or number -->
             <input type="text" name="name" value="<% if(selected_lesson !== []){ %><%= selected_lesson.name %><% } %>" placeholder="Subject name">
-            <table>
-              <tr><th></th><% for (let index=0; index < day_limit; index++) { %><th><%= index+1 %></th><% } %></tr>
-              <tr>
-                <% days.forEach(day => { %>
-                  <td><%= day.name %></td>
-                  <%
-                  for (let index = 0; index < day_limit; index++) { 
-                    let there_nothing = false;
-                    let something_else = false;
-                    timers.forEach(timer => {
-                      if(timer.time === index+1 && timer.day.toLowerCase() === day.low){
-                        there_nothing = true;
-                      }
-                    })
-                    lessons_raw.forEach(lesson_raw => {
-                      if(lesson_raw.time === index+1 && lesson_raw.day.toLowerCase() === day.low && !there_nothing){
-                        something_else = true;
-                      }
-                    }) 
-                    %> 
-                    <td <% if(!something_else){%> onclick="changeCheckbox(event)" <%} %> class="<% if(something_else){%> noTime <%}else if(there_nothing){%> checked <%} %>"><input type="checkbox" name="time[]" <% if(!something_else){%> style="cursor: pointer" <%} %> value="<%= day.low.toUpperCase() %>-<%= index+1 %>" <%if(there_nothing || something_else){ %> checked <% } if(something_else){%> disabled <%} %> hidden ></td>
-                <% }%>
-              </tr>
-              <% }); %>
-            </table>
-              <input type="text" name="id"
-                value="<% if(selected_lesson !== []){ %><%= selected_lesson.id %><% }else{%>_<%} %>" hidden>
-              <span class="origin">
-                <select name="teachername">
-                  <% teachers.forEach(teacher=> {
-                    if(typeof selected_lesson !== 'undefined' && selected_lesson.teacher === teacher.id){%>
-                    <option value="<%= teacher.id %>" selected>
+            <% if(typeof selected_lesson.time !== 'undefined'){ %>
+              <table>
+                <tr><th></th><% for (let index=0; index < day_limit; index++) { %><th><%= index+1 %></th><% } %></tr>
+                <tr>
+                  <% days.forEach(day => { %>
+                    <td><%= day.name %></td>
+                    <%
+                    for (let index = 0; index < day_limit; index++) { 
+                      let there_nothing = false;
+                      let something_else = false;
+                      timers.forEach(timer => {
+                        if(timer.time === index+1 && timer.day.toLowerCase() === day.low){
+                          there_nothing = true;
+                        }
+                      })
+                      lessons_raw.forEach(lesson_raw => {
+                        if(lesson_raw.time === index+1 && lesson_raw.day.toLowerCase() === day.low && !there_nothing){
+                          something_else = true;
+                        }
+                      }) 
+                      %> 
+                      <td <% if(!something_else){%> onclick="changeCheckbox(event)" <%} %> class="<% if(something_else){%> noTime <%}else if(there_nothing){%> checked <%} %>"><input type="checkbox" name="time[]" <% if(!something_else){%> style="cursor: pointer" <%} %> value="<%= day.low.toUpperCase() %>-<%= index+1 %>" <%if(there_nothing || something_else){ %> checked <% } if(something_else){%> disabled <%} %> hidden ></td>
+                  <% }%>
+                </tr>
+                <% }); %>
+              </table> 
+            <%} %> 
+            <input type="text" name="id"
+              value="<% if(selected_lesson !== []){ %><%= selected_lesson.id %><% }else{%>_<%} %>" hidden>
+            <span class="origin">
+              <select name="teachername">
+                <% teachers.forEach(teacher=> {
+                  if(typeof selected_lesson !== 'undefined' && selected_lesson.teacher === teacher.id){%>
+                  <option value="<%= teacher.id %>" selected>
+                    <%= teacher.name %>
+                  </option>
+                  <%}else{%>
+                    <option value="<%= teacher.id %>">
                       <%= teacher.name %>
                     </option>
-                    <%}else{%>
-                      <option value="<%= teacher.id %>">
-                        <%= teacher.name %>
-                      </option>
-                      <% }}); %>
-                </select>
-              </span>
-              <span class="submiter">
-                <button onclick="window.location.href=`/root/lessons`" type="button">Cancel</button>
-                <% if (typeof selected_lesson.id !== 'undefined'){%> <button onclick="remove(event)">Delete</button> <%} %>
-                <button type="submit" name="button">Submit</button>
-              </span>
+                    <% }}); %>
+              </select>
+            </span>
+            <span class="submiter">
+              <button onclick="window.location.href=`/root/lessons`" type="button">Cancel</button>
+              <% if (typeof selected_lesson.id !== 'undefined'){%> <button onclick="remove(event)">Delete</button> <%} %>
+              <button type="submit" name="button">Submit</button>
+            </span>
           </form>
         </article>
       </section>

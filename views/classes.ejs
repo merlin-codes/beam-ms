@@ -1,10 +1,13 @@
 <%- include("header", {
-  title: "BMS - Classes",
+  title: "MBS - Classes",
   stylefile: "admin",
   role: role
 }); %>
     <main>
       <section class="edit">
+        {
+          classes, role,
+        }
         <article class="users">
           <h1>Class</h1>
           <form class="editclass" action="/root/editclass/" method="POST">

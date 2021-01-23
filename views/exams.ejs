@@ -1,5 +1,5 @@
 <%- include("header", {
-  title: "MSB - Exams Panel ",
+  title: "MBS - Exams Panel ",
   stylefile: "exams",
   role: role,
 }) %>
@@ -23,15 +23,20 @@ students.forEach(student => {
 let AVG_selected = AVG_local_raw/ALL_local_raw;
 let AVG_local = AVG_selected/AVG;
 let AVG_return = "";
+
+if(selected_test.avg === null){
+  AVG_local = 1;
+}
+
 if(AVG_local < 0.3){
   AVG_return = "very easy";
-}else if(AVG_local < 0.5){
+}else if(AVG_local < 0.8){
   AVG_return = "easy";
-}else if(AVG_local < 1){
+}else if(AVG_local < 1.2){
   AVG_return = "normal";
-}else if(AVG_local < 1.5){
+}else if(AVG_local < 1.8){
   AVG_return = "hard";
-}else if(AVG_local < 1.7){
+}else if(AVG_local < 1.3){
   AVG_return = "very hard";
 }else{
   AVG_return = "impossible";
@@ -69,12 +74,11 @@ if(AVG_local < 0.3){
           <%} %>
         </h1>
         <a href="">Open testing</a>
-        <p>difficulty: <%= AVG_return %></p>
+        <p>difficulty: <% if(selected_test.avg === undefined){%>None<%}else{ %> <%= AVG_return %><% } %></p>
       </span>
       <span>
-        <h1>AVG - <%= AVG_selected.toFixed(2) %></h1>
+        <h1><%if(selected_test.avg === undefined){%>None<%}else if(selected_test.avg !== null){%>AVG - <%= AVG_selected.toFixed(2) %><%}else{ %>Total AVG - <%= AVG.toFixed(2) %><% } %> </h1>
         <p>
-          <input name="avg" type="text" value="<%= AVG_selected*100 %>" hidden>
           <button type="submit" name="button">grade</button>
         </p>
       </span>
