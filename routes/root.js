@@ -14,10 +14,10 @@ const connection = mysql.createConnection({
 	database : process.env.DB_NAME
 });
 
-const auth = (role, max) => {
-	if(role >= max){
+const auth = (role) => {
+	if(role >= 3){
 		return false;
-	}else if(role <= max){
+	}else if(role <= 3){
 		return '/school';
 	} else {
 		return '/login';
@@ -31,7 +31,7 @@ const auth = (role, max) => {
 // redirect to /lessons or /users
 
 router.get('/', (req, res)=>{
-  let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   
   if(req.session.level){
@@ -41,7 +41,7 @@ router.get('/', (req, res)=>{
   }
 })
 router.get('/lessons', (req, res)=>{
-  let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   
   req.session.level = "/lessons";
@@ -86,7 +86,7 @@ router.get('/lessons', (req, res)=>{
   )
 })
 router.get('/lesson/:id', (req, res)=>{
-  let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   
   connection.query("SELECT * FROM `lessons` WHERE `id`=?",[req.params.id],
@@ -145,7 +145,7 @@ router.get('/lesson/:id', (req, res)=>{
   );
 })
 router.get('/users', (req, res)=>{
-  let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   
   req.session.level = "/users";
@@ -162,7 +162,7 @@ router.get('/users', (req, res)=>{
   )
 })
 router.get('/user/:id', (req, res)=>{
-  let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   
 	connection.query("SELECT `id`, `name`,`role` FROM `users`",[],(error, result, fields)=>{
@@ -182,6 +182,97 @@ router.get('/user/:id', (req, res)=>{
 			});
 		});
 	});
+})
+router.get('/classes', (req, res) => {
+  let r_auth = auth(req.session.role);
+  if(r_auth){res.redirect(r_auth);return;}
+  
+  connection.query("SELECT * FROM `classes`", [], (error, result, fields) => {
+    if(error){console.log(error);}
+    let classes = result;
+    connection.query("SELECT * FROM `users`", [], (error, result, fields) => {
+      if(error){console.log(error);}
+      let teachers = [];
+      let students = [];
+      for (let index = 0; index < result.length; index++) {
+        if(result[index].role > 1){
+          teachers.push(result[index]);
+        }else{
+          students.push(result[index]);
+        }
+      }
+      for (let index = 0; index < classes.length; index++) {
+        for (let i = 0; i < teachers.length; i++) {
+          if(teachers[i].id === classes[index].mainTeacher){
+            classes[index].teacher = teachers[i].name;
+          }
+        }
+      }
+      res.render('classes', {
+        role: req.body.role,
+        classes: classes,
+        teachers: teachers,
+        students: students,
+        selected_class: []
+      })
+    })
+  })
+})
+router.get('/class/:id', (req, res) => {
+  let r_auth = auth(req.session.role);
+  if(r_auth){res.redirect(r_auth);return;}
+
+  connection.query("SELECT * FROM `classes`", [], (error, result, fields) => {
+    if(error){console.log(error);}
+    let classes = result;
+    connection.query("SELECT * FROM `user_class` WHERE `id_class`=?", [Number(req.params.id)], (error, result, fields) => {
+      console.log(Number(req.params.id));
+      let students_in_class = result;
+      connection.query("SELECT * FROM `users`", [], (error, result, fields) => {
+        if(error){console.log(error);}
+        let teachers = [];
+        let students = [];
+        let selected_class;
+        for (let index = 0; index < result.length; index++) {
+          if(result[index].role > 1){
+            teachers.push(result[index]);
+          }else{
+            students.push(result[index]);
+          }
+        }
+        console.log(typeof students_in_class);
+        if(typeof students_in_class !== 'undefined'){
+          for (let index = 0; index < students.length; index++) {
+            let userNotInclude = false;
+            for (let jndex = 0; jndex < students_in_class.length; jndex++) {
+              if (students[index].id === students_in_class[jndex].id_user) {
+                userNotInclude = true;
+              }
+            }
+            students[index].selIn = userNotInclude;
+          }
+        }
+        for (let index = 0; index < classes.length; index++) {
+          for (let i = 0; i < teachers.length; i++) {
+            if(teachers[i].id === classes[index].mainTeacher){
+              classes[index].teacher = teachers[i].name;
+            }
+          }
+          if(classes[index].id === Number(req.params.id)){
+            selected_class = classes[index];
+          }
+        }
+        if(typeof selected_class === 'undefined'){ res.redirect('/root/classes'); return; }
+        res.render('classes', {
+          role: req.body.role,
+          classes: classes,
+          teachers: teachers,
+          students: students,
+          selected_class: selected_class
+        })
+      })
+    })
+  })
 })
 
 // edit datas
@@ -246,7 +337,7 @@ router.post('/edituser/:id', (req, res)=>{
 })
 
 router.post('/editlesson', (req, res) => {
-  let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
 
   let user = req.body;
@@ -280,7 +371,7 @@ router.post('/editlesson', (req, res) => {
   }
 })
 router.get('/remove_lesson/:id', (req, res) => {
-  let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
 
   console.log("i was here.");
@@ -290,11 +381,67 @@ router.get('/remove_lesson/:id', (req, res) => {
   })
   res.redirect('/root/lessons')
 })
+router.get('/removeclass/:id', (req, res) => {
+  let r_auth = auth(req.session.role);
+  if(r_auth){res.redirect(r_auth);return;}
+
+  let id = Number(req.params.id);
+
+  connection.query('DELETE FROM `classes` WHERE `id`=?',[id], (error, result, fields) => {
+    if(error){console.log(error);}
+    res.redirect("/root/classes");
+  })
+})
+
+
+router.post('/editclass', (req, res) => {
+  let r_auth = auth(req.session.role);
+  if(r_auth){res.redirect(r_auth);return;}
+
+  let name = req.body.name;
+  let teacher = Number(req.body.teacher);
+  let students = req.body.students;
+
+  // add item to classes
+  connection.query("INSERT INTO `classes`(`name`, `mainTeacher`) VALUES (?,?)",[name, teacher],(error, result, fields) => {
+    if(error){console.log(error);}
+    for (let index = 0; index < students.length; index++) {
+      connection.query("INSERT INTO `user_class`(`id_user`, `id_class`) VALUES (?,?)", [Number(students[index]), req.params.id], (error, result, fields) => {
+        if(error){console.log(error);}
+      })
+    }
+    res.redirect('/root/classes');
+  })
+})
+
+router.post('/editclass/:id', (req, res) => {
+  let r_auth = auth(req.session.role);
+  if(r_auth){res.redirect(r_auth);return;}
+  console.log(req.body);
+
+  let name = req.body.name;
+  let teacher = Number(req.body.teacher);
+  let students = req.body.students;
+
+  // add item to classes
+  connection.query("UPDATE `classes` SET `name`=?,`mainTeacher`=? WHERE `id`=?",[name, teacher, req.params.id],(error, result, fields) => {
+    if(error){console.log(error);}
+  })
+  connection.query("DELETE FROM `user_class` WHERE `id_class`=?", [req.params.id], (error, result, fields) => {
+    if(error){console.log(error);}
+  })
+  for (let index = 0; index < students.length; index++) {
+    connection.query("INSERT INTO `user_class`(`id_user`, `id_class`) VALUES (?,?)", [Number(students[index]), req.params.id], (error, result, fields) => {
+      if(error){console.log(error);}
+    })
+  }
+  res.redirect(`/root/class/${req.params.id}`);
+})
 
 // router.post('/lesson')
 
 router.post('/messenge', (req, res)=>{
-  let r_auth = auth(req.session.role, 3);
+  let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   
   let msg = req.body.messenge;
