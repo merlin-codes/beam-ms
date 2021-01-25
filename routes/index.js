@@ -18,16 +18,16 @@ const connection = mysql.createConnection({
 /* GET home page. */
 router.get('/', (req, res, next) => {
   let link;
-  if(!Number.isInteger(req.session.role)){
-    link = "My school"
+  if(typeof req.session.role !== 'undefined'){
+    link = "My school";
   }else{
-	link = "My School";
+    link = "Join us";
   }
   res.render('index', {
-	title: 'MBS - home',
-	link: link,
-	role: req.session.role
-})
+    title: 'MBS - home',
+    link: link,
+    role: req.session.role
+  })
 })
 
 router.get('/school', (req, res) => {
