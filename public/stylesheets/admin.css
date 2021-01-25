@@ -17,10 +17,12 @@ section{
   flex: 1 1 auto;
   background-color: #99f;
   border-radius: 0 20px 20px 0;
+  width: 50%;
 }
 .edit{
   flex: .4 1 auto;
   background-color: #9f9;
+  width: 50vw;
   border-radius: 20px 0 0 20px;
 }
 .shower{
@@ -133,6 +135,7 @@ input, select{
   display: flex;
   flex-direction: column;
 }
+
 .showest span{
   justify-content: space-between;
   padding: 5px 20px;
@@ -171,4 +174,29 @@ table, th, td {
 
 table {
   width: 100%;
+}
+.studentsShower{
+  display: flex;
+  flex-wrap: wrap;
+  height: 40vh;
+  overflow-y: scroll;
+}
+.studentsShower div{
+  width: 22%;
+  margin: 1%;
+  border-radius: 20px;
+  text-align: center;
+  cursor: pointer;
+  border: 1px solid blue;
+}
+.showerset {
+  margin: 10px 10px;
+  overflow-y: scroll;
+  height: 80%
+}
+.showerset button{
+  width: 24%;
+}
+.checked-cl{
+  background-color: blueviolet;
 }
