@@ -37,7 +37,12 @@
             <input type="text" name="name" value="<% if(selected_lesson !== []){ %><%= selected_lesson.name %><% } %>" placeholder="Subject name">
             <% if(typeof selected_lesson.time !== 'undefined'){ %>
               <table>
-                <tr><th></th><% for (let index=0; index < day_limit; index++) { %><th><%= index+1 %></th><% } %></tr>
+                <tr>
+                  <th></th>
+                  <% for (let index=0; index < day_limit; index++) { %>
+                    <th><%= index+1 %></th>
+                  <% } %>
+                </tr>
                 <tr>
                   <% days.forEach(day => { %>
                     <td><%= day.name %></td>
@@ -61,7 +66,7 @@
                 </tr>
                 <% }); %>
               </table> 
-            <%} %> 
+            <% } %>
             <input type="text" name="id"
               value="<% if(selected_lesson !== []){ %><%= selected_lesson.id %><% }else{%>_<%} %>" hidden>
             <span class="origin">

@@ -17,16 +17,18 @@
                 <% }); %> 
               </select>
             </span>
-            <hr>
-            <h1 class="studentTitle">Select from Students</h1>
-            <div class="studentsShower">
-              <% students.forEach(student => { %>
-                <div onclick="changeCheckbox(this)" <% if(student.selIn){ %> class="checked" <% } %>>
-                  <input type="checkbox" name="students[]" <% if(student.selIn){ %> checked <% } %> value="<%= student.id %>" >
-                  <p><%= student.name %> </p>
-                </div>
-              <% }); %> 
-            </div>
+            <% if(typeof selected_class.name !== 'undefined'){ %>
+              <hr>
+              <h1 class="studentTitle">Select from Students</h1>
+              <div class="studentsShower">
+                <% students.forEach(student => { %>
+                  <div onclick="changeCheckbox(this)" <% if(student.selIn){ %> class="checked" <% } %>>
+                    <input type="checkbox" name="students[]" <% if(student.selIn){ %> checked <% } %> value="<%= student.id %>" >
+                    <p><%= student.name %> </p>
+                  </div>
+                <% }); %> 
+              </div>
+            <% } %> 
             <span class="submiter">
               <button type="button" onclick="window.location.href=`/root/classes`">Cancel</button>
               <button type="button" onclick="window.location.href=`/root/removeclass/<%= selected_class.id %>`">Remove</button>
@@ -41,8 +43,9 @@
           <a href="/root/classes">classes</a>
         </article>
         <article class="showest showerset">
-          <% classes.sort((a, b) => {if(a.name < b.name){return -1}if(a.name > b.name){return 1} return 0;}).forEach((trida, i) => { %>
-            <button onclick="window.location.href=`/root/class/<%= trida.id %>`">
+          <% classes.sort((a, b) => {if(a.name < b.name){return -1}if(a.name > b.name){return 1} return 0;})
+            .forEach((trida, i) => { %>
+            <button <% if(selected_class.id === trida.id){ %> disabled <% }else{ %> style="cursor: pointer;" onclick="window.location.href=`/root/class/<%= trida.id %>`" <% } %>>
               <h3><%= trida.name %></h3>
               <p><%= trida.teacher %></p>
             </button>

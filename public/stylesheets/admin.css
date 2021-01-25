@@ -121,14 +121,14 @@ input, select{
   margin: 1px 5px;
 }
 .navbar a:hover{
-  animation: 5s changeHoverButton;
+  animation: .5s changeHoverButton forwards;
 }
 @keyframes changeHoverButton{
   from{
     background-color: #12f;
   }
   to{
-    background-color: #99f;
+    background-color: rgb(71, 71, 255);
   }
 }
 .shower{

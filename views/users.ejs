@@ -3,6 +3,9 @@
   stylefile: "admin",
   role: role
 }); %>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
     <main>
       <section class="edit">
         <article class="users">
@@ -39,19 +42,21 @@
         </article>
         <article class="showest">
           <span>
-            <h3>name</h3>
+            <h3>
+              name
+            </h3>
             <h3>role</h3>
           </span>
           <div class="shower">
             <% users.filter(user => user.role === 3).forEach(user => {%>
-              <button onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
-            <%}) %>
+              <button <% if(user.id === selected_user.id){ %> disabled <% }else{ %>style="cursor:pointer"<% } %> onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p>principal</p></button>
+            <% }) %>
             <% users.filter(user => user.role === 2).forEach(user => {%>
-              <button onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
-            <%}) %>
+              <button <% if(user.id === selected_user.id){ %> disabled <% }else{ %>style="cursor:pointer"<% } %> onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p>teacher</p></button>
+            <% }) %>
             <% users.filter(user => user.role === 1).forEach(user => {%>
-              <button onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p><%= user.role %></p></button>
-            <%}) %>
+              <button <% if(user.id === selected_user.id){ %> disabled <% }else{ %>style="cursor:pointer"<% } %> onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p>student</p></button>
+            <% }) %>
           </div>
         </article>
       </section>
