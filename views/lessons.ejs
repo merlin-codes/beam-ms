@@ -97,9 +97,9 @@
           <div class="shower">
             <% teachers.forEach(teacher=> {
               lessons.filter(lesson => lesson.teacher_id === teacher.id).forEach(lesson => {%>
-              <button onclick="window.location.href=`/root/lesson/<%= lesson.id %>`;" type="button">
-              <p><%= lesson.name %></p>
-              <p><%= lesson.teacher %></p>
+              <button <% if(selected_lesson.id === lesson.id){%> disabled <%} %> onclick="window.location.href=`/root/lesson/<%= lesson.id %>`;" type="button">
+                <p><%= lesson.name %></p>
+                <p><%= lesson.teacher %></p>
               </button>
               <%}); })%>
           </div>
