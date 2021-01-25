@@ -5,48 +5,34 @@
 }); %>
     <main>
       <section class="edit">
-        {
-          classes, role,
-        }
         <article class="users">
           <h1>Class</h1>
-          <form class="editclass" action="/root/editclass/" method="POST">
-            <input type="text" name="name" placeholder="Class name">
+          <form class="editclass" action="/root/editclass/<%= selected_class.id %> " method="POST">
+            <input type="text" value="<%= selected_class.name %> " name="name" placeholder="Class name">
             <span class="editteacher">
               <label for=""><strong>Select class teacher</strong></label>
-              <select class="" name="">
-                <option value="teacher">someteacher</option>
+              <select class="" name="teacher">
+                <% teachers.forEach(teacher => { %>
+                  <option value="<%= teacher.id %> " <% if(teacher.id === selected_class.teacher){%> selected <%} %> ><%= teacher.name %></option>
+                <% }); %> 
               </select>
             </span>
+            <hr>
+            <h1 class="studentTitle">Select from Students</h1>
+            <div class="studentsShower">
+              <% students.forEach(student => { %>
+                <div onclick="changeCheckbox(this)" <% if(student.selIn){ %> class="checked" <% } %>>
+                  <input type="checkbox" name="students[]" <% if(student.selIn){ %> checked <% } %> value="<%= student.id %>" >
+                  <p><%= student.name %> </p>
+                </div>
+              <% }); %> 
+            </div>
             <span class="submiter">
-              <button type="button" name="button" onclick="window.location.href=`/root/users`">Cancel</button>
-              <button type="submit" name="button">Submit</button>
+              <button type="button" onclick="window.location.href=`/root/classes`">Cancel</button>
+              <button type="button" onclick="window.location.href=`/root/removeclass/<%= selected_class.id %>`">Remove</button>
+              <button type="submit">Submit</button>
             </span>
           </form>
-        </article>
-        <form action="/root/messenge" method="POST">
-          <div class="one">
-            <span>
-              <input id="user" type="checkbox" name="" value="">
-              <label for="user">Username</label>
-            </span>
-            <span>
-              <input id="user" type="checkbox" name="" value="">
-              <label for="user">Username</label>
-            </span>
-          </div>
-          <div class="one">
-            <span>
-              <input id="user" type="checkbox" name="" value="">
-              <label for="user">Username</label>
-            </span>
-            <span>
-              <input id="user" type="checkbox" name="" value="">
-              <label for="user">Username</label>
-            </span>
-          </div>
-          <button type="submit" name="button">Submit</button>
-        </form>
       </section>
       <section class="show">
         <article class="navbar">
@@ -54,19 +40,26 @@
           <a href="/root/lessons">lessons</a>
           <a href="/root/classes">classes</a>
         </article>
-        <article class="showest">
-          <span>
-            <h3>name</h3>
-            <h3>teacher</h3>
-          </span>
-          <% classes.forEach((trida, i) => { %>
-            <span>
+        <article class="showest showerset">
+          <% classes.sort((a, b) => {if(a.name < b.name){return -1}if(a.name > b.name){return 1} return 0;}).forEach((trida, i) => { %>
+            <button onclick="window.location.href=`/root/class/<%= trida.id %>`">
               <h3><%= trida.name %></h3>
-              <p><%= trida.mainTeacher %>/p>
-            </span>
+              <p><%= trida.teacher %></p>
+            </button>
           <% }); %>
         </article>
       </section>
     </main>
+    <script>
+      const changeCheckbox = (e) => {
+        if(e.children[0].checked){
+          e.className = "";
+          e.children[0].checked = false
+        }else{
+          e.className = "checked";
+          e.children[0].checked = true
+        }
+      };
+    </script>
   </body>
 </html>
