@@ -88,16 +88,18 @@ if(AVG_local < 0.3){
         <h3>name of student</h3>
         <p>mark</p>
       </span>
-      <% students.forEach((student) => {%>
-      <span>
-          <p><%= student.name %></p>
-          <select name="marks[]">
-            <% marks.forEach(mark => { %>
-              <option value="<%= student.id %>_<%= mark.val %>" <% if(mark.val === student.mark) {%> selected <%} %>><%= mark.name %></option>
-            <% }); %>
-          </select>
-      </span>
-      <% }) %>
+      <% if(students !== ''){
+        students.forEach((student) => {%>
+        <span>
+            <p><%= student.name %></p>
+            <select name="marks[]">
+              <% marks.forEach(mark => { %>
+                <option value="<%= student.id %>_<%= mark.val %>" <% if(mark.val === student.mark) {%> selected <%} %>><%= mark.name %></option>
+              <% }); %>
+            </select>
+        </span>
+        <% })
+      } %>
     </article>
   </form>
 </main>

@@ -23,7 +23,7 @@
               <div class="studentsShower">
                 <% students.forEach(student => { %>
                   <div onclick="changeCheckbox(this)" <% if(student.selIn){ %> class="checked" <% } %>>
-                    <input type="checkbox" name="students[]" <% if(student.selIn){ %> checked <% } %> value="<%= student.id %>" >
+                    <input type="checkbox" name="students[]" <% if(student.selIn){ %> checked <% } %> value="<%= student.id %>" hidden>
                     <p><%= student.name %> </p>
                   </div>
                 <% }); %> 

@@ -4,19 +4,11 @@ body{
 }
 a{
     text-decoration: none;
-    color: #bcbabf;
+    color: #c9c6ce;
 }
 .logo{
   display: flex;
   padding: 0
-}
-.logo img{
-  width: 50px;
-  height: 50px;
-  padding: 20px;
-}
-a:hover{
-  color: #acaaaf;
 }
 /* navigation */
 header{
@@ -27,19 +19,16 @@ header{
     box-shadow: 1px 1px 2px 2px #ffa500;
 }
 nav *{
-    align-self: center;
-    padding: 10px;
+    padding: 20px 10px;
 }
 nav a.onpage{
   border-bottom: 2px solid #bcbabf;
 }
 nav a:hover{
-  border-bottom: 2px solid #acaaaf;
+  background-color: #dd9f00;
 }
 nav{
     display: flex;
-    padding-right: 60px;
-    float: right;
 }
 /* footer */
 footer{
@@ -53,11 +42,14 @@ footer{
 h1{
   color: #ccc;
   text-align: center;
+  align-self: center;
+  margin: 0;
   text-shadow: 0px 0px 2px #fff;
 }
 header {
   position: fixed;
-  width: 100%;
+  width: 90%;
+  padding: 0 5%;
   top: 0;
   left: 0;
 }

@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const session = require('express-session');
+const session = require('cookie-session');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-// definitions
+// functions
 const connection = mysql.createConnection({
 	host     : process.env.DB_HOST,
 	user     : process.env.DB_USER,
@@ -23,7 +23,7 @@ const auth = (role, max) => {
 	}
 }
 
-// routes
+// routes 
 router.get('/', (req, res) => {
   res.redirect('/teacher/school')
 })
@@ -131,43 +131,39 @@ router.get('/exams/:id/:test', (req, res) => {
 					let users_rwn = result;
 					let modify_users = [];
 					// users is undefiened at all 
-					for (let index = 0; index < users.length; index++) {
-						connection.query("SELECT `name`, `id` FROM `users` WHERE `id`=?", [users[index].id_user], (error, result, fields) => {
-							if(error){console.log(error);}
-							if(users_rwn.length > 0){
-								if(result[0].id === users_rwn[index].id_user){
+
+					connection.query("SELECT * FROM `users` WHERE `role`=1", [], (result, error, fields) => {
+						for (let i = 0; i < users_rwn.length; i++) {
+							let iknowmark = false;
+							for (let j = 0; j < result.length; j++) {
+								if(users_rwn[i].id_user === result[j].id){
+									iknowmark = true
 									modify_users.push({
-										id: result[0].id,
-										name: result[0].name,
+										id: result[j].id,
+										name: result[j].name,
 										mark: users_rwn[index].mark
 									})
-								}else{
-									modify_users.push({
-										id: result[0].id,
-										name: result[0].name,
-										mark: 0
-									})
 								}
-							}else{
+							}
+							if(!iknowmark){
 								modify_users.push({
 									id: result[0].id,
 									name: result[0].name,
 									mark: 0
 								})
 							}
-							if(index+1 === users.length){
-								res.render('exams', {
-									class_id: req.params.id,
-									role: req.session.role,
-									classes: classes,
-									tests: tests,
-									students: modify_users,
-									selected_test: selected_test,
-									AVG: AVG
-								})
-							}
+						}
+						console.log(modify_users);
+						res.render('exams', {
+							class_id: req.params.id,
+							role: req.session.role,
+							classes: classes,
+							tests: tests,
+							students: modify_users,
+							selected_test: selected_test,
+							AVG: AVG
 						})
-					}
+					})
 				})
 			})
 		})
@@ -186,12 +182,12 @@ router.get('/school', (req, res) => {
 			let trida = classes[index];
 			let skipper = false;
 			let time_string = trida.time, times = [];
-			if(~time_string.indexOf(".")) {
-				times = time_string.split(".");
-			}else if(typeof timer_string === 'undefined'){
+			if(typeof time_string === 'undefined'){
 				skipper = true;
+			}else if(~time_string.indexOf(".")) {
+				times = time_string.split(".");
 			}else{
-				times = [timer_string];
+				times = [time_string];
 			}
 			if(!skipper){
 				for (let i = 0; i < times.length; i++) {
@@ -205,6 +201,7 @@ router.get('/school', (req, res) => {
 				}
 			}
 		}
+		console.log(lessons_time);
 		res.render('school', {
 			role: req.session.role,
 			title: "MBS - My school",

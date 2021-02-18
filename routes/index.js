@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const session = require('express-session');
 const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 
-const saltRounds = 10;
-// const myPlaintextPassword = 's0/\/\P4$$w0rD';
-// const someOtherPlaintextPassword = 'not_bacon';
+// 18.2 optimalization completed 67% working well
 
+
+// Define variables
+const saltRounds = 10;
 const connection = mysql.createConnection({
 	host     : process.env.DB_HOST,
 	user     : process.env.DB_USER,
@@ -15,7 +15,73 @@ const connection = mysql.createConnection({
 	database : process.env.DB_NAME
 });
 
-/* GET home page. */
+// Define functions
+
+// Get Full Table
+const getAllMsgs = () => {
+	return new Promise(async (resolve, reject) => {
+		connection.query("SELECT * FROM msg", [],(error, result, fields) => {
+			resolve(result);
+		})
+	})
+}
+const getAllTeacher = () => {
+	return new Promise((resolve, reject) => {
+		connection.query("SELECT * FROM users WHERE role>1", [], (error, result, fields) => {
+			resolve(result);
+		})
+	})
+}
+
+// helping function
+const getRelativeTime = (when) => {
+	return new Promise((resolve, reject) => {
+		let timeRealitive = Math.floor((new Date() - when)/1000);
+		if(timeRealitive > 60){
+			timeRealitive = Math.floor(timeRealitive/60);
+			if(timeRealitive > 60){
+				timeRealitive = Math.floor(timeRealitive/60);
+				if(timeRealitive > 24){
+					timeRealitive = Math.floor(timeRealitive/24);
+					if(timeRealitive > 365){
+						resolve(false)
+					}else if(timeRealitive > 30){
+						resolve("Before "+(Math.floor(timeRealitive/30))+" months")
+					}else{
+						resolve("Before "+timeRealitive+" days");
+					}
+				}else{
+					resolve("Before "+timeRealitive+" hourse");
+				}
+			}else{
+				resolve("Before "+timeRealitive+" minutes");
+			}
+		}else{
+			resolve("Before "+timeRealitive+" seconds");
+		}
+	})
+}
+
+// Remove from DB
+const removeMsgById = (id, user_id) => {
+	return new Promise((resolve, reject) => {
+		connection.query("SELECT * FROM msg WHERE id=?", [Number(id)], (error, result, fields) => {
+			let msg = result[0];
+			console.log(msg);
+			if (msg === null  && msg.id_user !== user_id){
+				console.log("false");
+				resolve(false)
+			} else {
+				console.log("true");
+				connection.query("DELETE FROM msg WHERE id=?", [Number(id)], (e, r, f) =>{
+					resolve(true)
+				});
+			}
+		})
+	})
+}
+
+// routes
 router.get('/', (req, res, next) => {
   let link;
   if(typeof req.session.role !== 'undefined'){
@@ -32,6 +98,8 @@ router.get('/', (req, res, next) => {
 
 router.get('/school', (req, res) => {
 	let role = req.session.role;
+
+	// redirect by role 
 	if(Number.isInteger(role)){
 		if(Number(role) >= 2){
 			res.redirect("/teacher/school");
@@ -40,7 +108,7 @@ router.get('/school', (req, res) => {
 			res.redirect("/student/school");
 			return;
 		}
-  }
+  	}
 	res.redirect("/login");
 })
 
@@ -97,76 +165,46 @@ router.post("/newacc", (req, res) => {
   }
 })
 
-router.get('/news', (req, res) => {
-	if(!req.session.loggedin){
-		res.redirect("/");
-		return;
+router.get('/news', async (req, res) => {
+	if(!req.session.loggedin){ res.redirect("/"); return; }
+
+	let msgs = await getAllMsgs();
+	let teachers = await getAllTeacher();
+
+	let msgs_complete = [];
+	
+	// push MSG to new array
+	for (let i = 0; i < msgs.length; i++) {
+		msgs[i].when = await getRelativeTime(msgs[i].when)
+		for (let j = 0; j < teachers.length; j++) {
+			if(msgs[i].when && msgs[i].id_user === teachers[j].id){
+				msgs_complete.push({
+					id: msgs[i].id,
+					user: teachers[j].name,
+					id_user: teachers[j].id,
+					content: msgs[i].content,
+					when: msgs[i].when
+				})
+			}
+		}
 	}
-	connection.query("SELECT * FROM `msg`",[],(error, result, fields)=>{
-		let msgs = result;
-		let msgs_complete = [];
-		msgs.forEach((msg, i) => {
-			connection.query("SELECT `id`, `name` FROM `users` WHERE `id`=?",[msg.id_user], (error, result, fields)=>{
-				let moreThanOneYear = false;
-				let timeRealitive = Math.floor((new Date() - msg.when)/1000);
-				if(timeRealitive > 60){
-					timeRealitive = Math.floor(timeRealitive/60);
-					if(timeRealitive > 60){
-						timeRealitive = Math.floor(timeRealitive/60);
-						if(timeRealitive > 24){
-							timeRealitive = Math.floor(timeRealitive/24);
-							if(timeRealitive > 365){
-								moreThanOneYear = true;
-							}else if(timeRealitive > 30){
-								timeRealitive = "Before "+timeRealitive+" months"
-							}else{
-								timeRealitive = "Before "+timeRealitive+" days";
-							}
-						}else{
-							timeRealitive = "Before "+timeRealitive+" hourse";
-						}
-					}else{
-						timeRealitive = "Before "+timeRealitive+" minutes";
-					}
-				}else{
-					timeRealitive = "Before "+timeRealitive+" seconds";
-				}
-				if(!moreThanOneYear){
-					msgs_complete.push({
-						id: msg.id,
-						user: result[0].name,
-						id_user: result[0].id,
-						content: msg.content,
-						when: timeRealitive
-					});
-				}
-				if(msgs.length === i+1){
-					res.render("news", {
-						user_id: req.session.user_id,
-						role: req.session.role,
-						news_list: msgs_complete
-					});
-					return;
-				}
-			});
-		});
+
+	res.render("news", {
+		user_id: req.session.user_id,
+		role: req.session.role,
+		news_list: msgs_complete
 	});
 })
 
-router.get('/remove_msg/:id', (req, res) => {
-	if(req.session.role < 1){
-		res.redirect("/");
-		return;
-	}
-	connection.query("DELETE FROM `msg` WHERE `id`=? AND `id_user`=?", [req.params.id, req.session.user_id], (error, result, fields) => {
-		if(error) console.log(error);
-	})
+router.get('/remove_msg/:id', async (req, res) => {
+	await removeMsgById(req.params.id, req.session.user_id);
+	
 	res.redirect('/news');
 	return;
 })
 
 router.post("/auth", (req, res) => {
-  if(req.session.loggedin){res.redirect("/school");return;}
+  if(req.session.loggedin){ res.redirect("/school"); return; }
 	connection.query('SELECT * FROM users WHERE email = ?',[req.body.uid], (error, result, fields) => {
 		if(error){
 			console.log(error);
