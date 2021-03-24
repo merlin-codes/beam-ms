@@ -14,9 +14,11 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "http-errors": "^1.8.0",
+    "mongoose": "^5.12.2",
     "morgan": "^1.10.0",
     "mysql": "^2.18.1",
     "nginx": "0.0.0",
+    "sqlite3": "^5.0.2",
     "vue": "^2.6.12"
   },
   "devDependencies": {},

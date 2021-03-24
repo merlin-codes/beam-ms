@@ -5,6 +5,12 @@ const bcrypt = require('bcrypt');
 
 // 18.2 optimalization completed 67% working well
 
+// let sqlite3 = require('sqlite3').verbose();
+// let db = new sqlite3.Database('../main.sqlite');
+
+// db.serialize(() => {
+// 	db.run("CREATE TABLE ")
+// })
 
 // Define variables
 const saltRounds = 10;
