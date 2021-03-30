@@ -1,11 +1,21 @@
 const mongoose = require('mongoose');
 // let code_raw = Math.random().toString(16).substr(2, 8)
-const Lesson = mongoose.Schema(
+const LessonSchema = mongoose.Schema(
     {
-        name: String,
+        name: {
+            type: String,
+            required: true
+        },
+        time: [
+            {
+                day: String,
+                time: Number,
+            },
+        ],
+        clas: Object,
         teacher: Object,
-        students: [...Object]
+        students: Array
     }
 )
 
-module.exports = mongoose.model('Lessons')
+module.exports = mongoose.model('Lessons',LessonSchema)

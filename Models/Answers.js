@@ -2,9 +2,18 @@ const mongoose = require('mongoose');
 
 const Answer = mongoose.Schema(
     {
-        author: Object,
-        template: Object,
-        mark: Number
+        author: {
+            type: Object,
+            required: true
+        },
+        template: {
+            type: Object,
+            require: true
+        },
+        mark: {
+            type: Number,
+            required: false
+        }
     }
 )
 

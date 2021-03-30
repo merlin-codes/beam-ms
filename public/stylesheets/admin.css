@@ -159,10 +159,13 @@ input, select{
   flex: 1 1 160px;
 }
 td{
-  margin: 0;
   width: 20px;
-  height: 50px;
+  min-height: 50px;
   text-align: center;
+  padding: 10px;
+}
+td p{
+  margin: 0px;
 }
 .noTime{
   background-color: gray;

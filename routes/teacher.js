@@ -3,55 +3,31 @@ const router = express.Router();
 const session = require('cookie-session');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
+const Lesson = require('../Models/Lessons');
 require('dotenv').config();
 
 // functions
-const connection = mysql.createConnection({
-	host     : process.env.DB_HOST,
-	user     : process.env.DB_USER,
-	password : process.env.DB_PS,
-	database : process.env.DB_NAME
-});
 
-const auth = (role, max) => {
-	if(role >= max){
-		return false;
-	}else if(role <= max){
-		return '/school';
-	} else {
-		return '/login';
-	}
-}
+const auth = (role, max) => role >= max ? false: role <= max ? '/school': '/login';
 
-// routes 
-router.get('/', (req, res) => {
-  res.redirect('/teacher/school')
-})
-router.get('/exams', (req, res) => {
-	let r_auth = auth(req.session.role, 2);
-	if(r_auth){res.redirect(r_auth);return;}
+// routes
+router.get('/', (req, res) => res.redirect('/teacher/school'))
+router.get('/exams', async (req, res) => {
+	if(auth(req.session.role, 2)){ return res.redirect("/school");;}
 
-	connection.query(
-		"SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?",
-		[req.session.user_id], (error, result, fields) => {
-			let classes = result;
-			if (error) {
-				console.log(error);
-				res.send("We got some problem");
-			}else if (classes !== []){
-				res.redirect("/teacher/exams/"+classes[0].id);
-			}else{
-				res.render('exams', {
-					class_id: req.params.id,
-					role: req.session.role,
-					classes: [],
-					tests: [],
-					selected_test: [],
-					students: []
-				});
-			}
-		}
-	)
+	let lessons = await Lesson.find({ "teacher": req.session.user_id })
+		.catch(error => console.log(error));
+	console.log(lessons);
+	console.log(typeof lessons[0] !== undefined);
+	return lessons ? res.render('exams', {
+		class_id: 0,
+		role: req.session.role,
+		classes: lessons,
+		tests: [],
+		AVG: typeof lessons[0] != undefined ? lessons[0].avg : 2.5,
+		students: typeof lessons[0] != undefined ? lessons[0].students:[],
+		selected_test: []
+	}) : res.redirect("/teacher/exams");
 })
 router.get('/exams/:id/new', (req, res) => {
 	let r_auth = auth(req.session.role, 2);
@@ -83,6 +59,7 @@ router.post('/exams/:id/create', (req, res) => {
 })
 router.get('/exams/:id', (req, res) => {
 	let r_auth = auth(req.session.role, 2);
+
 	if(r_auth){res.redirect(r_auth);return;}
 
 	connection.query("SELECT `id`, `name` FROM `lessons` WHERE `teacher`=?", [req.session.user_id], (error, result, fields) => {
@@ -130,7 +107,7 @@ router.get('/exams/:id/:test', (req, res) => {
 					if(error){console.log(error);}
 					let users_rwn = result;
 					let modify_users = [];
-					// users is undefiened at all 
+					// users is undefiened at all
 
 					connection.query("SELECT * FROM `users` WHERE `role`=1", [], (result, error, fields) => {
 						for (let i = 0; i < users_rwn.length; i++) {
@@ -169,44 +146,28 @@ router.get('/exams/:id/:test', (req, res) => {
 		})
 	})
 })
-router.get('/school', (req, res) => {
-	let r_auth = auth(req.session.role, 2);
+router.get('/school', async (req, res) => {
+	let r = req.session;
+	let r_auth = auth(r.role, 2);
 	if(r_auth){res.redirect(r_auth);return;}
-	
-	let lessons_time = [];
 
-	connection.query('SELECT * FROM `lessons` WHERE `teacher`=?',[req.session.user_id], (error, result, fields) => {
-		if(error){console.log(error);}
-		let classes = result;
-		for (let index = 0; index < classes.length; index++) {
-			let trida = classes[index];
-			let skipper = false;
-			let time_string = trida.time, times = [];
-			if(typeof time_string === 'undefined'){
-				skipper = true;
-			}else if(~time_string.indexOf(".")) {
-				times = time_string.split(".");
-			}else{
-				times = [time_string];
-			}
-			if(!skipper){
-				for (let i = 0; i < times.length; i++) {
-					let timer = times[i].split("-");
-					lessons_time.push({
-						id_class: trida.id,
-						name: trida.name,
-						day: timer[0].toLowerCase(),
-						time: Number(timer[1])
-					})
-				}
-			}
-		}
-		console.log(lessons_time);
-		res.render('school', {
-			role: req.session.role,
-			title: "MBS - My school",
-			lessons_time: lessons_time
-		});
+	let lessons_time = [];
+	let lessons = await Lesson.find({"teacher": r.user_id});
+	lessons.map(lesson => {
+		lesson.time.map(time => {
+			lessons_time.push({
+				id_class: lesson._id,
+				name: lesson.name,
+				day: time.day,
+				time: time.time
+			})
+		})
+	})
+	console.log(lessons_time);
+	res.render('school', {
+		role: req.session.role,
+		title: "MBS - My school",
+		lessons_time: lessons_time
 	})
 })
 router.post('/grade/:id/:test', (req, res) => {

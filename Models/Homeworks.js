@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 
 const Homework = mongoose.Schema(
     {
-        name: String,
+        name: {
+            type: String,
+            required: true
+        },
         lesson: Object,
         author: Object,
         template: Object
