@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const Lessons = require('../Models/Lessons');
 const Classes = require('../Models/Classes');
 const Users = require('../Models/Users');
+const MSGs = require('../Models/MSGs')
 require('dotenv').config();
 
 const auth = (role) => role >= 3 ? false: true;
@@ -14,6 +15,7 @@ const auth = (role) => role >= 3 ? false: true;
 // get lesson
 
 // routes 
+router.get('/', (req, res) => req.session.level ? res.redirect(`/root${req.session.level}`): res.redirect('/root/lessons'))
 router.get('/lessons', async (req, res) => {
   let s = req.session;
   if(auth(s.role, 3)){res.redirect('/school');return;}
@@ -33,7 +35,6 @@ router.get('/lessons', async (req, res) => {
     selected_lesson: []
   })
 });
-
 router.get('/lesson/:id', async (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
@@ -66,44 +67,30 @@ router.get('/lesson/:id', async (req, res) => {
     selected_lesson: selected_lesson[0]
   })
 })
-router.get('/users', (req, res)=>{
+router.get('/users', async (req, res)=>{
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   
   req.session.level = "/users";
-  connection.query(
-    "SELECT `id`, `name`, `role` FROM `users`",
-    [], (error, result, fields)=>{
-      let users = result;
-      res.render("users", {
-        role: req.session.role,
-        users: users,
-				selected_user: []
-      })
-    }
-  )
+
+  let users = await Users.find();
+  res.render("users", {
+    role: req.session.role,
+    users: users,
+    selected_user: []
+  })
 })
-router.get('/user/:id', (req, res)=>{
+router.get('/user/:id', async (req, res)=>{
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   
-	connection.query("SELECT `id`, `name`,`role` FROM `users`",[],(error, result, fields)=>{
-		let users = result;
-		connection.query("SELECT * FROM `users` WHERE `id`=?",[req.params.id],(error, result, fields)=>{
-			let selected_user = result[0];
-			if (error) { throw error; }
-			else if (selected_user === []) {
-				res.redirect("/root/users");
-				return;
-			}
-			// send data to template
-			res.render('users', {
-        role: req.session.role,
-        users: users,
-				selected_user: selected_user
-			});
-		});
-	});
+  let users = await Users.find()
+  let user = await Users.find({"_id": req.params.id})
+  res.render('users', {
+    role: req.session.role,
+    users: users,
+    selected_user: user
+  });
 })
 router.get('/classes', (req, res) => {
   let r_auth = auth(req.session.role);
@@ -201,29 +188,20 @@ router.get('/class/:id', (req, res) => {
 router.post('/edituser', (req, res)=>{
 	let r_auth = auth(req.session.role, 3);
   if(r_auth){res.redirect(r_auth);return;}
-  
-	let user = {
-		name: req.body.name,
-		pwd: req.body.pwd,
-		role: req.body.role,
-		email: req.body.email,
-	};
-	if(user.role === "teacher"){
-		user.role = 2;
-	}else if(user.role === "principal"){
-		user.role = 3;
-	}else if(user.role === "student"){
-		user.role = 1;
-	}
+  let [name, email, role, pwd] = [...req.body]
+  role = role == "teacher" ? role = 2: role == "principal" ? 3:1
 
-	bcrypt.hash(user.pwd, 10, (err, hash)=>{
-		connection.query("INSERT INTO `users`(`name`, `pwd`, `email`, `role`) VALUES (?, ?, ?, ?)",
-		[user.name, hash, user.email, user.role], (error, result, fields)=>{
-			if(error)throw error;
-			user = undefined;
-			res.redirect("/root/users");
-			return;
-		});
+	bcrypt.hash(pwd, 10, (err, hash)=>{
+    let user = new User({
+      'name': name,
+      'role': role,
+      'email': email,
+      'class': null,
+      'pwd': hash
+    })
+    user.save().then(()=> {
+      res.redirect(`/root/users/${user._id}`);
+    })
 	});
 })
 router.post('/edituser/:id', (req, res)=>{
@@ -257,39 +235,30 @@ router.post('/edituser/:id', (req, res)=>{
 		});
 	}
 })
+
 router.post('/editlesson', (req, res) => {
   if(auth(req.session.role)){res.redirect('/school'); return;}
   let {name, teachername, id, time, clas} = {...req.body};
   console.log(`${name}, ${teachername}, ${id}, ${time}, ${clas}`);
   if (id === '') {
-    let lesson = new Lessons({
+    new Lessons({
       "name": name,
       "teacher": teachername,
       "time": [],
       "clas": clas,
       "students": []
-    })
-    lesson.save().then(() => res.redirect(`/root/lesson/${lesson._id}`))
+    }).save().then(() => res.redirect(`/root/lesson/${lesson._id}`))
   } else {
-    time = time.map(tim => {tim = tim.split('-');return {day: tim[0], time: tim[1]}})
-    console.log(time);
-
-    // time.map(time1 => {
-    //   let x = time1.split("-");
-    //   time_local.push({
-    //     day: time1[0],
-    //     time: time1[1]
-    //   });
-    // });
+    time = time.map(t => {t = t.split('-');return {day: t[0], time: t[1]}})
     Lessons.updateOne({"_id":id}, {"name":name, "teacher":teachername, "clas":clas, "time":time})
       .then(() => res.redirect(`/root/lesson/${id}`))
   }
 })
 router.get('/remove_lesson/:id', (req, res) => {
-  let r_auth = auth(req.session.role);
-  if(r_auth){res.redirect(r_auth); return;}
+  if(auth(req.session.role)){res.redirect('/school'); return;}
   Lessons.findOneAndDelete({"_id":req.params.id}, () => {res.redirect('/root/lessons')})
 })
+
 router.get('/removeclass/:id', (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
@@ -343,18 +312,16 @@ router.post('/editclass/:id', (req, res) => {
   }
   res.redirect(`/root/class/${req.params.id}`);
 })
-
-// router.post('/lesson')
 router.post('/messenge', (req, res)=>{
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
-  
-  let msg = req.body.messenge;
-	let id = req.session.user_id;
-	connection.query("INSERT INTO `msg`(`id_user`, `content`) VALUES (?, ?)",[id, msg],(error, result, fields)=>{
-    if(error)throw error;
-    res.redirect('/root/');
-	})
+  new MSGs({
+    "author": req.session.user_id,
+    "content": req.body.messenge 
+  }).then(err => {
+    if(err) console.log(err);
+    res.redirect('/root/users');
+  })
 })
 
 // redirect to index controller
