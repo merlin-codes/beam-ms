@@ -10,7 +10,7 @@ const Users = require('../Models/Users');
 const MSGs = require('../Models/MSGs')
 require('dotenv').config();
 
-const auth = (role) => role >= 3 ? false: true;
+const auth = (role) => role > 2 ? false : true;
 // helping function
 // get lesson
 
@@ -89,7 +89,7 @@ router.get('/user/:id', async (req, res)=>{
   res.render('users', {
     role: req.session.role,
     users: users,
-    selected_user: user
+    selected_user: user[0]
   });
 })
 router.get('/classes', (req, res) => {
@@ -185,55 +185,29 @@ router.get('/class/:id', (req, res) => {
 })
 
 // edit datas
-router.post('/edituser', (req, res)=>{
-	let r_auth = auth(req.session.role, 3);
-  if(r_auth){res.redirect(r_auth);return;}
-  let [name, email, role, pwd] = [...req.body]
+router.post('/edituser', (req, res) => {
+  if(auth(req.session.role)){res.redirect("/school");return;}
+  let {name, email, role, pwd, id} = {...req.body}
   role = role == "teacher" ? role = 2: role == "principal" ? 3:1
 
-	bcrypt.hash(pwd, 10, (err, hash)=>{
-    let user = new User({
-      'name': name,
-      'role': role,
-      'email': email,
-      'class': null,
-      'pwd': hash
-    })
-    user.save().then(()=> {
-      res.redirect(`/root/users/${user._id}`);
-    })
-	});
-})
-router.post('/edituser/:id', (req, res)=>{
-	let r_auth = auth(req.session.role, 3);
-  if(r_auth){res.redirect(r_auth);return;}
-  
-	let user = { name: req.body.name, pwd: req.body.pwd, role: req.body.role, email: req.body.email, id: req.params.id };
-	if(user.role === "teacher"){
-		user.role = 2;
-	}else if(user.role === "principal"){
-		user.role = 3;
-	}else if(user.role === "student"){
-		user.role = 1;
-	}
-	// hash password or not change password
-	if(user.pwd !== ""){
-		bcrypt.hash(user.pwd, 10, (err, hash)=>{
-			connection.query("UPDATE `users` SET `name`=?,`pwd`=?,`email`=?,`role`=? WHERE `id`=?",
-			[user.name, hash, user.email, user.role, user.id], (error, result, fields)=>{
-				if(error)throw error;
-				res.redirect("/root/users");
-				return;
-			});
-		});
-	}else{
-		connection.query("UPDATE `users` SET `name`=?,`email`=?,`role`=? WHERE `id`=?",
-		[user.name, user.email, user.role, user.id], (error, result, fields)=>{
-			if(error)throw error;
-			res.redirect("/root/");
-			return;
-		});
-	}
+	if (id === "")
+    bcrypt.hash(pwd, 10, (err, hash)=>{
+      let user = new Users({
+        'name': name,
+        'role': role,
+        'email': email,
+        'class': null,
+        'pwd': hash
+      })
+      user.save().then(()=> {
+        res.redirect(`/root/users/${user._id}`);
+        return;
+      })
+    });
+  let updatedData = {"name":name, "email":email, "role":role}
+  if(pwd !== "")
+    updatedData.pwd = pwd
+  Users.updateOne({"_id":id}, updatedData).then(() => res.redirect(`/root/user/${id}`))
 })
 
 router.post('/editlesson', (req, res) => {
