@@ -1,8 +1,8 @@
-<%- include("header", { title: typeof selected_lesson !== undefined ? `Admin - ${selected_lesson.name}`: 'Admin - lessons' , stylefile: "admin" , role: role }); %>
+<%- include("header", { title: typeof selected_lesson._id != "undefined" ? `Admin - ${selected_lesson.name}`: 'Admin - lessons' , stylefile: "admin" , role: role }); %>
   <% 
     let days = [{name: "Monday" , low: "mo" },{name: "Tuesday" , low: "tu" }, {name: "Wensday" , low: "we" },{name: "Thurday" , low: "th" }, {name: "Frieday" , low: "fr" }]; 
     let day_limit = 8; 
-    let lessons_raw = selected_lesson.teacher ? lessons.filter(l => l.teacher == selected_lesson.teacher): undefined;
+    let lessons_raw = selected_lesson.teacher ? lessons.filter(l => l.teacher == selected_lesson.teacher) : undefined;
   %>
     <main>
       <section class="edit">
