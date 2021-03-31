@@ -1,8 +1,4 @@
-<%- include("header", {
-  title: "MBS - My School",
-  stylefile: "admin",
-  role: role
-}); %>
+<%- include("header", { title: "MBS - My School", stylefile: "admin", role: role }); %>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/css/selectize.bootstrap3.min.css" integrity="sha256-ze/OEYGcFbPRmvCnrSeKbRTtjG4vGLHXgOqsyLFTRjg=" crossorigin="anonymous" />
@@ -10,7 +6,7 @@
       <section class="edit">
         <article class="users">
           <h1>User</h1>
-          <form class="edituser" action="/root/edituser/<%= selected_user.id %>" method="POST">
+          <form class="edituser" action="/root/edituser/" method="POST">
             <input type="text" name="name" placeholder="User name" value="<%= selected_user.name %>">
             <input type="text" name="pwd" placeholder="Password is hashed" value="">
             <input type="text" name="id" value="<%= selected_user.id %>" hidden>
@@ -42,21 +38,14 @@
         </article>
         <article class="showest">
           <span>
-            <h3>
-              name
-            </h3>
+            <h3>name</h3>
             <h3>role</h3>
           </span>
           <div class="shower">
-            <% users.filter(user => user.role === 3).forEach(user => {%>
-              <button <% if(user.id === selected_user.id){ %> disabled <% }else{ %>style="cursor:pointer"<% } %> onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p>principal</p></button>
-            <% }) %>
-            <% users.filter(user => user.role === 2).forEach(user => {%>
-              <button <% if(user.id === selected_user.id){ %> disabled <% }else{ %>style="cursor:pointer"<% } %> onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p>teacher</p></button>
-            <% }) %>
-            <% users.filter(user => user.role === 1).forEach(user => {%>
-              <button <% if(user.id === selected_user.id){ %> disabled <% }else{ %>style="cursor:pointer"<% } %> onclick="window.location.href=`/root/user/<%= user.id %>`;" type="button"><p><%= user.name %></p><p>student</p></button>
-            <% }) %>
+            <% let roleLister = [ {role: 3, name: "principal"}, {role: 2, name: "teacher"}, {role: 1, name: "student"}];%>
+            <% roleLister.map(rl => users.filter(u => u.role === rl.role).map(u => { %> 
+              <button <%= u._id.toString() === selected_user._id.toString() ? "disabled": "style='cursor: pointer'"%> onclick="window.location.href=`/root/user/<%= u._id %>`" type="button"><p><%= u.name %></p><p><%= rl.name %> </p></button>
+            <% })) %> 
           </div>
         </article>
       </section>
