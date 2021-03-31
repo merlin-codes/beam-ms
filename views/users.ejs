@@ -44,7 +44,7 @@
           <div class="shower">
             <% let roleLister = [ {role: 3, name: "principal"}, {role: 2, name: "teacher"}, {role: 1, name: "student"}];%>
             <% roleLister.map(rl => users.filter(u => u.role === rl.role).map(u => { %> 
-              <button <%= u._id.toString() === selected_user._id.toString() ? "disabled": "style='cursor: pointer'"%> onclick="window.location.href=`/root/user/<%= u._id %>`" type="button"><p><%= u.name %></p><p><%= rl.name %> </p></button>
+              <button <%= typeof selected_user._id !== "undefined" ? u._id.toString() === selected_user._id.toString() ? "disabled": "style='cursor: pointer'" : "" %> onclick="window.location.href=`/root/user/<%= u._id %>`" type="button"><p><%= u.name %></p><p><%= rl.name %> </p></button>
             <% })) %> 
           </div>
         </article>
