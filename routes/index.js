@@ -4,28 +4,35 @@ const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const User = require('./../Models/Users');
 const MSGs = require('./../Models/MSGs');
+const Users = require('./../Models/Users');
 
 // 18.2 optimalization completed 67% working well
 // functions
 const helper_getRelativeDate = x => {
-	let before = "Před ";
-	let timeList = [" sekundami", " minutami", " hodinami", " dnami", " mesicemi"]
-	if (x > 120) {
+	return new Promise((resolve, reject) => {
+		let timeList = [" sekundami", " minutami", " hodinami", " dnami", " mesicemi"]
+		let before = "Před "
 		if (x > 120) {
-			if (x > 48) {
-				if (x > 60) { 
-					if (x > 365) {
-						return 0
-					} return before + x + timeList[4]
-				} return before + x + timeList[3]
-			} return before + x + timeList[2]
-		} return before + x + timeList[1]
-	} return before + x + timeList[0]
+			x = Math.floor(x/60);
+			if (x > 120) {
+				x = Math.floor(x/60);
+				if (x > 48) {
+					x = Math.floor(x/24);
+					if (x > 60) { 
+						x = Math.floor(x/30);
+						if (x > 365) {
+							resolve(false)
+						} resolve(before + x + timeList[4])
+					} resolve(before + x + timeList[3])
+				} resolve(before + x + timeList[2])
+			} resolve(before + x + timeList[1])
+		} resolve(before + x + timeList[0])
+	})
 }
 const getRelativeTime = (when) => {
-	return new Promise(resolve, reject => {
-		let returner = Math.floor(helper_getRelativeDate(Math.floor((new Date() - when)/1000)))
-		resolve(returner > 1 ? returner: false)
+	return new Promise(async (resolve, reject) => {
+		let returner = await helper_getRelativeDate((new Date().getTime() - when.getTime())/1000)
+		resolve(returner ? returner : false)
 	})
 }
 
@@ -37,24 +44,19 @@ router.get('/', (req, res, next) => {
     role: req.session.role
   })
 })
-
 router.get('/redirect-home', (req, res) => res.redirect('/'))
-
 router.get('/school', (req, res) => {
 	return !req.session.loggedin?res.redirect("/login"):
 		req.session.role>1?res.redirect("/teacher"):res.redirect("/student");
 })
-
 router.get('/login', (req, res) => {
 	return req.session.loggedin?res.redirect("/school"):
 		res.render('login',{title:"Login with BMS acc", role:0});
 })
-
 router.get('/register', (req, res) => {
 	return req.session.loggedin ?
     	res.redirect('/school') : res.render('register',{title:"Register new BMS acc"})
 })
-
 router.post("/newacc", (req, res) => {
 	let {name, role, email, pwd, pwdr} = {...req.body}
 	const s = req.session;
@@ -64,7 +66,7 @@ router.post("/newacc", (req, res) => {
 			!(name && role && email && pwd && pwdr) ? res.redirect("/register?bad=input"):
 				bcrypt.hash(pwd, 10, (err, hash) => {
 					const user = new User({
-						name: name, email: email, role: role, registred: new Date().now, class: null, pwd: hash,
+						name: name, email: email, role: role, class: null, pwd: hash,
 						log: { backtime: [new Date().now, "Log has been created"], last:[new Date().now, "Your new account created"]}
 					});
 					console.log(user);
@@ -78,26 +80,26 @@ router.post("/newacc", (req, res) => {
 					}).catch(error => console.log(error));
 				})
 })
+router.get('/news', async (req, res) => {
+	if(!req.session.loggedin){res.redirect("/");return;}
+	
+	let msgs = await MSGs.find();
+	let teachers = await Users.find({$or: [{"role":2}, {"role":3}]});
 
-router.get('/news', (req, res) => {
-	return !req.session.loggedin?res.redirect("/"):async ()=>{
-		let msgs = await MSGs.find();
-		let teachers = await Users.find({role: 2}).concat(Users.find({role: 3}));
-
-		// push MSG to new array
-		msgs.map( async (msg, i) => {
-			msg.createdAt = await getRelativeTime(msg.createdAt);
-			for(let j=0;j<teachers.length; j++)
-				if(teacher._id == msg.author)
-					msg.author_name = teacher.name
-		})
-
-		res.render("news", {
-			user_id: req.session.user_id,
-			role: req.session.role,
-			news_list: msgs_complete
-		});
-	}
+	// push MSG to new array
+	msgs.map(async (msg, i) => {
+		msg.when = await getRelativeTime(msg.createdAt);
+		teachers.map(teacher => 
+			teacher._id.toString() === msg.author.toString() ? msg.author_name = teacher.name : ""
+		)
+		if (i+1 === msgs.length){
+			res.render("news", {
+				user_id: req.session.user_id,
+				role: req.session.role,
+				msgs: msgs
+			});
+		}
+	})
 })
 router.get('/users-list', async (req, res) => {
   try {
