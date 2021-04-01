@@ -35,6 +35,7 @@ router.get('/lessons', async (req, res) => {
     selected_lesson: []
   })
 });
+// uncompleted
 router.get('/lesson/:id', async (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
@@ -92,9 +93,12 @@ router.get('/user/:id', async (req, res)=>{
     selected_user: user[0]
   });
 })
-router.get('/classes', (req, res) => {
+// uncompleted
+router.get('/classes', async (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
+
+  let classes 
   
   connection.query("SELECT * FROM `classes`", [], (error, result, fields) => {
     if(error)throw error;
@@ -228,6 +232,7 @@ router.post('/editlesson', (req, res) => {
       .then(() => res.redirect(`/root/lesson/${id}`))
   }
 })
+
 router.get('/remove_lesson/:id', (req, res) => {
   if(auth(req.session.role)){res.redirect('/school'); return;}
   Lessons.findOneAndDelete({"_id":req.params.id}, () => {res.redirect('/root/lessons')})
@@ -244,6 +249,7 @@ router.get('/removeclass/:id', (req, res) => {
     res.redirect("/root/classes");
   })
 })
+
 router.post('/editclass', (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
@@ -263,6 +269,7 @@ router.post('/editclass', (req, res) => {
     res.redirect('/root/classes');
   })
 })
+
 router.post('/editclass/:id', (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
@@ -292,7 +299,7 @@ router.post('/messenge', (req, res)=>{
   new MSGs({
     "author": req.session.user_id,
     "content": req.body.messenge 
-  }).then(err => {
+  }).save().then(err => {
     if(err) console.log(err);
     res.redirect('/root/users');
   })
