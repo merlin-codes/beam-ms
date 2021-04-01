@@ -204,7 +204,7 @@ router.post('/edituser', (req, res) => {
         'pwd': hash
       })
       user.save().then(()=> {
-        res.redirect(`/root/users/${user._id}`);
+        res.redirect(`/root/user/${user._id}`);
         return;
       })
     });
@@ -219,16 +219,17 @@ router.post('/editlesson', (req, res) => {
   let {name, teachername, id, time, clas} = {...req.body};
   console.log(`${name}, ${teachername}, ${id}, ${time}, ${clas}`);
   if (id === '') {
-    new Lessons({
+    let lesson = new Lessons({
       "name": name,
       "teacher": teachername,
       "time": [],
       "clas": clas,
       "students": []
-    }).save().then(() => res.redirect(`/root/lesson/${lesson._id}`))
+    })
+    lesson.save().then(() => res.redirect(`/root/lesson/${lesson._id}`))
   } else {
     time = time.map(t => {t = t.split('-');return {day: t[0], time: t[1]}})
-    Lessons.updateOne({"_id":id}, {"name":name, "teacher":teachername, "clas":clas, "time":time})
+    Lessons.updateOne({"_id":id}, {"name": name, "teacher": teachername, "clas": clas, "time": time})
       .then(() => res.redirect(`/root/lesson/${id}`))
   }
 })
