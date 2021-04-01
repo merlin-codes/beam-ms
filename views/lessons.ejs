@@ -1,4 +1,4 @@
-<%- include("header", { title: typeof selected_lesson._id != "undefined" ? `Admin - ${selected_lesson.name}`: 'Admin - lessons' , stylefile: "admin" , role: role }); %>
+<%- include("header", { title: typeof selected_lesson != "undefined" ? `Admin - ${selected_lesson.name}`: 'Admin - lessons' , stylefile: "admin" , role: role }); %>
   <% 
     let days = [{name: "Monday" , low: "mo" },{name: "Tuesday" , low: "tu" }, {name: "Wensday" , low: "we" },{name: "Thurday" , low: "th" }, {name: "Frieday" , low: "fr" }]; 
     let day_limit = 8; 
@@ -34,34 +34,31 @@
                     <% } %> 
                   </tr>
                   <% }); %>
-                </table> 
+              </table> 
             <% } %>
             <input type="text" name="id"
               value="<% if(selected_lesson !== []){ %><%= selected_lesson.id %><% }else{%>_<%} %>" hidden>
             <span class="origin">
               <select name="teachername">
                 <% teachers.forEach(teacher=> {
-                  if(typeof selected_lesson !== 'undefined' && selected_lesson.teacher === teacher.id){%>
-                    <option value="<%= teacher.id %>" selected>
-                      <%= teacher.name %>
-                    </option>
-                  <%}else{%>
-                    <option value="<%= teacher.id %>">
-                      <%= teacher.name %>
-                    </option>
+                  if(typeof selected_lesson.name !== 'undefined' && selected_lesson.teacher === teacher.id){%>
+                    <option value="<%= teacher._id %>" selected> <%= teacher.name %> </option>
+                  <%}else{%> 
+                    <option value="<%= teacher.id %>"> <%= teacher.name %> </option>
                   <% }}); %>
               </select>
               <select name="clas">
                 <% if(typeof classes !== 'undefined'){
-                  classes.forEach(clas => { %>
-                    <option value="<%= clas.id %>" <% if(selected_class !== null && Number(selected_class.id_class) === clas.id){%> selected <%} %>><%= clas.name %></option>
+                  classes.forEach(clas => { 
+                    console.log(selected_class);%>
+                    <option value="<%= clas._id %>" <% if(typeof selected_class._id !== "undefined" && selected_class._id.toString() === clas._id.toString() ){%> selected <%} %>><%= clas.name %> - <%= clas.teacher_name %></option>
                   <% });
                 } %>
               </select>
             </span>
             <span class="submiter">
               <button onclick="window.location.href=`/root/lessons`" type="button">Cancel</button>
-              <% if (typeof selected_lesson.id !== 'undefined'){%> <button onclick="remove(event)">Delete</button> <%} %>
+              <% if (typeof selected_lesson._id !== 'undefined'){%> <button onclick="remove(event)">Delete</button> <%} %>
               <button type="submit" name="button">Submit</button>
             </span>
           </form>

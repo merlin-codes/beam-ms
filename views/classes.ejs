@@ -7,13 +7,14 @@
       <section class="edit">
         <article class="users">
           <h1>Class</h1>
-          <form class="editclass" action="/root/editclass/<%= selected_class.id %> " method="POST">
+          <form class="editclass" action="/root/editclass/" method="POST">
             <input type="text" value="<%= selected_class.name %> " name="name" placeholder="Class name">
+            <input type="text" value="<%= selected_class._id %>" name="id" hidden>
             <span class="editteacher">
-              <label for=""><strong>Select class teacher</strong></label>
+              <label for="" style="padding: 5px;"><strong>Select&nbsp;class&nbsp;teacher</strong></label>
               <select class="" name="teacher">
-                <% teachers.forEach(teacher => { %>
-                  <option value="<%= teacher.id %> " <% if(teacher.id === selected_class.teacher){%> selected <%} %> ><%= teacher.name %></option>
+                <% teachers.map(teacher => { %>
+                  <option value="<%= teacher._id %>" <%= teacher._id === selected_class.teacher ? "selected" : "" %> ><%= teacher.name %></option>
                 <% }); %> 
               </select>
             </span>
@@ -21,9 +22,9 @@
               <hr>
               <h1 class="studentTitle">Select from Students</h1>
               <div class="studentsShower">
-                <% students.forEach(student => { %>
+                <% students.map(student => { %>
                   <div onclick="changeCheckbox(this)" <% if(student.selIn){ %> class="checked" <% } %>>
-                    <input type="checkbox" name="students[]" <% if(student.selIn){ %> checked <% } %> value="<%= student.id %>" hidden>
+                    <input type="checkbox" name="students[]" <% if(student.selIn){ %> checked <% } %> value="<%= student._id %>" hidden>
                     <p><%= student.name %> </p>
                   </div>
                 <% }); %> 
@@ -43,13 +44,12 @@
           <a href="/root/classes">classes</a>
         </article>
         <article class="showest showerset">
-          <% classes.sort((a, b) => {if(a.name < b.name){return -1}if(a.name > b.name){return 1} return 0;})
-            .forEach((trida, i) => { %>
+          <% classes.map((trida, i) => { %>
             <button <% if(selected_class.id === trida.id){ %> disabled <% }else{ %> style="cursor: pointer;" onclick="window.location.href=`/root/class/<%= trida.id %>`" <% } %>>
               <h3><%= trida.name %></h3>
-              <p><%= trida.teacher %></p>
+              <p><%= trida.teacher_name %></p>
             </button>
-          <% }); %>
+          <% }); console.log(classes) %>
         </article>
       </section>
     </main>
