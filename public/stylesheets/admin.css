@@ -94,6 +94,7 @@ input, select{
   color: #020;
   font-weight: bold;
   margin-bottom: 10px;
+  width: 95%;
 }
 .origin input{
   border-radius: 10px 0 0 10px;
@@ -187,20 +188,24 @@ table {
   overflow-y: scroll;
 }
 .studentsShower div{
-  width: 22%;
   margin: 1%;
   border-radius: 20px;
   text-align: center;
   cursor: pointer;
   border: 1px solid blue;
+  flex: 1 1 auto;
+  max-height: 50px;
+  min-width: 5vw
 }
 .showerset {
   margin: 10px 10px;
   overflow-y: scroll;
-  height: 80%
+  height: 80%;
+  display: flex;
+  flex-wrap: wrap;
 }
 .showerset button{
-  width: 24%;
+  width: 50%;
 }
 .checked-cl{
   background-color: blueviolet;

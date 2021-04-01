@@ -18,7 +18,7 @@ const auth = (role) => role > 2 ? false : true;
 router.get('/', (req, res) => req.session.level ? res.redirect(`/root${req.session.level}`): res.redirect('/root/lessons'))
 router.get('/lessons', async (req, res) => {
   let s = req.session;
-  if(auth(s.role, 3)){res.redirect('/school');return;}
+  if(auth(req.session.role)){res.redirect('/school');return;}
   s.level = "/lessons";
 
   const classes = await Classes.find();
@@ -37,27 +37,28 @@ router.get('/lessons', async (req, res) => {
 });
 // uncompleted
 router.get('/lesson/:id', async (req, res) => {
-  let r_auth = auth(req.session.role);
-  if(r_auth){res.redirect(r_auth);return;}
+  if(auth(req.session.role)){res.redirect("/school");return;}
   
   let selected_lesson = await Lessons.find({"_id": req.params.id});
   let lessons = await Lessons.find();
-  let classes_raw = await Classes.find();
-  let selected_class = await Classes.findOne({"_id": req.params.id});
+  let classes = await Classes.find();
+  let selected_class;
   let teachers = await Users.find({$or: [{"role": 2}, {"role": 3}]})
   
-  classes = [];
-  if(classes_raw){
-    for (let i = 0; i < classes_raw.length; i++) {
-      classes.push({
-        id: classes_raw[i].id,
-        name: classes_raw[i].name+" - "+ classes_raw[i].mainTeacher
-      })
-    }
-  }
-  lessons.map(lesson => teachers.map(teacher => {
-    lesson.teachername = teacher.name;
-  }))
+  classes = classes.map(clas => {
+    let name = ""
+    teachers.map(teacher => teacher._id.toString() === clas.teacher ? name = teacher.name: false)
+    clas.teacher_name = name;
+    if(selected_lesson[0].clas === clas._id.toString())
+      selected_class = clas;
+    return clas;
+  })
+  lessons = lessons.map(lesson => {
+    let teacher_name = "";
+    teachers.map(teacher => lesson.teacher.toString() === teacher._id.toString() ? teacher_name = teacher.name : false);
+    lesson.teacher_name = teacher_name;
+    return lesson;
+  })
   res.render("lessons", {
     id_user: req.session.user_id,
     role: req.session.role,
@@ -71,6 +72,7 @@ router.get('/lesson/:id', async (req, res) => {
 router.get('/users', async (req, res)=>{
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
+  req.session.level = "/users";
   
   req.session.level = "/users";
 
@@ -97,95 +99,58 @@ router.get('/user/:id', async (req, res)=>{
 router.get('/classes', async (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
+  req.session.level = "/classes";
 
-  let classes 
-  
-  connection.query("SELECT * FROM `classes`", [], (error, result, fields) => {
-    if(error)throw error;
-    let classes = result;
-    connection.query("SELECT * FROM `users`", [], (error, result, fields) => {
-      if(error)throw error;
-      let teachers = [];
-      let students = [];
-      for (let index = 0; index < result.length; index++) {
-        if(result[index].role > 1){
-          teachers.push(result[index]);
-        }else{
-          students.push(result[index]);
-        }
-      }
-      for (let index = 0; index < classes.length; index++) {
-        for (let i = 0; i < teachers.length; i++) {
-          if(teachers[i].id === classes[index].mainTeacher){
-            classes[index].teacher = teachers[i].name;
-          }
-        }
-      }
-      res.render('classes', {
-        role: req.session.role,
-        classes: classes,
-        teachers: teachers,
-        students: students,
-        selected_class: []
-      })
+  let classes = await Classes.find();
+  let users = await Users.find();
+  let students = users.filter(u => u.role === 1);
+  let teachers = users.filter(u => u.role !== 1);
+  classes = classes.map(clas => {
+    teachers.map(teacher => {
+      if(teacher._id.toString() === clas.teacher.toString()) clas.teacher_name = teacher.name; 
     })
+    return clas;
+  })
+  res.render('classes', {
+    role: req.session.role,
+    classes: classes,
+    teachers: teachers,
+    students: students,
+    selected_class: []
   })
 })
-router.get('/class/:id', (req, res) => {
-  let r_auth = auth(req.session.role);
-  if(r_auth){res.redirect(r_auth);return;}
+router.get('/class/:id', async (req, res) => {
+  if(auth(req.session.role)){res.redirect(r_auth);return;}
 
-  connection.query("SELECT * FROM `classes`", [], (error, result, fields) => {
-    if(error)throw error;
-    let classes = result;
-    connection.query("SELECT * FROM `user_class` WHERE `id_class`=?", [Number(req.params.id)], (error, result, fields) => {
-      console.log(Number(req.params.id));
-      let students_in_class = result;
-      connection.query("SELECT * FROM `users`", [], (error, result, fields) => {
-        if(error)throw error;
-        let teachers = [];
-        let students = [];
-        let selected_class;
-        for (let index = 0; index < result.length; index++) {
-          if(result[index].role > 1){
-            teachers.push(result[index]);
-          }else{
-            students.push(result[index]);
-          }
-        }
-        console.log(typeof students_in_class);
-        if(typeof students_in_class !== 'undefined'){
-          for (let index = 0; index < students.length; index++) {
-            let userNotInclude = false;
-            for (let jndex = 0; jndex < students_in_class.length; jndex++) {
-              if (students[index].id === students_in_class[jndex].id_user) {
-                userNotInclude = true;
-              }
-            }
-            students[index].selIn = userNotInclude;
-          }
-        }
-        for (let index = 0; index < classes.length; index++) {
-          for (let i = 0; i < teachers.length; i++) {
-            if(teachers[i].id === classes[index].mainTeacher){
-              classes[index].teacher = teachers[i].name;
-            }
-          }
-          if(classes[index].id === Number(req.params.id)){
-            selected_class = classes[index];
-          }
-        }
-        if(typeof selected_class === 'undefined'){ res.redirect('/root/classes'); return; }
-        res.render('classes', {
-          role: req.session.role,
-          classes: classes,
-          teachers: teachers,
-          students: students,
-          selected_class: selected_class
-        })
-      })
-    })
+  let classes = await Classes.find();
+  const users = await Users.find();
+  let teachers = users.filter(u => u.role !== 1);
+  let students = users.filter(u => u.role === 1);
+  let selected_class = await Classes.findById(req.params.id);
+  students = students.map(student => {
+    let selIn = false 
+    selected_class.students.map(s => student._id.toString() === s.toString() ? selIn = true: false)
+    student.selIn = selIn;
+    return student;
   })
+  classes = classes.map(clas => {
+    let teacher_name = "";
+    teachers.map(teacher => {
+      console.log(teacher._id.toString() == clas.teacher.toString() ? teacher_name = teacher.name: false);
+      return teacher._id.toString() === clas.teacher.toString() ? teacher_name = teacher.name: false
+    });
+    clas.teacher_name = teacher_name;
+    console.log(clas);
+    return clas;
+  })
+  if(typeof selected_class === 'undefined'){ return res.redirect('/root/classes'); }
+  res.render('classes', {
+    role: req.session.role,
+    classes: classes,
+    teachers: teachers,
+    students: students,
+    selected_class: selected_class
+  });
 })
 
 // edit datas
@@ -251,49 +216,33 @@ router.get('/removeclass/:id', (req, res) => {
   })
 })
 
-router.post('/editclass', (req, res) => {
+router.post('/editclass', async (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
 
-  let name = req.body.name;
-  let teacher = Number(req.body.teacher);
-  let students = req.body.students;
+  let {name, teacher, students = [], id = ""} = {...req.body}
+  console.log(`${name}, ${teacher}, ${students}, ${id}`);
 
-  // add item to classes
-  connection.query("INSERT INTO `classes`(`name`, `mainTeacher`) VALUES (?,?)",[name, teacher],(error, result, fields) => {
-    if(error)throw error;
-    for (let index = 0; index < students.length; index++) {
-      connection.query("INSERT INTO `user_class`(`id_user`, `id_class`) VALUES (?,?)", [Number(students[index]), req.params.id], (error, result, fields) => {
-        if(error)throw error;
-      })
-    }
-    res.redirect('/root/classes');
-  })
-})
-
-router.post('/editclass/:id', (req, res) => {
-  let r_auth = auth(req.session.role);
-  if(r_auth){res.redirect(r_auth);return;}
-  console.log(req.body);
-
-  let name = req.body.name;
-  let teacher = Number(req.body.teacher);
-  let students = req.body.students;
-
-  // add item to classes
-  connection.query("UPDATE `classes` SET `name`=?,`mainTeacher`=? WHERE `id`=?",[name, teacher, req.params.id],(error, result, fields) => {
-    if(error)throw error;
-  })
-  connection.query("DELETE FROM `user_class` WHERE `id_class`=?", [req.params.id], (error, result, fields) => {
-    if(error)throw error;
-  })
-  for (let index = 0; index < students.length; index++) {
-    connection.query("INSERT INTO `user_class`(`id_user`, `id_class`) VALUES (?,?)", [Number(students[index]), req.params.id], (error, result, fields) => {
-      if(error)throw error;
+  if(id === ''){
+    let clas = new Classes({
+      'name': name,
+      'teacher': teacher,
+      'students': students,
+      'avg': 0,
     })
+    await clas.save()
+    res.redirect(`/root/class/${clas._id}`);
+    return;
   }
-  res.redirect(`/root/class/${req.params.id}`);
+  let clas = await Classes.findById(id)
+  await clas.update({
+    'name': name,
+    'teacher': teacher,
+    'students': students
+  })
+  res.redirect(`/root/class/${clas._id}`);
 })
+
 router.post('/messenge', (req, res)=>{
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
