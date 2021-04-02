@@ -85,7 +85,7 @@ router.get('/exams/:id/:test', async (req, res) => {
 	let answers = await Answers.find({answer_id: req.params.test})
 	let AVG_global = 0;
 	let AVG_count = tests.length;
-	let users_raw = await Users.find({role: 1})
+	let students = await Users.find({role: 1})
 
 	tests.map(test => {
 		AVG_global += test.avg;
@@ -95,9 +95,9 @@ router.get('/exams/:id/:test', async (req, res) => {
 	const AVG = AVG_global/100/AVG_count;
 
 	let users = clas.students.map(student => {
-		for (let i = 0; i < users_raw.length; i++) 
-			if(student == users_raw[i]._id.toString())
-				return users_raw;
+		for (let i = 0; i < students.length; i++) 
+			if(student == students[i]._id.toString())
+				return students[i];
 	})
 	let modify_users = []; // saving id, name and mark
 
