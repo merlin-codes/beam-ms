@@ -148,10 +148,10 @@ router.get('/school', async (req, res) => {
 		lessons_time: lessons_time
 	})
 })
-router.post('/grade/:id/:test', (req, res) => {
+router.post('/grade/:id/:test', async(req, res) => {
 	if(req.session.role < 2){return res.redirect("/school");}
 
-	const answers = Answers.find({answer_id: req.params.test});
+	const answers = await Answers.find({answer_id: req.params.test});
 
 	let marks = req.body.marks;
 	let [marksCount, avg] = [marks.length, 0]
@@ -162,7 +162,7 @@ router.post('/grade/:id/:test', (req, res) => {
 		avg += mark[1];
 		marksCount = mark[1] != 0 ? marksCount : marksCount--;
 	})
-	Tests.findByIdAndUpdate(req.params.test, {avg: all_marks/all_list})
+	Tests.findByIdAndUpdate(req.params.test, {avg: avg/marksCount})
 
 	res.redirect(`/teacher/exams/${req.params.id}/${req.params.test}`);
 })
