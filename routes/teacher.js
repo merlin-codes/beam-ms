@@ -8,6 +8,7 @@ const Tests = require('../Models/Tests');
 const Users = require('../Models/Users');
 const Lessons = require('../Models/Lessons');
 const Answers = require('../Models/Answers');
+const Classes = require('../Models/Classes');
 require('dotenv').config();
 
 // functions
@@ -100,12 +101,15 @@ router.get('/exams/:id/:test', async (req, res) => {
 	})
 	let modify_users = []; // saving id, name and mark
 
+	if(typeof users === "undefined")
+		return res.redirect(`/exams/${req.params.id}`)
+
 	users = users.map(user => {
 		let have_answer = 0;
 		answers.map(answer => answer.author.toString() === user._id.toString() ? 
 			have_answer = answer.mark : false)
 		modify_users.push({
-			id: user._id.toString,
+			id: user._id,
 			name: user.name,
 			have_answer
 		})
@@ -114,7 +118,7 @@ router.get('/exams/:id/:test', async (req, res) => {
 	res.render('exams', {
 		class_id: req.params.id,
 		role: req.session.role,
-		classes: classes,
+		classes: lessons,
 		tests: tests,
 		students: modify_users,
 		selected_test: selected_test,
