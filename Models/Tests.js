@@ -5,8 +5,11 @@ const Test = mongoose.Schema(
         name: String,
         lesson: Object,
         author: Object,
-        template: Object
+        timout: Number,
+        date: Object,
+        template: Object,
+        avg: Number
     }
 )
 
-module.exports = mongoose.model('Tests')
+module.exports = mongoose.model('Tests', Test)

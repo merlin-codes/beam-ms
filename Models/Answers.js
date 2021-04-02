@@ -2,19 +2,12 @@ const mongoose = require('mongoose');
 
 const Answer = mongoose.Schema(
     {
-        author: {
-            type: Object,
-            required: true
-        },
-        template: {
-            type: Object,
-            require: true
-        },
-        mark: {
-            type: Number,
-            required: false
-        }
+        author: Object,
+        template: Object,
+        test: Boolean,
+        answer_id: Object,
+        mark: Number 
     }
 )
 
-module.exports = mongoose.model('Answers')
+module.exports = mongoose.model('Answers', Answer)

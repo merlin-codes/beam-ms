@@ -14,7 +14,8 @@ const LessonSchema = mongoose.Schema(
         ],
         clas: Object,
         teacher: Object,
-        students: Array
+        students: Array,
+        avg: Number
     }
 )
 
