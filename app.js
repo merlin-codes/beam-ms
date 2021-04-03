@@ -10,12 +10,6 @@ const mongoose = require('mongoose');
 
 require('dotenv').config();
 const app = express();
-mongoose.connect(process.env.MongoDB, { useNewUrlParser: true, useUnifiedTopology: true })
-.then(result => {
-  console.log("[MongoDB]: Firing on...");
-  return;
-})
-.catch(err => console.log(err))
 
 // setuping
 app.set('views', path.join(__dirname, 'views'));
@@ -63,7 +57,5 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500);
   res.render('error');
 });
-
-app.listen(3000)
 
 module.exports = app;

@@ -7,13 +7,17 @@
 var app = require('../app');
 var debug = require('debug')('beam-ms:server');
 var http = require('http');
+const mongoose = require('mongoose');
 
 /**
  * Get port from environment and store in Express.
  */
-
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+ mongoose.connect(process.env.MongoDB, { useNewUrlParser: true, useUnifiedTopology: true })
+ .then(result => {
+   console.log("[MongoDB]: Firing on...");
+   app.listen(3000);
+ })
+ .catch(err => console.log(err))
 
 /**
  * Create HTTP server.
