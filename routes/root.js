@@ -209,11 +209,8 @@ router.get('/removeclass/:id', (req, res) => {
   if(r_auth){res.redirect(r_auth);return;}
 
   let id = Number(req.params.id);
-
-  connection.query('DELETE FROM `classes` WHERE `id`=?',[id], (error, result, fields) => {
-    if(error)throw error;
-    res.redirect("/root/classes");
-  })
+  
+  Classes.findByIdAndRemove(req.params.id).then(() => res.redirect(/root/classes))
 })
 
 router.post('/editclass', async (req, res) => {
