@@ -7,7 +7,8 @@ const bodyParser = require('body-parser');
 const Lessons = require('../Models/Lessons');
 const Classes = require('../Models/Classes');
 const Users = require('../Models/Users');
-const MSGs = require('../Models/MSGs')
+const MSGs = require('../Models/MSGs');
+const Tests = require('../Models/Tests');
 require('dotenv').config();
 
 const auth = (role) => role > 2 ? false : true;
@@ -204,13 +205,17 @@ router.get('/remove_lesson/:id', (req, res) => {
   Lessons.findOneAndDelete({"_id":req.params.id}, () => {res.redirect('/root/lessons')})
 })
 
-router.get('/removeclass/:id', (req, res) => {
+router.get('/removeclass/:id', async (req, res) => {
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
 
   let id = Number(req.params.id);
+
+  await Users.find({class: req.params.id}).update({class: null})
+  await Lessons.find({clas: req.params.id}).update({clas: null})
   
-  Classes.findByIdAndRemove(req.params.id).then(() => res.redirect("/root/classes"))
+  await Classes.findByIdAndRemove(req.params.id)
+  res.redirect("/root/classes")
 })
 
 router.post('/editclass', async (req, res) => {
