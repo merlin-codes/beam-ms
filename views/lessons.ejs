@@ -48,10 +48,8 @@
                   <% }}); %>
               </select>
               <select name="clas">
-                <% if(typeof classes !== 'undefined'){
-                  classes.forEach(clas => { 
-                    console.log(selected_class);%>
-                    <option value="<%= clas._id %>" <% if(typeof selected_class._id !== "undefined" && selected_class._id.toString() === clas._id.toString() ){%> selected <%} %>><%= clas.name %> - <%= clas.teacher_name %></option>
+                <% if(typeof classes !== 'undefined'){ classes.forEach(clas => { %>
+                    <option value="<%= clas._id %>" <% if(typeof selected_class !== "undefined" && selected_class._id.toString() === clas._id.toString() ){%> selected <%} %>><%= clas.name %> - <%= clas.teacher_name %></option>
                   <% });
                 } %>
               </select>
