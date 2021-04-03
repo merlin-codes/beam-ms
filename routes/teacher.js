@@ -39,7 +39,7 @@ router.get('/exams/:id/new', (req, res) => {
 		class_id: req.params.id,
 	})
 })
-router.post('/exams/create', (req, res) => {
+router.get('/exams/create', (req, res) => {
 	if(req.session.role < 2){return res.redirect("/school");}
 
 	let {title, questions, timout, datetime, id} = {...req.body}
