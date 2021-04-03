@@ -210,7 +210,7 @@ router.get('/removeclass/:id', (req, res) => {
 
   let id = Number(req.params.id);
   
-  Classes.findByIdAndRemove(req.params.id).then(() => res.redirect(/root/classes))
+  Classes.findByIdAndRemove(req.params.id).then(() => res.redirect("/root/classes"))
 })
 
 router.post('/editclass', async (req, res) => {
