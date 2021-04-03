@@ -52,7 +52,8 @@ router.post('/exams/create', (req, res) => {
         author: req.session.user_id,
         timout: timout,
         date: datetime,
-        template: questions
+        template: questions,
+		avg: 0,
 	})
 	test.save().then(() => res.redirect(`/teacher/exams/${id}/${test._id}`))
 })
