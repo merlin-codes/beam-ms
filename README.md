@@ -29,6 +29,7 @@ Admin panel
 
 Teachers panel
 - Exams - working but not request to create new one
+- School - working
 
 Main 
 - MSG - logged users can see MSGs
