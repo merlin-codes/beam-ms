@@ -111,12 +111,11 @@ router.get('/users-list', async (req, res) => {
 router.post("/auth", async (req, res) => {
 	const [s, b] = [req.session, req.body];
   	if(s.loggedin){ res.redirect("/school"); return; }
-	console.log(b);
 	const user = await User.findOne({ $or: [{"name": b.uid},{ "email": b.uid}]});
 	console.log(user);
 	if (user !== null){
 		bcrypt.compare(b.pwd, user.pwd, (err, result) => {
-			if(result && user){
+			if(result){
 				s.role =  user.role;
 				s.loggedin = true;
 				s.user_id = user._id;

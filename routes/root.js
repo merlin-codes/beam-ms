@@ -163,8 +163,8 @@ router.post('/edituser', (req, res) => {
   let {name, email, role, pwd, id} = {...req.body}
   role = role == "teacher" ? role = 2: role == "principal" ? 3:1
 
-	if (id === "")
-    bcrypt.hash(pwd, 10, (err, hash)=>{
+  bcrypt.hash(pwd, 10, (err, hash) => {
+    if (id === ""){
       let user = new Users({
         'name': name,
         'role': role,
@@ -176,11 +176,13 @@ router.post('/edituser', (req, res) => {
         res.redirect(`/root/user/${user._id}`);
         return;
       })
-    });
-  let updatedData = {"name":name, "email":email, "role":role}
-  if(pwd !== "")
-    updatedData.pwd = pwd
-  Users.updateOne({"_id":id}, updatedData).then(() => res.redirect(`/root/user/${id}`))
+    } else {
+      let updatedData = {"name":name, "email":email, "role":role}
+      if(pwd !== "")
+        updatedData.pwd = hash
+      Users.updateOne({"_id":id}, updatedData).then(() => res.redirect(`/root/user/${id}`))
+    }
+  });
 })
 
 router.post('/editlesson', (req, res) => {
