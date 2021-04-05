@@ -63,7 +63,6 @@ router.get('/exams/:id', async (req, res) => {
 	const lessons = await Lessons.find({teacher: req.session.user_id})
 	const tests = await Tests.find({lesson: req.params.id})
 	const selected_lesson = await Lessons.findByIdAndUpdate(req.params.id)
-	console.log(selected_lesson);
 	
 	res.render('exams', {
 		class_id: req.params.id,
@@ -115,7 +114,6 @@ router.get('/exams/:id/:test', async (req, res) => {
 			have_answer
 		})
 	})
-	console.log(modify_users);
 	res.render('exams', {
 		class_id: req.params.id,
 		role: req.session.role,
@@ -142,7 +140,6 @@ router.get('/school', async (req, res) => {
 			})
 		})
 	})
-	console.log(lessons_time);
 	res.render('school', {
 		role: req.session.role,
 		title: "MBS - My school",
