@@ -3,16 +3,11 @@ const session = require('cookie-session');
 const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const Lessons = require('../Models/Lessons');
+const Classes = require('../Models/Classes');
 require('dotenv').config();
 
 // definitions
 const router = express.Router();
-// const connection = mysql.createConnection({
-// 	host     : process.env.DB_HOST,
-// 	user     : process.env.DB_USER,
-// 	password : process.env.DB_PS,
-// 	database : process.env.DB_NAME
-// });
 
 // routes
 router.get('/', (req, res) => {
@@ -32,78 +27,34 @@ router.get('/school', async (req, res) => {
 		res.redirect("/teacher");
 		return;
 	}
-	// let lessons = [];
-	// let times = [];
+	let classes = await Classes.find();
+	classes = classes.filter(clas => {
+		let isIncluded = false;
+		clas.students.filter(student => student._id === req.session.user_id ? isIncluded = true: false);
+		return isIncluded;
+	})
+	let lessons = [];
+	classes.map(async clas => {
+		let lessons_raw = await Lessons.find({clas: clas._id});
+		lessons_raw.map(lu => lessons.push(lu));
+	})
 
-	const lessons = await Lessons.find();
-	const lessons_student = lessons ? lessons.filter(lessson => lessson.students.filter(student => student === req.session.user_id)): undefined;
-
-	const times = lessons_student?lessons_student.map(lesson_student => {
-		lessons_student.time.map(time_raw => {
-			return {
-				id_class: lesson_student._id,
-				name: lesson_student.name,
-				day: time_raw.day,
-				time: time_raw.time
-			}
+	let times = lessons ? lessons.map(l => {
+		l.time.map(t => {
+			times.push({
+				id_class: l._id,
+				name: l.name,
+				day: t.day,
+				time: t.time
+			})
 		})
-	}): [];
+	}) : undefined;
 	
 	res.render('school', {
 		role: req.session.role,
 		title: "MBS - My School",
 		lessons_time: times
 	})
-
-	{// get all lessons where is student
-	// connection.query("SELECT * FROM `user_lesson` WHERE `id_user`=?",
-	// [req.session.user_id],(error, result, fields)=>{
-	// 	if(error){
-	// 		console.log(error);
-	// 		res.send("something bad is going on. It this error showed you for lot of time send email to >> or just go ...");
-	// 		return;
-	// 	}
-	// 	let lessons_id = result;
-	// 	// res.send("user lesson working")
-	// 	lessons_id.forEach((item, i) => {
-	// 		// get lessons by lessons_id
-	// 		connection.query("SELECT * FROM `lessons` WHERE `id`=?",[item.id_class],(error, result, fields)=>{
-	// 			if(error){
-	// 				console.log(error);
-	// 			}
-	// 			lessons.push(result[0]);
-	// 			if(i+1 === lessons_id.length){
-	// 				// now i have all lessons
-	// 				lessons.forEach((clas, index) => {
-	// 					let time = clas.time;
-	// 					if(time.includes('.')){
-	// 						time = time.split('.');
-	// 					}else{
-	// 						time = [time];
-	// 					}
-	// 					time.forEach((data, index2) => {
-	// 						let timer = data.split('-');
-	// 						lessons_time.push({
-	// 							id_class: clas.id,
-	// 							name: clas.name,
-	// 							day: timer[0].toLowerCase(),
-	// 							time: Number(timer[1])
-	// 						});
-	// 						if (index2+1 === time.length && lessons.length === index+1) {
-	// 							res.render('school', {
-	// 								role: req.session.role,
-	// 								title: "MBS - My school",
-	// 								lessons_time: lessons_time,
-	// 							});
-	// 							return;
-	// 						}
-	// 					});
-	// 				});
-	// 			}
-	// 		});
-	// 	});
-	// });
-}
 });
 router.get('/marks', (req, res) => {
   if(!req.session.loggedin){
