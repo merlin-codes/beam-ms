@@ -2,7 +2,12 @@
 .uvod{
     height: 20vh;
     text-align: center;
-    padding: 200px 80px;
+    padding: 100px 80px;
+    background: #03c;
+    max-width: 50vw;
+    max-height: 25vh;
+    margin: 50px auto 100px auto;
+    border-radius: 100px;
 }
 .uvod p{
     color: gray;

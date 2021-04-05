@@ -6,7 +6,8 @@ form{
   border-radius: 20px;
   background-color: white;
   margin: auto;
-  width: 25vw;
+  width: 500px;
+  padding: 10px 20px;
   display: flex;
   background-color: orange;
   flex-direction: column;
