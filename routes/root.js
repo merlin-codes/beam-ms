@@ -143,12 +143,8 @@ router.get('/class/:id', async (req, res) => {
   })
   classes = classes.map(clas => {
     let teacher_name = "";
-    teachers.map(teacher => {
-      console.log(teacher._id.toString() == clas.teacher.toString() ? teacher_name = teacher.name: false);
-      return teacher._id.toString() === clas.teacher.toString() ? teacher_name = teacher.name: false
-    });
+    teachers.map(teacher => teacher._id.toString() === clas.teacher.toString() ? teacher_name = teacher.name: false);
     clas.teacher_name = teacher_name;
-    console.log(clas);
     return clas;
   })
   if(typeof selected_class === 'undefined'){ return res.redirect('/root/classes'); }
@@ -190,7 +186,6 @@ router.post('/edituser', (req, res) => {
 router.post('/editlesson', (req, res) => {
   if(auth(req.session.role)){res.redirect('/school'); return;}
   let {name, teachername, id, time, clas} = {...req.body};
-  console.log(`${name}, ${teachername}, ${id}, ${time}, ${clas}`);
   if (id === "undefined") {
     let lesson = new Lessons({
       "name": name,
@@ -230,7 +225,6 @@ router.post('/editclass', async (req, res) => {
   if(r_auth){res.redirect(r_auth);return;}
 
   let {name, teacher, students = [], id = ""} = {...req.body}
-  console.log(`${name}, ${teacher}, ${students}, ${id}`);
 
   if(id === ''){
     let clas = new Classes({
@@ -258,10 +252,7 @@ router.post('/messenge', (req, res)=>{
   new MSGs({
     "author": req.session.user_id,
     "content": req.body.messenge 
-  }).save().then(err => {
-    if(err) console.log(err);
-    res.redirect('/root/users');
-  })
+  }).save().then(err => res.redirect('/root/users'))
 })
 
 // redirect to index controller
