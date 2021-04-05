@@ -22,9 +22,16 @@ router.get('/lessons', async (req, res) => {
   if(auth(req.session.role)){res.redirect('/school');return;}
   s.level = "/lessons";
 
-  const classes = await Classes.find();
+  let classes = await Classes.find();
   const teachers = await Users.find({$or: [{role: 2}, {role: 3}]});
   let lessons = await Lessons.find();
+
+  classes = classes.map(clas => {
+    let name = ""
+    teachers.map(teacher => teacher._id.toString() === clas.teacher ? name = teacher.name: false)
+    clas.teacher_name = name;
+    return clas;
+  })
 
   res.render("lessons", {
     id_user: s.user_id,
@@ -184,7 +191,7 @@ router.post('/editlesson', (req, res) => {
   if(auth(req.session.role)){res.redirect('/school'); return;}
   let {name, teachername, id, time, clas} = {...req.body};
   console.log(`${name}, ${teachername}, ${id}, ${time}, ${clas}`);
-  if (id === '') {
+  if (id === "undefined") {
     let lesson = new Lessons({
       "name": name,
       "teacher": teachername,
