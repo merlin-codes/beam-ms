@@ -62,15 +62,23 @@ router.get('/exams/:id', async (req, res) => {
 
 	const lessons = await Lessons.find({teacher: req.session.user_id})
 	const tests = await Tests.find({lesson: req.params.id})
-	const selected_lesson = await Lessons.findByIdAndUpdate(req.params.id)
-	
+	const selected_lesson = await Lessons.findById(req.params.id)
+	const selected_clas = await Classes.findById(selected_lesson.clas);
+	const students_raw = await Users.find({role: 1});
+	let students = selected_clas.students.map(student => {
+		let returner = "";
+		students_raw.map(student_raw => student === student_raw._id.toString() ? returner = student_raw: false)
+		return returner;
+	});
+	console.log(students);
+
 	res.render('exams', {
 		class_id: req.params.id,
 		role: req.session.role,
 		classes: lessons,
 		tests: tests,
 		selected_test: [],
-		students: selected_lesson.students,
+		students: students,
 		AVG: selected_lesson.avg
 	})
 })
