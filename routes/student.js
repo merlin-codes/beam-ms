@@ -15,62 +15,55 @@ router.get('/', (req, res) => {
 });
 router.get('/school', async (req, res) => {
 	let s = req.session;
-	console.log(s.role);
-	console.log(s.user_id);
-	console.log(s.loggedin);
+	if(s.role !== 1) {res.redirect('/school'); return;}
 
-	if(!req.session.loggedin){
-		res.redirect("/login");
-		return;
-	}else if (Number(req.session.role) >= 2) {
-		console.log("You are teacher");
-		res.redirect("/teacher");
-		return;
-	}
 	let classes = await Classes.find();
 	classes = classes.filter(clas => {
 		let isIncluded = false;
-		clas.students.filter(student => student._id === req.session.user_id ? isIncluded = true: false);
+		clas.students.map(student => student === req.session.user_id ? isIncluded = true: false);
 		return isIncluded;
-	})
+	});
 	let lessons = [];
-	classes.map(async clas => {
-		let lessons_raw = await Lessons.find({clas: clas._id});
-		lessons_raw.map(lu => lessons.push(lu));
-	})
-
-	let times = lessons ? lessons.map(l => {
-		l.time.map(t => {
-			times.push({
-				id_class: l._id,
-				name: l.name,
-				day: t.day,
-				time: t.time
-			})
-		})
-	}) : undefined;
+	if(classes.length < 2){
+		clas = classes[0];
+		lessons = await Lessons.find({clas: clas._id.toString()})
+	}else{
+		classes.map(async clas => lessons.concat(await Lessons.find({clas: clas._id.toString()})));
+	}
 	
+	let times = !lessons ? [] : lessons.map(lesson => lesson.time.map(t => {return {id_class: lesson._id.toString(), name: lesson.name, day: t.day, time: t.time}}))
+	console.log(times);
 	res.render('school', {
 		role: req.session.role,
 		title: "MBS - My School",
-		lessons_time: times
+		lessons_time: times[0]
 	})
 });
-router.get('/marks', (req, res) => {
-  if(!req.session.loggedin){
-    res.redirect("/login");
-  }
-  if(Number(req.session.role) === 1){
-    res.render('mark', {
-      title: "MBS - my schoool",
-      role: req.session.role
-    });
-  }else{
-    res.render('mark', {
-      title: "MBS - my schoool",
-      role: req.session.role
-    });
-  }
+router.get('/marks', async (req, res) => {
+	if(req.session.role !== 1) {res.redirect('/school'); return;}
+
+	let classes = await Classes.find()
+	let lessons = [];
+	classes.filter(clas => {
+		let isInclude = false;
+		clas.students.map(student => req.session.user_id === student ? isInclude = true : false)
+		return isInclude;
+	}).map( async (clas, i) => {
+		lessons.concat(await Lessons.find({clas: clas._id.toString()}))
+	})
+	console.log(lessons);
+
+	if(req.session.role === 1){
+		res.render('mark', {
+			title: "MBS - my schoool",
+			role: req.session.role
+		});
+	}else{
+		res.render('mark', {
+			title: "MBS - my schoool",
+			role: req.session.role
+		});
+	}
 });
 
 router.get('/login', (req, res)=>{
