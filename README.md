@@ -6,7 +6,7 @@ Project > node, mongoDB and little bit of vue
 
 ## State of project
 ---
-Under construction 
+### Under construction 
 
 --- 
 Teachers
@@ -14,22 +14,24 @@ Teachers
 - Elearning - not working 
 
 Students
-- School - not completed
-- marks - not review
+- marks - only template
 - Elearning - not working
+---
+### completed
 
-completed
-
---- 
+---
 Admin panel 
 - lessons
 - users
 - classes
-- sending global MSG
+- sending global messages
 
 Teachers panel
-- Exams - working but not request to create new one
+- Exams - working
 - School - working
 
-Main 
-- MSG - logged users can see MSGs
+Students panel
+- School - working
+
+Main panel
+- Messages - logged users can see messages
