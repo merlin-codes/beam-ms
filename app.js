@@ -24,7 +24,7 @@ app.use(
   })
 );
 
-mongoose.connect(process.env.MongoDB, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(process.env.MongoDB, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
 .then(() => {
   console.log("[MongoDB]: Firing on...");
 })

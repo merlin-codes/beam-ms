@@ -137,11 +137,12 @@
           }else if(this.questions.length < 1){
             alert("You must have more than zero questions.")
           }else{
-            axios.post('/teacher/exams/<%= class_id %>/create', {
-              name: this.name,
+            axios.post('/teacher/exams/create', {
+              title: this.name,
               datetime: new Date(this.atleast.date, this.atleast.time),
               timout: this.timeout,
-              questions: JSON.stringify(this.questions)
+              questions: this.questions,
+              id: '<%= class_id %>'
             }).then(response => this.responseData = response.data).catch(error => {});
             window.location.href="/teacher/exams/<%= class_id %>"
           }

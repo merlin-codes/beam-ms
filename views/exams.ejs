@@ -44,23 +44,19 @@ if(AVG_local < 0.3){
 %>
 <main>
   <section class="sidebar">
-    <h1>
-      <select class="" name="">
-        <% classes.forEach(trida => {
-          if(class_id === trida.id){%>
-           <option onclick="window.location.href=`/teacher/exams/<%= trida.id %>`"selected>
-             <%= trida.name %>
-           </option>
-         <%}else {%>
-           <option onclick="window.location.href=`/teacher/exams/<%= trida.id %>`">
-             <%= trida.name %>
-           </option>
-         <%}}) %>
-      </select>
-    </h1>
-    <% tests.forEach(test => {%>
-      <p><a href="/teacher/exams/<%= class_id %>/<%= test.id %>"><%= test.name %></a></p>
-    <%})%>
+    <div style="height: 100px; display: flex; flex-direction: column; overflow: auto; padding-bottom: 20px;">
+      <% classes.forEach(trida => {%>
+        <button style="padding: 10px 0" onclick="window.location.href=`/teacher/exams/<%= trida.id %>`" <%= class_id === trida.id ? 'disabled': "" %>>
+          <%= trida.name %>
+        </button>
+      <% }) %> 
+    </div>
+    <hr style="border: 5px solid gray;">
+    <div class="display: flex; flex-direction: column; overflow: auto;">
+      <% tests.forEach(test => {%>
+        <button onclick="<%= `/teacher/exams/${class_id}/${test.id}` %>" style="padding: 10px 0;"><%= test.name %></button>
+      <% }) %>
+    </div>
     <p><a href="/teacher/exams/<%= class_id %>/new">new exam</a></p>
   </section>
   <form class="control" action="/teacher/grade/<%= class_id %>/<%= selected_test.id %>" method="POST">
@@ -88,18 +84,18 @@ if(AVG_local < 0.3){
         <h3>name of student</h3>
         <p>mark</p>
       </span>
-      <% if(students !== ''){
-        students.forEach((student) => {%>
+      <% if(students !== ''){ %>
+        <% students.map((student) => { %>
         <span>
             <p><%= student.name %></p>
-            <select name="marks[]">
-              <% marks.forEach(mark => { %>
-                <option value="<%= student.id %>_<%= mark.val %>" <% if(mark.val === student.mark) {%> selected <%} %>><%= mark.name %></option>
+            <select autocomplete="off" name="marks[]" id="<%= student.id%>">
+              <% marks.map(mark => { %>
+                <option value="<%= student.id %>_<%= mark.val %>" <%= mark.val === student.mark ? `selected`:"" %>><%= mark.name %></option>
               <% }); %>
             </select>
         </span>
-        <% })
-      } %>
+        <% }) %>
+      <% } %>
     </article>
   </form>
 </main>
