@@ -81,6 +81,7 @@ router.get('/exams/:id', async (req, res) => {
 		classes: lessons,
 		tests: tests,
 		selected_test: [],
+		selected_lesson: selected_lesson,
 		students: students,
 		AVG: selected_lesson.avg
 	})
@@ -120,7 +121,6 @@ router.get('/exams/:id/:test', async (req, res) => {
 		let have_answer = 0;
 		answers.map(answer => answer.author.toString() === user._id.toString() ?
 			have_answer = answer.mark : false)
-		console.log(have_answer);
 		modify_users.push({
 			id: user._id,
 			name: user.name,
@@ -134,7 +134,7 @@ router.get('/exams/:id/:test', async (req, res) => {
 		tests: tests,
 		students: modify_users,
 		selected_test: selected_test,
-		AVG: AVG
+		AVG: AVG > 1 ? AVG : 2.5
 	})
 })
 router.get('/school', async (req, res) => {

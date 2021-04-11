@@ -28,6 +28,7 @@ nav a.onpage{
 }
 nav a:hover{
   background-color: #dd9f00;
+  color: #0a58ca
 }
 nav{
     display: flex;

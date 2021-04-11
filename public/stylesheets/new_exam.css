@@ -9,6 +9,9 @@
     background-color: #6C7CD0;
     padding: 20px;
 }
+header{
+  width: 100vw
+}
 .question_list{
     background-color: #5d6ab0;
     padding: 50px 10px;

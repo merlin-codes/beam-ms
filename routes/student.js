@@ -87,7 +87,7 @@ router.get('/mark/:id', async (req, res) => {
 		role: req.session.role,
 		lessons: lessons,
 		answers: answers,
-		selected_lesson: selected_lesson,
+		selected_lesson: selected_lesson[0],
 		AVG: isNaN(AVG_value/AVG_count) ? undefined : AVG_value/AVG_count
 	});
 });
