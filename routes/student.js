@@ -4,6 +4,8 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const Lessons = require('../Models/Lessons');
 const Classes = require('../Models/Classes');
+const Answers = require('../Models/Answers');
+const Tests = require('../Models/Tests');
 require('dotenv').config();
 
 // definitions
@@ -58,6 +60,33 @@ router.get('/marks', async (req, res) => {
 		title: "MBS - my schoool",
 		role: req.session.role,
 		lessons: lessons
+	});
+});
+router.get('/mark/:id', async (req, res) => {
+	if(req.session.role !== 1) {res.redirect('/school'); return;}
+	let answers = await Answers.find({author: req.session.user_id})
+	let lessons = await getLessonsByStudent(req.session.user_id);
+	let selected_lesson = await Lessons.find({_id: req.params.id})
+	let tests = await Tests.find({lesson: req.params.id})
+	answers = answers.map(answer => {
+		console.log(answer);
+		for (let i = 0; i < tests.length; i++){
+			if(tests[i]._id.toString() === answer.answer_id){
+				answer.test_name = tests[i].name
+				return answer;
+			}
+		}
+	})
+	if (typeof answers[0] === "undefined") answers = undefined;
+
+	console.log(answers);
+
+	res.render('mark', {
+		title: "MBS - my schoool",
+		role: req.session.role,
+		lessons: lessons,
+		answers: answers,
+		selected_lesson: selected_lesson
 	});
 });
 

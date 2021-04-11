@@ -8,7 +8,7 @@
   <section class="sidebar">
     <h1>Classes</h1>
     <% lessons.map(lesson => { %>
-      <p><a href=""><%= lesson.name %></a></p>
+      <p><a href="/student/mark/<%= lesson._id %>"><%= lesson.name %></a></p>
     <% }) %>
   </section>
   <section class="statistic">
@@ -17,14 +17,20 @@
     </article>
     <article class="exams">
       <span class="first-span">
-        <p>Name of exam</p>
+        <p>Name of test</p>
         <p>mark</p>
       </span/>
-      <% if(typeof selected_lesson !== "undefined"){ %>
-        <span class="first-span">
-          <p>Name of exam</p>
-          <p>mark</p>
-        </span/>
+      <% if (typeof selected_lesson !== "undefined") { %>
+        <% if(typeof answers != "undefined" && answers.length > 0){ %>
+          <% answers.map(answer => { %>
+            <span class="first-span">
+              <p><%= answer.test_name %></p>
+              <p><%= answer.mark !== null ? answer.mark : "No mark" %></p>
+            </span/>
+          <% }) %>
+        <% } else { %>
+          <h1>You didn't write any test</h1>
+        <% } %>
       <% } else { %>
         <h1>Lesson is not selected</h1>
       <% } %>
