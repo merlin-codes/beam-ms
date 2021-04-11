@@ -4,7 +4,7 @@
   role: role
 }); %>
     <main>
-      <% msgs.forEach(msg => { %>
+      <% msgs.map(msg => { %>
       <article>
         <span>
           <p><%= msg.when %></p>
