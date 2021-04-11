@@ -1,17 +1,17 @@
 # *BMS - slavek*
-This project is oriented for School with Marks, logging, testing and homeworks system. 
+This project is oriented for School with Marks, logging, testing and homeworks system.
 
 Project > node, mongoDB and little bit of vue
 
 
 ## State of project
 ---
-### Under construction 
+### Under construction
 
---- 
+---
 Teachers
-- Homeworks - not working 
-- Elearning - not working 
+- Homeworks - not working
+- Elearning - not working
 
 Students
 - marks - only template
@@ -20,7 +20,7 @@ Students
 ### completed
 
 ---
-Admin panel 
+Admin panel
 - lessons
 - users
 - classes
@@ -35,3 +35,6 @@ Students panel
 
 Main panel
 - Messages - logged users can see messages
+
+### Bugs need fix
+- tests - saving to DB saves only date not time
