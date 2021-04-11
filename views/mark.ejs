@@ -7,30 +7,27 @@
 <main>
   <section class="sidebar">
     <h1>Classes</h1>
-    <p><a href="">Cesky jazyk</a></p>
-    <p><a href="">Matika</a></p>
+    <% lessons.map(lesson => { %>
+      <p><a href=""><%= lesson.name %></a></p>
+    <% }) %>
   </section>
   <section class="statistic">
     <article class="student">
-      <h1>Subject</h1><h1>3.54</h1>
+      <h1>Subject</h1><h1>AVG: Zero</h1>
     </article>
     <article class="exams">
       <span class="first-span">
         <p>Name of exam</p>
         <p>mark</p>
-      </span>
-      <span>
-        <p>Po - Fast test</p>
-        <p>3</p>
-      </span>
-      <span>
-        <p>Po - Fast test</p>
-        <p>3</p>
-      </span>
-      <span class="last-span">
-        <p>Po - Fast test</p>
-        <p>3</p>
-      </span>
+      </span/>
+      <% if(typeof selected_lesson !== "undefined"){ %>
+        <span class="first-span">
+          <p>Name of exam</p>
+          <p>mark</p>
+        </span/>
+      <% } else { %>
+        <h1>Lesson is not selected</h1>
+      <% } %>
     </article>
   </section>
 </main>
