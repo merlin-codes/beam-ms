@@ -9,6 +9,19 @@ require('dotenv').config();
 // definitions
 const router = express.Router();
 
+function getLessonsToTime(lessons) {
+	let returner = new Array();
+	for (let i = 0; i < lessons.length; i++) {
+		let lesson_time = lessons[i].time.map(t => {return {id_class: lessons[i]._id.toString(), name: lessons[i].name, day: t.day, time: t.time}})
+		if(i === 0){
+			returner = lesson_time
+		}else{
+			returner = returner.concat(lesson_time)
+		}
+	}
+	return returner;
+}
+
 // routes
 router.get('/', (req, res) => {
   res.redirect("/student/school");
@@ -23,20 +36,21 @@ router.get('/school', async (req, res) => {
 		clas.students.map(student => student === req.session.user_id ? isIncluded = true: false);
 		return isIncluded;
 	});
-	let lessons = [];
-	if(classes.length < 2){
-		clas = classes[0];
-		lessons = await Lessons.find({clas: clas._id.toString()})
-	}else{
-		classes.map(async clas => lessons.concat(await Lessons.find({clas: clas._id.toString()})));
-	}
+	let lessons = new Array();
+	if(classes.length < 2) lessons = await Lessons.find({clas: classes[0]._id.toString()})
+	else
+		for (let i = 0; i < classes.length; i++) {
+			lessons_raw = await Lessons.find({ clas: classes[i]._id.toString() });
+			if(i === 0) lessons = lessons_raw;
+			else lessons = lessons.concat(lessons_raw);
+		}
 	
-	let times = !lessons ? [] : lessons.map(lesson => lesson.time.map(t => {return {id_class: lesson._id.toString(), name: lesson.name, day: t.day, time: t.time}}))
+	let times = !lessons ? [] : getLessonsToTime(lessons)
 	console.log(times);
 	res.render('school', {
 		role: req.session.role,
 		title: "MBS - My School",
-		lessons_time: times[0]
+		lessons_time: times
 	})
 });
 router.get('/marks', async (req, res) => {
