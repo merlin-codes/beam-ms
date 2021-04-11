@@ -21,6 +21,18 @@ function getLessonsToTime(lessons) {
 	}
 	return returner;
 }
+function getLessonsByStudent(student_id) {
+	return new Promise(async (resolve, reject) => {
+		let classes = await Classes.find();
+		let lessons = new Array();
+		classes = classes.filter(
+			clas => typeof clas.students.filter(student => student === student_id)[0] !== "undefined"
+		);
+		for (let i = 0; i < classes.length; i++)
+			lessons = lessons.concat(await Lessons.find({ clas: classes[i]._id.toString() }));
+		resolve(lessons)
+	})
+}
 
 // routes
 router.get('/', (req, res) => {
@@ -29,24 +41,8 @@ router.get('/', (req, res) => {
 router.get('/school', async (req, res) => {
 	let s = req.session;
 	if(s.role !== 1) {res.redirect('/school'); return;}
-
-	let classes = await Classes.find();
-	classes = classes.filter(clas => {
-		let isIncluded = false;
-		clas.students.map(student => student === req.session.user_id ? isIncluded = true: false);
-		return isIncluded;
-	});
-	let lessons = new Array();
-	if(classes.length < 2) lessons = await Lessons.find({clas: classes[0]._id.toString()})
-	else
-		for (let i = 0; i < classes.length; i++) {
-			lessons_raw = await Lessons.find({ clas: classes[i]._id.toString() });
-			if(i === 0) lessons = lessons_raw;
-			else lessons = lessons.concat(lessons_raw);
-		}
-	
-	let times = !lessons ? [] : getLessonsToTime(lessons)
-	console.log(times);
+	let lessons = await getLessonsByStudent(req.session.user_id);
+	let times = lessons ? getLessonsToTime(lessons) : [];
 	res.render('school', {
 		role: req.session.role,
 		title: "MBS - My School",
@@ -56,28 +52,13 @@ router.get('/school', async (req, res) => {
 router.get('/marks', async (req, res) => {
 	if(req.session.role !== 1) {res.redirect('/school'); return;}
 
-	let classes = await Classes.find()
-	let lessons = [];
-	classes.filter(clas => {
-		let isInclude = false;
-		clas.students.map(student => req.session.user_id === student ? isInclude = true : false)
-		return isInclude;
-	}).map( async (clas, i) => {
-		lessons.concat(await Lessons.find({clas: clas._id.toString()}))
-	})
-	console.log(lessons);
+	let lessons = await getLessonsByStudent(req.session.user_id);
 
-	if(req.session.role === 1){
-		res.render('mark', {
-			title: "MBS - my schoool",
-			role: req.session.role
-		});
-	}else{
-		res.render('mark', {
-			title: "MBS - my schoool",
-			role: req.session.role
-		});
-	}
+	res.render('mark', {
+		title: "MBS - my schoool",
+		role: req.session.role,
+		lessons: lessons
+	});
 });
 
 router.get('/login', (req, res)=>{
