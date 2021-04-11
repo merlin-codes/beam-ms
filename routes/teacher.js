@@ -103,10 +103,11 @@ router.get('/exams/:id/:test', async (req, res) => {
 		if (test.avg === null)
 			AVG_count--;
 	})
+	// avg is every tests in selected_lesson
 	const AVG = AVG_global/100/AVG_count;
 
 	let users = typeof clas !== 'undefined' ? clas.students.map(student => {
-		for (let i = 0; i < students.length; i++) 
+		for (let i = 0; i < students.length; i++)
 			if(student == students[i]._id.toString())
 				return students[i];
 	}):[];
@@ -117,7 +118,7 @@ router.get('/exams/:id/:test', async (req, res) => {
 
 	users = users.map(user => {
 		let have_answer = 0;
-		answers.map(answer => answer.author.toString() === user._id.toString() ? 
+		answers.map(answer => answer.author.toString() === user._id.toString() ?
 			have_answer = answer.mark : false)
 		console.log(have_answer);
 		modify_users.push({
