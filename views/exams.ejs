@@ -4,60 +4,61 @@
   role: role,
 }) %>
 <%
-let marks = [
-  {name: "N", val: 0},
-  {name: "1", val: 1},
-  {name: "2", val: 2},
-  {name: "3", val: 3},
-  {name: "4", val: 4},
-  {name: "5", val: 5},
-];
-let AVG_local_raw = 0;
-let ALL_local_raw = students.length;
-students.map(student => {
-  AVG_local_raw += student.mark;
-  if(student.mark === 0){
-    ALL_local_raw--;
+  let marks = [
+    {name: "N", val: 0},
+    {name: "1", val: 1},
+    {name: "2", val: 2},
+    {name: "3", val: 3},
+    {name: "4", val: 4},
+    {name: "5", val: 5},
+  ];
+  let AVG_local_raw = 0;
+  let ALL_local_raw = students.length;
+  students.map(student => {
+    AVG_local_raw += student.mark;
+    if(student.mark === 0){
+      ALL_local_raw--;
+    }
+  });
+  let AVG_selected = AVG_local_raw/ALL_local_raw;
+  let AVG_local = AVG_selected/AVG;
+  let AVG_return = "";
+  if(selected_test.avg === null){
+    AVG_local = 1;
   }
-});
-let AVG_selected = AVG_local_raw/ALL_local_raw;
-let AVG_local = AVG_selected/AVG;
-let AVG_return = "";
 
-if(selected_test.avg === null){
-  AVG_local = 1;
-}
-
-if(AVG_local < 0.3){
-  AVG_return = "very easy";
-}else if(AVG_local < 0.8){
-  AVG_return = "easy";
-}else if(AVG_local < 1.2){
-  AVG_return = "normal";
-}else if(AVG_local < 1.7){
-  AVG_return = "hard";
-}else if(AVG_local < 2){
-  AVG_return = "very hard";
-}else{
-  AVG_return = "impossible";
-}
+  if(AVG_local < 0.3){
+    AVG_return = "velmi jednoduché";
+  }else if(AVG_local < 0.8){
+    AVG_return = "snadné";
+  }else if(AVG_local < 1.2){
+    AVG_return = "normální";
+  }else if(AVG_local < 1.7){
+    AVG_return = "težké";
+  }else if(AVG_local < 2){
+    AVG_return = "velmi těžké";
+  }else{
+    AVG_return = "nemožné";
+  }
 %>
 <main>
   <section class="sidebar">
-    <div style="height: 100px; display: flex; flex-direction: column; overflow: auto; padding-bottom: 20px;">
+    <div style="<%= typeof selected_lesson !== 'undefined' ? "height: 100px;" : "height: 70vh;" %> display: flex; flex-direction: column; overflow: auto; padding-bottom: 20px;">
       <% classes.forEach(trida => {%>
         <button style="padding: 10px 0" onclick="window.location.href=`/teacher/exams/<%= trida.id %>`" <%= class_id === trida.id ? 'disabled': "" %>>
           <%= trida.name %>
         </button>
-      <% }) %> 
+      <% }) %>
     </div>
     <hr style="border: 5px solid gray;">
     <div class="display: flex; flex-direction: column; overflow: auto;">
       <% tests.forEach(test => {%>
-        <button onclick="<%= `/teacher/exams/${class_id}/${test.id}` %>" style="padding: 10px 0;"><%= test.name %></button>
+        <button onclick="window.location.href='<%=`/teacher/exams/${class_id}/${test.id}` %>'" style="padding: 10px 0;"><%= test.name %></button>
       <% }) %>
     </div>
-    <p><a href="/teacher/exams/<%= class_id %>/new">new exam</a></p>
+    <% if(typeof selected_lesson !== 'undefined'){ %>
+      <p><a href="/teacher/exams/<%= class_id %>/new">nový test</a></p>
+    <%} %>
   </section>
   <form class="control" action="/teacher/grade/<%= class_id %>/<%= selected_test.id %>" method="POST">
     <article class="avg">
@@ -66,23 +67,24 @@ if(AVG_local < 0.3){
           <% if(selected_test.name !== undefined){%>
             <%= selected_test.name %>
           <%}else{%>
-            TEST name
+            Jmeno testu
           <%} %>
         </h1>
-        <a href="">Open testing</a>
-        <p>difficulty: <% if(selected_test.avg === undefined){%>None<%}else{ %> <%= AVG_return %><% } %></p>
+        <!-- add disabled -->
+        <a>Otevřít testování</a>
+        <p>Obtižnost: <% if(selected_test.avg === undefined){%>nedefinovaná<%}else{ %> <%= AVG_return %><% } %></p>
       </span>
       <span>
-        <h1><%if(selected_test.avg === undefined){%>None<%}else if(selected_test.avg !== null){%>AVG - <%= AVG_selected.toFixed(2) %><%}else{ %>Total AVG - <%= AVG.toFixed(2) %><% } %> </h1>
+        <h1><%if(selected_test.avg === undefined){%>Neoznamkováno<%}else if(selected_test.avg !== null){%>Průměr - <%= AVG_selected.toFixed(2) %><%}else{ %>Total AVG - <%= AVG.toFixed(2) %><% } %> </h1>
         <p>
-          <button type="submit" name="button">grade</button>
+          <button type="submit" name="button">oznamkovat</button>
         </p>
       </span>
     </article>
     <article class="setter">
       <span>
-        <h3>name of student</h3>
-        <p>mark</p>
+        <h3>Jmeno Žaka</h3>
+        <p>známka</p>
       </span>
       <% if(students !== ''){ %>
         <% students.map((student) => { %>

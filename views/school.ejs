@@ -3,19 +3,14 @@
   stylefile: "school",
   role: role
 });
-%><%
-let days = [
-  {name: "Monday", low: "mo"},
-  {name: "Tuesday", low: "tu"},
-  {name: "Wensday", low: "we"},
-  {name: "Thurday", low: "th"},
-  {name: "Frieday", low: "fr"},
-]
-let day_limit = 8;
- %>
+%>
+<%
+  let days = [{name: "Pondělý" , low: "mo" },{name: "Úterý" , low: "tu" }, {name: "Středa" , low: "we" },{name: "Čtvrtek" , low: "th" }, {name: "Pátek" , low: "fr" }];
+  let day_limit = 8;
+%>
     <main>
       <section class="schedule">
-        <h2>Schedule</h2>
+        <h2>Rozvrh</h2>
         <div class="flexer">
           <article class="schedule-time" id="schedule-time">
             <table>

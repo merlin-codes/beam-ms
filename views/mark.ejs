@@ -6,19 +6,19 @@
 }) %>
 <main>
   <section class="sidebar">
-    <h1>Classes</h1>
+    <h1>Hodiny</h1>
     <% lessons.map(lesson => { %>
       <p><a href="/student/mark/<%= lesson._id %>"><%= lesson.name %></a></p>
     <% }) %>
   </section>
   <section class="statistic">
-    <article class="student">
-      <h1>Subject</h1><h1>AVG: <%= typeof AVG === "undefined" ? "Zero" : AVG %></h1>
+    <article class="student" style="padding-bottom: 40px">
+      <h1><%= typeof selected_lesson !== 'undefined' ? selected_lesson.name : "Předmět" %></h1><h1>Průměr: <%= typeof AVG === "undefined" ? "Nula" : AVG %></h1>
     </article>
     <article class="exams">
       <span class="first-span">
-        <p>Name of test</p>
-        <p>mark</p>
+        <p>Jmeno testu</p>
+        <p>známka</p>
       </span/>
       <% if (typeof selected_lesson !== "undefined") { %>
         <% if(typeof answers != "undefined" && answers.length > 0){ %>
@@ -29,10 +29,10 @@
             </span/>
           <% }) %>
         <% } else { %>
-          <h1>You didn't write any test</h1>
+          <h1>Nepsal jsi žádný test.</h1>
         <% } %>
       <% } else { %>
-        <h1>Lesson is not selected</h1>
+        <h1>Hodina nebyla vybrána.</h1>
       <% } %>
     </article>
   </section>

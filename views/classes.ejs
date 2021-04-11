@@ -6,42 +6,44 @@
     <main>
       <section class="edit">
         <article class="users">
-          <h1>Class</h1>
+          <h1>Třida</h1>
           <form class="editclass" action="/root/editclass/" method="POST">
             <input type="text" value="<%= selected_class.name %> " name="name" placeholder="Class name">
             <input type="text" value="<%= selected_class._id %>" name="id" hidden>
             <span class="editteacher">
-              <label for="" style="padding: 5px;"><strong>Select&nbsp;class&nbsp;teacher</strong></label>
+              <label for="" style="padding: 5px;"><strong>Vybraný&nbsp;třídního&nbsp;učitel</strong></label>
               <select class="" name="teacher">
                 <% teachers.map(teacher => { %>
                   <option value="<%= teacher._id %>" <%= teacher._id === selected_class.teacher ? "selected" : "" %> ><%= teacher.name %></option>
-                <% }); %> 
+                <% }); %>
               </select>
             </span>
             <% if(typeof selected_class.name !== 'undefined'){ %>
               <hr>
-              <h1 class="studentTitle">Select from Students</h1>
+              <h1 class="studentTitle">Vybrat studenty</h1>
               <div class="studentsShower">
                 <% students.map(student => { %>
                   <div onclick="changeCheckbox(this)" <% if(student.selIn){ %> class="checked" <% } %>>
                     <input type="checkbox" name="students[]" <% if(student.selIn){ %> checked <% } %> value="<%= student._id %>" hidden>
-                    <p><%= student.name %> </p>
+                    <p><%= student.name %></p>
                   </div>
-                <% }); %> 
+                <% }); %>
               </div>
-            <% } %> 
+            <% } %>
             <span class="submiter">
-              <button type="button" onclick="window.location.href=`/root/classes`">Cancel</button>
-              <button type="button" onclick="window.location.href=`/root/removeclass/<%= selected_class.id %>`">Remove</button>
-              <button type="submit">Submit</button>
+              <button type="button" onclick="window.location.href=`/root/classes`">Zrušit</button>
+              <% console.log(selected_class); %>
+              <!-- change selected_class.id to selected_class._id bad interpreted -->
+              <button type="button" onclick="window.location.href=`/root/removeclass/<%= selected_class._id %>`">Odstranit</button>
+              <button type="submit">Uložit</button>
             </span>
           </form>
       </section>
       <section class="show">
         <article class="navbar">
-          <a href="/root/users">users</a>
-          <a href="/root/lessons">lessons</a>
-          <a href="/root/classes">classes</a>
+          <a href="/root/users">Uživatele</a>
+          <a href="/root/lessons">Hodiny</a>
+          <a href="/root/classes">Třídy</a>
         </article>
         <article class="showest showerset">
           <% classes.map((trida, i) => { %>
@@ -49,7 +51,7 @@
               <h3><%= trida.name %></h3>
               <p><%= trida.teacher_name %></p>
             </button>
-          <% }); console.log(classes) %>
+          <% }); %>
         </article>
       </section>
     </main>

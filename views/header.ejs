@@ -2,17 +2,17 @@
 if(Number.isInteger(role) && role != 0){
   if(role == 1){
     navbar = [
-      {name: "My school", link: "student", class: ""},
-      {name: "My marks", link: "student/marks", class: ""},
+      {name: "Moje škola", link: "student", class: ""},
+      {name: "Mé známky", link: "student/marks", class: ""},
       {name: "E-learning", link: "elearn", class: ""},
     ]
   }else if (role >= 2) {
     navbar = []
     navbar.push(
-      {name: "My school", link: "teacher", class: ""},
-      {name: "Homeworks", link: "teacher/homeworks", class: ""},
-      {name: "Exams", link: "teacher/exams", class: ""},
-      {name: "elerning", link: "elearn", class: ""},
+      {name: "Škola", link: "teacher", class: ""},
+      {name: "Domací úkoly", link: "teacher/homeworks", class: ""},
+      {name: "Testy", link: "teacher/exams", class: ""},
+      {name: "E-learning", link: "elearn", class: ""},
     )
     if(role >= 3){
       navbar.push(
@@ -21,13 +21,13 @@ if(Number.isInteger(role) && role != 0){
     }
   }
   navbar.push(
-    {name: "R", link: "news", class: ""},
-    {name: "Left", link: "logout", class: ""},
+    {name: "Novinky", link: "news", class: ""},
+    {name: "Odhlásit se", link: "logout", class: ""},
   )
 }else {
   navbar = [
-    {name: "Login", link: "login", class: "btn-primary"},
-    {name: "Register", link: "register", class: "btn-secondary"},
+    {name: "Přihlásit se", link: "login", class: "btn-primary"},
+    {name: "Vytvořit účet", link: "register", class: "btn-secondary"},
   ]
 }%>
 
@@ -38,7 +38,7 @@ if(Number.isInteger(role) && role != 0){
   <link rel="shortcut icon" type="image/jpg" href="/images/logo-beamMS.svg"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= title %></title>
-  <% if(typeof externcss !== 'undefined'){%>  
+  <% if(typeof externcss !== 'undefined'){%>
     <link href="<%= externcss %>"  rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
   <% } %>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
