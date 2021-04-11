@@ -14,7 +14,6 @@ Teachers
 - Elearning - not working
 
 Students
-- marks - only template
 - Elearning - not working
 ---
 ### completed
@@ -32,6 +31,7 @@ Teachers panel
 
 Students panel
 - School - working
+- marks - working
 
 Main panel
 - Messages - logged users can see messages
