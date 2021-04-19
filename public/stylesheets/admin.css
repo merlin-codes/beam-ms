@@ -81,7 +81,6 @@ textarea{
   color: #020;
   font-weight: bold;
   margin-bottom: 10px;
-  height:100px;
 }
 /* second show */
 input, select{
@@ -185,7 +184,7 @@ table {
 .studentsShower{
   display: flex;
   flex-wrap: wrap;
-  height: 40vh;
+  height: 35vh;
   overflow-y: scroll;
 }
 .studentsShower div{
