@@ -44,7 +44,7 @@
 <main>
   <section class="sidebar">
     <div style="<%= typeof selected_lesson !== 'undefined' ? "height: 100px;" : "height: 70vh;" %> display: flex; flex-direction: column; overflow: auto; padding-bottom: 20px;">
-      <% classes.forEach(trida => {%>
+      <% classes.map(trida => {%>
         <button style="padding: 10px 0" onclick="window.location.href=`/teacher/exams/<%= trida.id %>`" <%= class_id === trida.id ? 'disabled': "" %>>
           <%= trida.name %>
         </button>
@@ -52,7 +52,7 @@
     </div>
     <hr style="border: 5px solid gray;">
     <div class="display: flex; flex-direction: column; overflow: auto;">
-      <% tests.forEach(test => {%>
+      <% tests.map(test => {%>
         <button onclick="window.location.href='<%=`/teacher/exams/${class_id}/${test.id}` %>'" style="padding: 10px 0;"><%= test.name %></button>
       <% }) %>
     </div>
@@ -70,8 +70,8 @@
             Jmeno testu
           <%} %>
         </h1>
-        <!-- add disabled -->
-        <a>Otevřít testování</a>
+          <!-- add disabled -->
+          <a>Otevřít testování</a>
         <p>Obtižnost: <% if(selected_test.avg === undefined){%>nedefinovaná<%}else{ %> <%= AVG_return %><% } %></p>
       </span>
       <span>
