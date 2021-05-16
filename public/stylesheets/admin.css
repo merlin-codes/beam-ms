@@ -1,13 +1,14 @@
 /* main show */
 body{
-  max-height: 100%;
+  max-height: 90vh;
 }
 main{
-  margin: 0;
-  width: 98vw;
-  height: 82vh;
+  margin: auto;
   display: flex;
   padding: 1vh 1vw;
+  max-width: 950px;
+  min-width: 710px;
+  height: 26em;
 }
 section{
   padding: 10px 20px;
@@ -27,7 +28,7 @@ section{
 }
 .shower{
   overflow-y: scroll;
-  height: 60vh;
+  height: 50vh;
 }
 .edituser{
   display: flex;
@@ -80,7 +81,6 @@ textarea{
   color: #020;
   font-weight: bold;
   margin-bottom: 10px;
-  height:100px;
 }
 /* second show */
 input, select{
@@ -184,7 +184,7 @@ table {
 .studentsShower{
   display: flex;
   flex-wrap: wrap;
-  height: 40vh;
+  height: 35vh;
   overflow-y: scroll;
 }
 .studentsShower div{

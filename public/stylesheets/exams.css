@@ -37,7 +37,7 @@ main{
   padding: 0px 20px;
   margin: 0px 30px;
   overflow-y: scroll;
-  height: 60vh
+  height: 50vh
 }
 .setter span{
   display: flex;
