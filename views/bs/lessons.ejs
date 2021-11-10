@@ -1,0 +1,119 @@
+<%- include("../header", { title: typeof selected_lesson != "undefined" ? `Admin - ${selected_lesson.name}`: 'Admin - lessons' , stylefile: "admin" , role: role }); %>
+  <%
+    let days = [{name: "Pondělý" , low: "mo" },{name: "Úterý" , low: "tu" }, {name: "Středa" , low: "we" },{name: "Čtvrtek" , low: "th" }, {name: "Pátek" , low: "fr" }];
+    let day_limit = 8;
+    let lessons_raw = selected_lesson.teacher ? lessons.filter(l => l.teacher == selected_lesson.teacher) : undefined;
+  %>
+    <main>
+      <!-- uexpected token ")" in section.edit -->
+      <section class="edit">
+        <article class="users">
+          <h1>vue: Hodiny</h1>
+          <form class="edituser" action="/root/editlesson" method="POST">
+            <input type="text" name="name" value='<%= typeof selected_lesson !== 'undefined' ? selected_lesson.name : "" %>' placeholder="Název předmětu">
+            <% if (typeof lessons_raw !== "undefined"){ %>
+              <table>
+                <tr>
+                  <th></th>
+                  <% for (let i=0; i < day_limit; i++) { %>
+                    <th><%= i+1 %></th>
+                  <% } %>
+                </tr>
+                <tr>
+                  <% days.map( day => { %>
+                    <td><%= day.name %></td>
+                    <% for (let i = 0; i < day_limit; i++) {
+                      let [nothing, something, fm] = [false, false, " "];
+                      selected_lesson.time.map( t => t.time === i+1 && t.day.toLowerCase() === day.low ? nothing = true : '')
+                      if ( typeof lessons_raw !== "undefined" ) {
+                        lessons_raw.map( lr => lr.time.map(t => {
+                          if (t.time === i+1 && t.day.toLowerCase() === day.low && !nothing ) { something = true; fm = lr.name.substring(0,2).toUpperCase();} }
+                        ))
+                      } %>
+                      <td <%= something ? '' : 'onclick=changeCheckbox(event)' %> class="<%= something ? 'noTime' : nothing ? "checked":"" %>">
+                        <input type="checkbox" name="time[]" <%= something ? "" : 'style="cursor: pointer"' %>
+                        value="<%= `${day.low}-${i+1}` %>" <%= nothing || something ? "checked":"" %>
+                        <%= something ? "disabled":"" %> hidden>
+                        <p><%= fm %></p>
+                      </td>
+                    <% } %>
+                  </tr>
+                <% }); %>
+              </table>
+            <% } %>
+            <input type="text" name="id"
+              value="<%= typeof selected_lesson !== 'undefined' ? `${selected_lesson._id}` : '_' %>" hidden>
+            <span class="origin">
+              <select name="teachername">
+                <% teachers.forEach(teacher=> {
+                  if(typeof selected_lesson.name !== 'undefined' && selected_lesson.teacher === teacher.id){%>
+                    <option value="<%= teacher._id %>" selected> <%= teacher.name %> </option>
+                  <%}else{%>
+                    <option value="<%= teacher._id %>"> <%= teacher.name %> </option>
+                  <% }}); %>
+              </select>
+              <select name="clas">
+                <% if ( typeof classes !== 'undefined' ) { %>
+                  <% if (typeof selected_lesson !== "undefined" && selected_lesson.clas === null){ %>
+                    <option value="null" selected disabled hidden>Not selected</option>
+                  <% } %>
+                  <% classes.map( clas => { %>
+                    <option value="<%= clas._id %>"
+                      <%= typeof selected_lesson != "undefined" && selected_lesson.clas === clas._id.toString() ? 'selected':'' %>>
+                      <%= `${clas.name} - ${clas.teacher_name}` %>
+                    </option>
+                  <% }) %>
+                <% } %>
+              </select>
+            </span>
+            <span class="submiter">
+              <button onclick="window.location.href=`/root/lessons`" type="button">Zrušit</button>
+                <% if (typeof selected_lesson !== 'undefined' ) { %>
+                  <button onclick="remove(event)">Odstranit</button>
+                <% } %>
+              <button type="submit" name="button">Uložit</button>
+            </span>
+          </form>
+        </article>
+      </section>
+      <section class="show">
+        <article class="navbar">
+          <a href="/root/users">Uživatele</a>
+          <a href="/root/lessons">Hodiny</a>
+          <a href="/root/classes">Třídy</a>
+        </article>
+        <article class="showest">
+          <span><h3>Jmeno</h3><h3>učitel</h3></span>
+          <div class="shower">
+            <% teachers.map( t => { %>
+              <% lessons.filter(l => l.teacher == t._id).map( l => { %>
+                <button <%= typeof selected_lesson._id !== 'undefined' ? selected_lesson._id.toString() === l._id.toString() ? 'disabled':"":"" %> onclick="window.location.href=`/root/lesson/<%= l._id %>`;" type="button">
+                  <p><%= l.name %></p>
+                  <p><%= t.name %></p>
+                </button>
+              <% })
+            }) %>
+          </div>
+        </article>
+      </section>
+      <script>
+        const changeCheckbox = (e) => {
+          if(e.target.children[0].checked){
+            e.target.className = "";
+            e.target.children[0].checked = false
+          }else{
+            e.target.className = "checked";
+            e.target.children[0].checked = true
+          }
+        };
+        const remove = (e) => {
+          e.preventDefault();
+          if(confirm(`Do you want to remove this lesson from DB?`)){
+            window.location.href=`/root/remove_lesson/<%= selected_lesson.id %>`;
+          }
+        }
+      </script>
+    </main>
+    </body>
+
+    </html>

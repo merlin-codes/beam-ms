@@ -15,13 +15,16 @@ require('dotenv').config();
 
 // routes
 router.get('/', (req, res) => res.redirect('/teacher/school'))
-router.get('/exams', async (req, res) => {
+router.get('/examincludes', async (req, res) => {
 	if(req.session.role < 2){return res.redirect("/school");}
 
 	let lessons = await Lesson.find({ teacher: req.session.user_id })
 		.catch(error => console.log(error));
 	lessons = typeof lessons[0] !== "undefined" ? lessons : undefined
-	return lessons ? res.render('exams', {
+
+	if (!lessons) return res.redirect("/teacher/exams")
+
+	return res.render('exams', {
 		class_id: lessons[0].clas,
 		role: req.session.role,
 		classes: lessons,
@@ -29,7 +32,7 @@ router.get('/exams', async (req, res) => {
 		AVG: 2.5,
 		students: [],
 		selected_test: []
-	}) : res.redirect("/teacher/exams");
+	});
 })
 router.get('/exams/:id/new', (req, res) => {
 	if(req.session.role < 2){return res.redirect("/school");}

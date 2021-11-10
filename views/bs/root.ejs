@@ -1,0 +1,197 @@
+<%- include("header", { title: typeof selected_lesson != "undefined" ? `Admin - ${selected_lesson.name}`: 'Admin - lessons' , stylefile: 'root-update', externcss: "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" , role: role }); %>
+<%
+    let days = [{name: "Pondělý" , low: "mo" },{name: "Úterý" , low: "tu" }, {name: "Středa" , low: "we" },{name: "Čtvrtek" , low: "th" }, {name: "Pátek" , low: "fr" }];
+    let day_limit = 8;
+%>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <main class="container px-4">
+        <div class="row py-5 my-5">
+            <section class="edit col">
+                <article class="users" v-if="selected == 'users'">
+                    <h1 class="mb-4">Uzivatele</h1>
+                    <table>
+                        <tr>
+                            <td>
+                                <span class="input-grout-text">Jmeno: </span>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" v-model="selname" placeholder="Zadejte jmeno">
+                            </td>
+                        </rt>
+                        <tr>
+                            <td>
+                                <span class="input-grout-text">Email: </span>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" v-model="selemail" placeholder="Zadejte email">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="input-grout-text">Role: </span>
+                            </td>
+                            <td>
+                                <select class="form-select" name="role" id="" v-model="selrole">
+                                    <option value="student">Student</option>
+                                    <option value="teacher">Ucitel</option>
+                                    <option value="principal">Riditel</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button class="btn btn-info form-control mt-4" @click="savechanges">Ulozit zmeny</button>
+                            </td>
+                        </tr>
+                    </table>
+                </article>
+                <article class="users" v-if="selected == 'lessons'">
+                    <h1 class="mb-4">Hodiny</h1>
+                    <table>
+                        <tr>
+                            <td>
+                                <span class="input-grout-text">Jmeno: </span>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" v-model="selnamel" placeholder="Zadejte jmeno">
+                            </td>
+                        </rt>
+                        <tr>
+                            <td>
+                                <span class="input-grout-text">Role: </span>
+                            </td>
+                            <td>
+                                <select class="form-select" name="role" id="" v-model="selteacher">
+                                    <option v-for="teacher in selteachers" v-bind:value="teacher.id">{{teacher.name}}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <table>
+                                <tr>
+                                    <th></th>
+                                    <th v-for="hour in 10">{{hour-2}}</th>
+                                </tr>
+                                <tr v-for="day in week">
+                                    <th>{{day}}</th>
+                                    <td v-for="hour in 10" @click="changeCheckbox($event)">
+                                        <input  type="checkbox" name="time[]" style="cursor: pointer" 
+                                        :checked="seltime.filter(t => day == t.day && t.time == hour).length == 1"/>
+                                        <p>&times;</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button class="btn btn-info form-control mt-4" @click="savechanges">Ulozit zmeny</button>
+                            </td>
+                        </tr>
+                    </table>
+                </article>
+              </section>
+              <section class="show col">
+                <article class="navbar">
+                    <div class="navmenu">
+                        <button v-if="selected != 'users'" class="btn btn-primary" @click="setUsers">Uzivatele</button>
+                        <button v-if="selected != 'lessons'" class="btn btn-primary" @click="setLessons">Hodiny</button>
+                        <button v-if="selected != 'classes'" class="btn btn-primary" @click="setClasses">Tridy</button>
+                    </div>
+                </article>
+                <article class="showest">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr v-if="selected == 'users'">
+                                <th>Jmeno</th>
+                                <th>role</th>
+                            </tr>
+                            <tr v-else>
+                                <th>Jmeno</th>
+                                <th>učitel</th>
+                            </tr>
+                        </thead>
+                        <tbody v-if="selected == 'lessons'">
+                            <tr v-for="leson in lessons" v-on:click="selLesson(leson.id)" v-bind:class="{'bg-secondary active': leson.id == selData.id}">
+                                <td>{{leson.name}}</td>
+                                <td>{{leson.teacher_name}}</td>
+                            </tr>
+                        </tbody>
+                        <tbody v-else-if="selected == 'users'">
+                            <tr v-for="user in users" v-on:click="selUser(user.id)" v-bind:class="{'bg-secondary active': user.id == selData.id}">
+                                <td>{{user.name}}</td>
+                                <td>{{user.role == 'student' ? 'student' : user.role =='teacher'? 'Ucitel':'Riditel'}}</td>
+                            </tr>
+                        </tbody>
+                        <tbody v-else>
+                            <tr v-for="clas in classes">
+                                <td>{{clas.name}}</td>
+                                <td>{{clas.teacher_name}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </article>
+            </section>
+        </div>
+    </main>
+    <script>
+        new Vue({
+            el: 'main',
+            data: {
+                data: "random",
+                selected: "lessons",
+                lessons: JSON.parse('<%- JSON.stringify(lessons) %>'),
+                users: JSON.parse('<%- JSON.stringify(users) %>'),
+                classes: JSON.parse('<%- JSON.stringify(classes) %>'),
+                selData: {},
+                selname: "",
+                selemail: "",
+                selrole: "",
+                seltime: [],
+                selteacher: "",
+                week: ["mo", "tu", "we", "th", "fr"],
+                selteachers: [],
+                selnamel: ""
+            },
+            methods: {
+                setLessons: function() {
+                    this.selected = "lessons"
+                },
+                setUsers: function() {
+                    this.selected = "users"
+                },
+                setClasses: function() {
+                    this.selected = "classes"
+                },
+                selUser: function (id) {
+                    user = this.users.filter(u => u.id == id)[0];
+                    this.selData = user;
+                    this.selname = user.name;
+                    this.selemail = user.email;
+                    this.selrole = user.role
+                },
+                selLesson: function (id) {
+                    lesson = this.lessons.filter(u => u.id == id)[0];
+                    
+                    this.selData = lesson;
+                    this.selnamel = lesson.name
+                    this.selteacher = lesson.teacher
+                    this.seltime = lesson.time
+                },
+                savechanges: function () {
+
+                },
+                changeCheckbox: function(e) {
+                    // e.target.children[0].checked = !e.target.children[0].checked
+                    console.log(e.target.parentElement.children[0]);
+                    if(!e.target.parentElement.children[0].checked)
+                        e.e.target.parentElement.children[0].className = "bg-dark";
+                    else e.e.target.parentElement.children[0].className = ""
+                }
+            },
+            mounted: function () {
+                this.selteachers = this.users.filter(u => u.role != "student");
+            }
+        })
+    </script>
+</body>
+</html>

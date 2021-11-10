@@ -1,0 +1,6 @@
+tr:hover{
+    cursor: pointer;
+}
+tr.active {
+    cursor: default;
+}

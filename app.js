@@ -24,12 +24,14 @@ app.use(
   })
 );
 
+// connecting to DB
 mongoose.connect(process.env.MongoDB, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false })
 .then(() => {
   console.log("[MongoDB]: Firing on...");
 })
 .catch(err => console.log(err))
 
+// use setup
 app.use('/logo-beamMS.svg', express.static('images/logo-beamMS.svg'));
 
 app.use(bodyParser.urlencoded({extended : true}));

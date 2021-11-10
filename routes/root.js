@@ -12,11 +12,55 @@ const Tests = require('../Models/Tests');
 require('dotenv').config();
 
 const auth = (role) => role > 2 ? false : true;
-// helping function
-// get lesson
+const ROLES = ["student", "teacher", "principal"]
 
 // routes 
-router.get('/', (req, res) => req.session.level ? res.redirect(`/root${req.session.level}`): res.redirect('/root/lessons'))
+router.get('/', (req, res) => req.query.bs == "on"? res.redirect("/root/.bs"): req.session.level ? res.redirect(`/root${req.session.level}`) : res.redirect('/root/lessons'))
+router.get('/.bs', async (req, res) => {
+  let user = req.session;
+  if(auth(user.role)) return res.redirect('/school');
+  let classes = await Classes.find();
+  let users = await Users.find();
+  const teachers = users.filter(x => x.role > 1)
+  let lessons = await Lessons.find();
+
+  classes = classes.map(clas => {
+    let name = ""
+    let visiable = {};
+    teachers.map(teacher => teacher._id.toString() === clas.teacher ? name = teacher.name: false)
+    visiable.teacher_name = name;
+    visiable.name = clas.name;
+    visiable.id = clas._id;
+    visiable.students = clas.students;
+    visiable.name = clas.avg;
+    
+    return visiable;
+  })
+  users = users.map(user => {
+    let visible = {};
+    visible.name = user.name;
+    visible.role = ROLES[user.role-1];
+    visible.email = user.email;
+    visible.id = user._id;
+    return visible;
+  })
+  lessons = lessons.map(leson => {
+    let visiable = {};
+    visiable.name = leson.name;
+    visiable.id = leson._id;
+    visiable.teacher = leson.teacher;
+    visiable.time = leson.time;
+    visiable.teacher_name = teachers.filter(t => t._id == leson.teacher)[0].name;
+    return visiable
+  })
+  
+  return res.render("bs/root", {
+    role: user.role,
+    lessons: lessons,
+    users: users,
+    classes: classes
+  })
+})
 router.get('/lessons', async (req, res) => {
   let s = req.session;
   if(auth(req.session.role)){res.redirect('/school');return;}
@@ -81,9 +125,6 @@ router.get('/users', async (req, res)=>{
   let r_auth = auth(req.session.role);
   if(r_auth){res.redirect(r_auth);return;}
   req.session.level = "/users";
-  
-  req.session.level = "/users";
-
   let users = await Users.find();
   res.render("users", {
     role: req.session.role,
