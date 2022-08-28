@@ -7,41 +7,79 @@
 <%
   let days = [{name: "Pondělý" , low: "mo" },{name: "Úterý" , low: "tu" }, {name: "Středa" , low: "we" },{name: "Čtvrtek" , low: "th" }, {name: "Pátek" , low: "fr" }];
   let day_limit = 8;
+  rcolors = [
+    "blue", "slate", "gray", "zinc", "stone", "red", 
+    "orange", "amber", "yellow", "lime", "teal", "cyan",
+    "violet", "rose"
+  ];
+  let default_color = "neutral";
+
+/*
+  for (let i=0; i<rcolors.length; i++) {
+      console.log('bg-'+rcolors[i]+'-500');
+  }
+*/
+
+  // colors objects [lesson_name, color]
+  let random = [];
+  for (let i=0; i<lessons_time.length; i++) {
+      let color = default_color;
+      for (let j=0; j<random.length; j++)
+          if (random[j][0] == lessons_time[i].name)
+              color = random[j][1];
+      if (color == default_color) {
+          if (rcolors.length != 0) {
+              color = rcolors[ Math.floor(Math.random() * rcolors.length) ];
+              random.push([lessons_time[i].name, color]);
+              rcolors.pop(color);
+          }
+      }
+      lessons_time[i].color = color;
+  }
+  let c = {
+      table: "",
+      tr: "py-5",
+      td: "p-5 text-slate-100 text-2xl",
+      tds: "",
+      th: "py-5 px-5 bg-yellow-400",
+      stime: "mx-auto w-fit",
+      t: "mx-auto text-center",
+      ttr: "",
+      tth: "w-20",
+      ttd: "",
+  };
+  // "bg-blue-500 bg-slate-500 bg-gray-500 bg-zinc-500 bg-stone-500 bg-red-500 bg-orange-500 bg-amber-500 bg-yellow-500 bg-lime-500 bg-teal-500 bg-cyan-500 bg-violet-500 bg-rose-500"
 %>
     <main>
+      <section class="">
+      </section>
       <section class="schedule">
-        <h2>Rozvrh</h2>
-        <div class="flexer">
-          <article class="schedule-time" id="schedule-time">
-            <table>
-              <tr>
-                <th></th>
+        <table class="<%= c.t %>">
+            <tr class="<%= c.ttr %>">
+                <th class="<%= c.tth %>"></th>
                 <% for(let i = 1; i < day_limit+1; i++){ %>
-                  <th><%= i %></th>
+                    <th class="<%= c.tth %>"><%= i %></th>
                 <% } %>
-              </tr>
+            </tr>
               <% days.forEach(day => { %>
-                <tr class='<%= day.low %>'>
-                  <th class="<%= day.low %>"><strong><%= day.name %></strong></th>
-                  <%
-                  for (let i = 1; i < day_limit+1; i++) {
+                <tr class='<%= day.low %><%= c.ttr %>'>
+                  <th class="<%= day.low %><%= c.tth %>"><strong><%= day.name %></strong></th>
+                  <% for (let i = 1; i < day_limit+1; i++) {
                     let there_is_nothing = true;
                     lessons_time.forEach(lesson => {
                       if(day.low === lesson.day && lesson.time === i){
                         let name = lesson.name.split("-");
                         there_is_nothing = false;
-                        %><td><%= name[0] %></td><%
+                        %><td class="<%= c.tds %> <%= c.td %> bg-<%= lesson.color %>-500"><%= name[0] %></td><%
                       }
                     });
                     if(there_is_nothing){
-                      %><td></td><%
+                      %><td class="<%= c.td %>">&nbsp;&nbsp;</td><%
                     }
                   } %>
                 </tr>
               <% }); %>
-            </table>
-          </article>
-        </div>
+        </table>
       </section>
       <% if(role === 1){ %>
       <section class="activities">

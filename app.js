@@ -8,9 +8,6 @@ const session = require('cookie-session');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
-
-
-
 require('dotenv').config();
 const app = express();
 

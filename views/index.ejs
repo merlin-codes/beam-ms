@@ -3,63 +3,112 @@
   stylefile: "home",
   role: role,
 }) %>
-  <main>
-    <section class="uvod">
-      <h1>Welcome to <strong>BEAM Spravovací System</strong></h1>
-      <p>Jsme cesta jak <strong>spravovat studenty</strong>. <br> Budete vědět <strong>všechno</strong> co potřebujete a spravovat <strong>všechno</strong> co chcete.</p>
-      <a href="/school"><strong><%= link %></strong></a>
-    </section>
-    <section class="qasection">
-      <article>
-          <h1>What we do?</h1>
-          <hr>
-          <p>We manage your school with solution of testing your students.</p>
-          <p>Show correct answer after is reched the timeout of the test.</p>
-          <p>We are using one solution to know if student left tab in browser.</p>
-          <p>Know what is your mark.</p>
-          <!-- By class avg/test avg -->
-          <p>Show if is test easy, hard or normal</p>
-      </article>
-      <article>
-          <h1>How we do it?</h1>
-          <hr>
-          <p>Give own easiest way to test your student.</p>
-              <p>Wait aflter is test complete.</p>
-              <p>Set fullscreen mode every time student want to change tab or exit fullscreen mode.</p>
-              <p>You can show own marks profile.</p>
-              <p>compute test difficulty.</p>
-          </article>
-      </section>
-      <section id="popularCompanies" class="popularCompanies">
-          <a class="school">
-              <img src="" alt="Logo of School">
-              <p>School name</p>
-          </a>
-          <a class="school">
-              <img src="" alt="Logo of School">
-              <p>School name</p>
-          </a>
-          <a class="school">
-              <img src="" alt="Logo of School">
-              <p>School name</p>
-          </a>
-          <a class="school">
-              <img src="" alt="Logo of School">
-              <p>School name</p>
-          </a>
-      </section>
-    </main>
-        <footer>
-        <article>
-            <h2>Design by</h2>
-            <p>This web is design by Leviathan Dev.</p>
-            <p>Some text that doesn't matter.</p>
-        </article>
-        <article>
-            <h2>Design by</h2>
-            <p>This web is design by Leviathan Dev.</p>
-            <p>Some text that doesn't matter.</p>
-        </article>
-    </footer>
-  </body>
-  </html>
+        <script deref>
+            let index = 1;
+            const upper = (event) => index = get_next(event, index)
+            const lower = (event) => index = get_before(event, index)
+
+            let l1 = 1;
+            const upper_1 = (event) => l1 = get_next(event, l1)
+            const lower_1 = (event) => l1 = get_before(event, l1)
+
+            let l2= 1;
+            const upper_2 = (event) => l2 = get_next(event, l2)
+            const lower_2 = (event) => l2 = get_before(event, l2)
+
+            function get_before(event, i) {
+                let kids = event.target.parentElement.children;
+                if (i == kids.length-2) i = 1;
+                kids[i++].style.display = "none";
+                kids[i].style.display = "block";
+                return i;
+            }
+            function get_next(event, i) {
+                let kids = event.target.parentElement.children;
+                if (i == 1) i = kids.length-2;
+                kids[i--].style.display = "none";
+                kids[i].style.display = "block";
+                return i;
+            }
+        </script>
+<%
+let classes = {
+    prolog: "mx-auto text-center pb-60 bg-blue-300 pt-52",
+    def: "bg-red-100 flex p-10",
+    info: "px-5 py-3 hidden mx-auto w-fit",
+    row: "w-10",
+    divide: "bg-white py-16",
+    schools: "pb-20 w-5/6 mx-auto pt-5 flex justify-center flex-wrap",
+    school: "w-40 p-5",
+    up: "text-center w-1/2 mx-auto",
+    h1: "text-4xl pb-10",
+    h2: "text-xl text-center pt-20 text-gray-700",
+    h3: "text-4xl py-5 font-light",
+    sub: "font-light",
+    icons: "w-fit m-20 flex flex-wrap",
+    icon: "w-1/4 m-10",
+    popular: "bg-gray-100",
+    footer: "flex justify-between py-10 px-20",
+    itit: "text-xl",
+    itxt: "",
+}
+let whyes = [
+    {title: "Schedule", text: "Easy optimalized version to make full school informed about what they have now and etc..."},
+    {title: "Tests", text: "Testing students is always very hard thing our web supports counting of possible students that counld cheat on tests..."},
+    {title: "Homeworks", text: "Knowing if user do his homeworks or if user get ouside help while completing it.."},
+    {title: "Marks", text: "Sometimes parents or students needs to know how is it going in the school overall our marking shows this to them..."},
+    {title: "E-learning", text: "Everyone needs place where to find information from class... This is the place where you find that..."},
+    {title: "Last words", text: "This place is for optimilazing what you can do"}
+];
+let schools = [
+    {name: "School name", img: "", alt: ""},
+    {name: "School name", img: "", alt: ""},
+    {name: "School name", img: "", alt: ""},
+    {name: "School name", img: "", alt: ""},
+    {name: "School name", img: "", alt: ""},
+    {name: "School name", img: "", alt: ""},
+    {name: "School name", img: "", alt: ""},
+    {name: "School name", img: "", alt: ""},
+    {name: "School name", img: "", alt: ""}
+]
+%>
+        <main>
+            <section class="<%= classes.prolog %>">
+                <h1 class="<%= classes.h1 %>"><strong>Management System BEAM</strong> helps you <br> to manage your school!</h1>
+                <p class="<%= classes.subh1 %>">Let us helps your school to better manage your school on full potential</p>
+                <a href="/school"><strong><%= link %></strong></a>
+            </section>
+            <section class="<%= classes.popular %>">
+                <h2 class="<%= classes.h2%>">Popular school using our software</h2>
+                <article id="popularCompanies" class="<%= classes.schools %>">
+                    <% for (let i=0; i<schools.length; i++) { %>
+                        <a class="<%=classes.school%>">
+                            <img src="<%= schools[i].img %>.png" alt="<%= schools[i].alt %>"> 
+                            <p><%= schools[i].name %></p>
+                        </a> <% } %>
+                </article>
+            </section>
+            <section class="<%= classes.divide %>">
+                <article class="<%= classes.up %>">
+                    <h3 class="<%= classes.h3 %>">What can we do?</h3>
+                    <p class="<%= classes.sub %>">
+                        Our web let school to easily manage full school even when pandemic starts. Letting students study from
+                        home and giving teacher enought power to don't lose study speed of their students.
+                    </p>
+                </article>
+                <article class="<%= classes.icons %>">
+                    <% for (let i=0; i<whyes.length; i++) { %>
+                        <div class="<%= classes.icon %>">
+                            <h4 class="<%= classes.itit %>"><%= whyes[i].title %></h4>
+                            <p class="<%= classes.itxt %>"><%= whyes[i].text %></p>
+                        </div>
+                    <% } %>
+                </article>
+            </section>
+        </main>
+        <footer class="<%= classes.footer %>">
+            <p> Copyright © Leviathan Dev. </p>
+            <p> Template has been designed by MerlinCodes</p>
+        </footer>
+    </body>
+</html>

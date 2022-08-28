@@ -142,7 +142,7 @@ router.get('/exams/:id/:test', async (req, res) => {
 })
 router.get('/school', async (req, res) => {
 	let r = req.session;
-	if(req.session.role < 2){return res.redirect("/school");}
+	if(req.session.role < 2) {return res.redirect("/school");}
 
 	let lessons_time = [];
 	let lessons = await Lesson.find({"teacher": r.user_id});
