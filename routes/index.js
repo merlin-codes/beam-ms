@@ -18,7 +18,7 @@ const helper_getRelativeDate = x => {
 				x = Math.floor(x/60);
 				if (x > 48) {
 					x = Math.floor(x/24);
-					if (x > 60) { 
+					if (x > 60) {
 						x = Math.floor(x/30);
 						if (x > 365) {
 							resolve(false)
@@ -82,14 +82,14 @@ router.post("/newacc", (req, res) => {
 })
 router.get('/news', async (req, res) => {
 	if(!req.session.loggedin){res.redirect("/");return;}
-	
+
 	let msgs = await MSGs.find();
 	let teachers = await Users.find({$or: [{"role":2}, {"role":3}]});
 
 	// push MSG to new array
 	msgs.map(async (msg, i) => {
 		msg.when = await getRelativeTime(msg.createdAt);
-		teachers.map(teacher => 
+		teachers.map(teacher =>
 			teacher._id.toString() === msg.author.toString() ? msg.author_name = teacher.name : ""
 		)
 		if (i+1 === msgs.length){
